@@ -1,5 +1,0 @@
-# 
-# 
-# riskdifference <- function(x,y) {
-#   
-# }

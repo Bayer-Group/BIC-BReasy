@@ -123,11 +123,11 @@ app_ui <- function(request) {
             shiny::uiOutput("trialno"),
             shiny::uiOutput("stratum")
           ),
-         shinydashboard::menuItem(
-            "File Creation (SAS data)",
-            tabName = "sas_data",
-            icon = icon("calculator")
-          ),
+          # shinydashboard::menuItem(
+          #   "File Creation (SAS data)",
+          #   tabName = "sas_data",
+          #   icon = icon("calculator")
+          # ),
           shinydashboard::menuItem(
             text = 'Graphic Options',
             tabName ='graphic',
