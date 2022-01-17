@@ -1,4 +1,4 @@
-#' data_manual UI Function
+##' data_manual UI Function
 #'
 #' @description A shiny Module.
 #'
