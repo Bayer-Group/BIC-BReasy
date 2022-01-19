@@ -1,10 +1,10 @@
 Package: breasy
 Title: An R shiny application for structured benefit-risk assessment
 Version: 1.0
-Authors@R: c(person('Martin', 'Gebel', role = c('cre', 'aut'),
-             person('Fechtner', 'Stephanie', role = c('cre', 'aut'),
-             person('Jeske', 'Steffen', role = c('cre', 'aut')
-            ))
+Authors@R: c(person("Martin", "Gebel", role = c("aut", "cre"),
+                     email = "martin.gebel@bayer.com"),
+              person("Stephanie", "Fechtner", role = "aut"),
+              person("Steffen", "Jeske", role = "aut"))
 Description: The BReasy R Shiny app provides an interactive creation of forest plots and value trees for structured benefit-risk assessment using clinical study or pooled data.
 License: GPL (>= 3)
 Imports: 
@@ -16,6 +16,7 @@ Imports:
     shinydashboard,
     shinyWidgets,
     DT,
+    dplyr,
     collapsibleTree,
     r2d3,
     shinyjs,
