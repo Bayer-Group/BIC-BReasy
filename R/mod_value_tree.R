@@ -159,6 +159,7 @@ mod_value_tree_ui <- function(id){
 #' @noRd 
 mod_value_tree_server <- function(input, output, session) {
   ns <- session$ns
+  DATA_SCOPE <- LOWER95 <- Level1 <- OUTCOME <- UPPER95 <- NULL
   ####... Value Tree-tab ####
   #Color Option for Risks/Identified Risks:
   output$col_2 <- shiny::renderUI({

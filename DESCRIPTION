@@ -17,6 +17,8 @@ Imports:
     shinyWidgets,
     DT,
     dplyr,
+    rlang,
+    rmarkdown,
     collapsibleTree,
     r2d3,
     shinyjs,

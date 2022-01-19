@@ -10,14 +10,15 @@ app_server <- function( input, output, session ) {
   #increase file upload size to 40MB
   options(shiny.maxRequestSize = 40*1024^2)
   
+  OUTCOME <- DATA_SCOPE <- LOWER95 <- UPPER95 <- Level1 <- NULL
   #### Data Upload-tab ####
   # possibility to upload up to 4 files which are combined
   # to one reactive data frame called df()
   df <- shiny::reactive({
     # demo data selection
     if (input$selectdata == "Use demo data") {
-      res <- read.csv(
-        file = "./data/demo.csv",
+      res <- utils::read.csv(
+        file = "./data/breasy_demo_data.csv",
         header = TRUE,
         sep = ";",
         quote = '"',
@@ -36,7 +37,7 @@ app_server <- function( input, output, session ) {
       }
       res <- NULL
       if (!is.null(input$file)) {
-        tmp <- read.csv(
+        tmp <- utils::read.csv(
           file = input$file$datapath,
           header = TRUE,
           sep = input$sep,
@@ -48,7 +49,7 @@ app_server <- function( input, output, session ) {
         res <- rbind(res, tmp)
       }
       if (!is.null(input$file2)) {
-        tmp2 <- read.csv(
+        tmp2 <- utils::read.csv(
           file = input$file2$datapath,
           header = TRUE,
           sep = input$sep,
@@ -68,7 +69,7 @@ app_server <- function( input, output, session ) {
         }
       }
       if (!is.null(input$file3)) {
-        tmp3 <- read.csv(
+        tmp3 <- utils::read.csv(
           file = input$file3$datapath,
           header = TRUE,
           sep = input$sep,
@@ -88,7 +89,7 @@ app_server <- function( input, output, session ) {
         }
       }
       if (!is.null(input$file4)) {
-        tmp4 <- read.csv(
+        tmp4 <- utils::read.csv(
           file = input$file4$datapath,
           header = TRUE,
           sep = input$sep,

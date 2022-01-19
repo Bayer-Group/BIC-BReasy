@@ -11,7 +11,7 @@
 #' @param safety_color color for the Safety font and Confidence Interval 
 #' @param legend_color color for the Legend font and Arrows
 #' @param sorting Sorting variable (possible selections: "As Input", "Alphabetical", or "Effect") [default: "As Input"]
-#' 
+#' @param data_scope data scope value [default: NULL]
 
 breasy_forestplot <- function(
   forest_data, 
@@ -28,6 +28,7 @@ breasy_forestplot <- function(
   data_scope = NULL
   ) {
   
+  DATA_SCOPE <- LOWER95 <- Level1 <- OUTCOME <- UPPER95 <- NULL
   # Split data in Safety/Efficacy Part
   forest_data_saf <- forest_data[forest_data$BReasy_GROUP == "Safety",]
   if (dim(forest_data_saf)[1] > 0) {
@@ -77,11 +78,11 @@ breasy_forestplot <- function(
   
   # set margins depending on plot window size
   plot.set <- list(
-    'mai' = c(min(dev.size()[2],10)/5, dev.size()[1]/4, min(dev.size()[2],10)/5, (right_side_width/3) * dev.size()[1]/3)
+    'mai' = c(min(grDevices::dev.size()[2],10)/5, grDevices::dev.size()[1]/4, min(grDevices::dev.size()[2],10)/5, (right_side_width/3) * grDevices::dev.size()[1]/3)
   )
   
   # set font size depending on the plot width
-  cex_factor <- mean(c(1, dev.size()[1]/16))
+  cex_factor <- mean(c(1, grDevices::dev.size()[1]/16))
   
   
   # get or calculate x-axis limits
@@ -102,7 +103,7 @@ breasy_forestplot <- function(
   # y-axis limits
   ylim <- range(forest_data$BReasy_NUMBER) + c(-0.5, 0.5)
       
-  par(
+  graphics::par(
     mai = plot.set$mai,
     bg = "#ebebeb",
     lheight = 0.8,
@@ -120,12 +121,12 @@ breasy_forestplot <- function(
     yaxs = 'i',
   )
 
-  text(
+  graphics::text(
     x = xlim2[1],
     y = mean(
       c(
-        grconvertY(1, from = 'ndc', to = 'user'),
-        grconvertY(1, from = 'npc', to = 'user')
+        graphics::grconvertY(1, from = 'ndc', to = 'user'),
+        graphics::grconvertY(1, from = 'npc', to = 'user')
       )
     ),
     adj = c(0.3,0.5),
@@ -134,13 +135,13 @@ breasy_forestplot <- function(
     font = c(2,3)
   )
     
-  axis(
+  graphics::axis(
     1,
     pos = min(forest_data$BReasy_NUMBER) - 0.5,
     col = "black"
   )
   
-  axis(
+  graphics::axis(
     1, 
     at = xlim2,
     lwd.ticks = 0,
@@ -179,7 +180,7 @@ breasy_forestplot <- function(
     for(j in c(0, 0.1)) { 
       forest_data_tmp <- forest_data %>% dplyr::filter(code == i & length == j)
       if (dim(forest_data_tmp)[1] > 0) {
-        arrows(
+        graphics::arrows(
           x0 = forest_data_tmp$ll,
           y0 = forest_data_tmp$BReasy_NUMBER,
           x1 = forest_data_tmp$ul,
@@ -196,7 +197,7 @@ breasy_forestplot <- function(
   
   forest_data_tmp <- forest_data[forest_data[,which(grepl("EFFECT_", names(forest_data)))] >= xlim[1] & forest_data[,which(grepl("EFFECT_", names(forest_data)))] < xlim[2],]
 
-  points(
+  graphics::points(
     forest_data_tmp[,colnames(forest_data_tmp)[which(grepl("EFFECT_", names(forest_data_tmp)))]],
     forest_data_tmp$BReasy_NUMBER,
     pch = 15,
@@ -205,8 +206,8 @@ breasy_forestplot <- function(
   )
   
   if (dim(forest_data_saf)[1] > 0) {
-    text(
-      x = grconvertX(0, from = 'npc', to = 'user'),
+    graphics::text(
+      x = graphics::grconvertX(0, from = 'npc', to = 'user'),
       y = max(forest_data_saf$BReasy_NUMBER) + (length(unique(forest_data$BReasy_GROUP))/4),
       xpd = NA,
       adj = c(1, 0.5),
@@ -216,8 +217,8 @@ breasy_forestplot <- function(
     )
   }
   if (dim(forest_data_eff)[1] > 0) {
-    text(
-      x = grconvertX(0, from = 'npc', to = 'user'),#grconvertX(0, from = 'npc', to = 'user'),
+    graphics::text(
+      x = graphics::grconvertX(0, from = 'npc', to = 'user'),#graphics::grconvertX(0, from = 'npc', to = 'user'),
       y = max(forest_data_eff$BReasy_NUMBER) + (length(unique(forest_data$BReasy_GROUP))/4),
       xpd = NA,
       adj = c(1, 0.5),
@@ -254,8 +255,8 @@ breasy_forestplot <- function(
     }
   }
       
-  text(
-    x = grconvertX(0, from = 'ndc', to = 'user'),
+  graphics::text(
+    x = graphics::grconvertX(0, from = 'ndc', to = 'user'),
     y = forest_data$BReasy_NUMBER,
     xpd = NA,
     adj = c(0,0.5),
@@ -263,8 +264,8 @@ breasy_forestplot <- function(
     labels = labels_1_40,
     col = "black"
   )
-  text(
-    x = grconvertX(0, from = 'ndc', to = 'user'),
+  graphics::text(
+    x = graphics::grconvertX(0, from = 'ndc', to = 'user'),
     y = forest_data$BReasy_NUMBER-0.3,
     xpd = NA,
     adj = c(0,0.5),
@@ -273,8 +274,8 @@ breasy_forestplot <- function(
     col = "black"
   )
   
-  text(
-    x = grconvertX(0, from = 'ndc', to = 'user'),
+  graphics::text(
+    x = graphics::grconvertX(0, from = 'ndc', to = 'user'),
     y = forest_data$BReasy_NUMBER-0.6,
     xpd = NA,
     adj = c(0,0.5),
@@ -283,14 +284,14 @@ breasy_forestplot <- function(
     col = "black"
   )
   
-  text_coord <- seq(xlim2[2], grconvertX(1, from = 'ndc', to = 'user'), length = 2+right_side_width)[-c(1, 2 + right_side_width)]
+  text_coord <- seq(xlim2[2], graphics::grconvertX(1, from = 'ndc', to = 'user'), length = 2+right_side_width)[-c(1, 2 + right_side_width)]
   
   j <- 1
   k <- 0.7
   
   # draw columns on right hand side
   if (excess_number) {
-    text(
+    graphics::text(
       x = text_coord[j], 
       y = max(forest_data$BReasy_NUMBER) + ((length(unique(forest_data$BReasy_GROUP)) + 0.1) / 2),
       xpd = NA,
@@ -300,7 +301,7 @@ breasy_forestplot <- function(
       col = "grey15"
     )
   
-    text(
+    graphics::text(
       x = text_coord[j],
       y = forest_data$BReasy_NUMBER,
       xpd = NA,
@@ -321,7 +322,7 @@ breasy_forestplot <- function(
   }
   
   if (incidence_values) {
-    text(
+    graphics::text(
       x = text_coord[j],
       y = max(forest_data$BReasy_NUMBER) + ((length(unique(forest_data$BReasy_GROUP)) + 0.1) / 2),
       xpd = NA,
@@ -337,7 +338,7 @@ breasy_forestplot <- function(
       col = "grey15"
     )
         
-    text(
+    graphics::text(
       x = text_coord[j],
       y = forest_data$BReasy_NUMBER,
       xpd = NA,
@@ -359,7 +360,7 @@ breasy_forestplot <- function(
   }
   
   if (NNT) {
-    text(
+    graphics::text(
       x = text_coord[j],
       y = forest_data$BReasy_NUMBER,
       xpd = NA,
@@ -369,7 +370,7 @@ breasy_forestplot <- function(
       col = "grey15"
     )
     
-    text(
+    graphics::text(
       x = text_coord[j],
       y = max(forest_data$BReasy_NUMBER) + ((length(unique(forest_data$BReasy_GROUP)) + 0.1)/2),
       xpd = NA,
@@ -382,7 +383,7 @@ breasy_forestplot <- function(
   
   # create dotted line at x = 0  
   if (xlim[1] < 0 & 0 < xlim[2]) {
-    arrows(
+    graphics::arrows(
       0,
       min(forest_data$BReasy_NUMBER) - 0.5,
       0,
@@ -393,23 +394,23 @@ breasy_forestplot <- function(
     )
   }
   # Create arrows under the main plot   
-  par(
+  graphics::par(
     xpd = TRUE,
     mar = c(0,0,0,0)
   )
 
-  arrows(
+  graphics::arrows(
     x0 = xlim[2] - (diff(xlim) / 2) - xlim_125p,
-    y0 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
+    y0 = mean(c(ylim[1],graphics::grconvertY(0, from = 'npc', to = 'user'))),
     x1 = xlim[1],
-    y1 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
+    y1 = mean(c(ylim[1],graphics::grconvertY(0, from = 'npc', to = 'user'))),
     col = legend_color,
     lwd = 2.5 * cex_factor
   )
       
-  text(
+  graphics::text(
     x = xlim[2] - (diff(xlim)/2) - xlim_125p,
-    y = mean(c(ylim[1], grconvertY(0, from = 'npc', to = 'user'))) + mean(ylim)/30,
+    y = mean(c(ylim[1], graphics::grconvertY(0, from = 'npc', to = 'user'))) + mean(ylim)/30,
     xpd = NA,
     adj = c(1, 0.5),
     cex = 1* cex_factor,
@@ -417,18 +418,18 @@ breasy_forestplot <- function(
     col = legend_color
   )
       
-  arrows(
+  graphics::arrows(
     x0 = xlim[1]+(diff(xlim)/2)+xlim_125p,
-    y0 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
+    y0 = mean(c(ylim[1],graphics::grconvertY(0, from = 'npc', to = 'user'))),
     x1 = xlim[2],
-    y1 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
+    y1 = mean(c(ylim[1],graphics::grconvertY(0, from = 'npc', to = 'user'))),
     col = legend_color,
     lwd = 2.5 * cex_factor
   )
 
-  text(
+  graphics::text(
     x = xlim[1] + (diff(xlim)/2) + xlim_125p,
-    y = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))) + mean(ylim)/30,
+    y = mean(c(ylim[1],graphics::grconvertY(0, from = 'npc', to = 'user'))) + mean(ylim)/30,
     xpd = NA,
     adj = c(0, 0.5),
     cex = 1 * cex_factor,
@@ -436,9 +437,9 @@ breasy_forestplot <- function(
     col = legend_color
   )
       
-  text(
+  graphics::text(
     x = xlim[1] + (diff(xlim)/2),
-    y = mean(c(ylim[1], grconvertY(0, from = 'npc', to = 'user'))) - mean(ylim)/30,
+    y = mean(c(ylim[1], graphics::grconvertY(0, from = 'npc', to = 'user'))) - mean(ylim)/30,
     xpd = NA,
     adj = c(0.5, 0.5),
     cex=1* cex_factor,
