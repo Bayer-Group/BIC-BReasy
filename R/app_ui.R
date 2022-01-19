@@ -123,11 +123,11 @@ app_ui <- function(request) {
             shiny::uiOutput("trialno"),
             shiny::uiOutput("stratum")
           ),
-          # shinydashboard::menuItem(
-          #   "File Creation (SAS data)",
-          #   tabName = "sas_data",
-          #   icon = icon("calculator")
-          # ),
+          shinydashboard::menuItem(
+            "File Creation (SAS data)",
+            tabName = "sas_data",
+            icon = icon("calculator")
+          ),
           shinydashboard::menuItem(
             text = 'Graphic Options',
             tabName ='graphic',
@@ -388,11 +388,11 @@ app_ui <- function(request) {
             uiOutput('welcome_text1')
           )
         ),
-        # shinydashboard::tabItem(tabName = "file_creation",
-        #   shiny::conditionalPanel(condition = "input.sidebarmenu =='sas_data'",
-        #   file_creation_ui("file_creation")
-        #   )
-        # ),
+        shinydashboard::tabItem(tabName = "file_creation",
+          shiny::conditionalPanel(condition = "input.sidebarmenu =='sas_data'",
+          file_creation_ui("file_creation")
+          )
+        ),
         shinydashboard::tabItem(tabName = "about_breasy",
           shiny::conditionalPanel(condition = "input.sidebarmenu =='about_breasy'",
             mod_about_breasy_ui("about_breasy_ui_1")

@@ -514,8 +514,9 @@ app_server <- function( input, output, session ) {
     )
   })
     
-  # callModule(file_creation_server, "file_creation")
-    
+  #### Module call: file_creation (server) ####
+  callModule(file_creation_server, "file_creation")
+  #### Module call: value_tree (server) ####  
   callModule(mod_value_tree_server, "value_tree_ui_1")
   
   ####... Welcome/help-texts ####
