@@ -52,7 +52,7 @@ You can install the development version from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("bayer-int/BReasy")
+devtools::install_github("bayer-int/BIC-BReasy")
 ```
 
 and start the app with:
