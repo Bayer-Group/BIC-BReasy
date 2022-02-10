@@ -329,10 +329,10 @@ breasy_forestplot <- function(
       adj = c(k, 0.5),
       cex = 1 * cex_factor ,
       labels = paste(
-        "Events Verum",
-        "/ Patients Verum vs.",
-        "Events Comparator ",
-        "/ Patients Comparator)",
+        "Events / Patients",
+        "Verum vs.",
+        "Events / Patients ",
+        " Comparator)",
         sep = "\n"
       ),
       col = "grey15"
