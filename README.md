@@ -46,18 +46,20 @@ in html format, please see below for an example.
 
 ## Installation
 
-You can install the development version from
+You can install and load the development version from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("bayer-int/BIC-BReasy")
+devtools::install_github("Bayer-Group//BIC-BReasy")
+library(breasy)
 ```
 
 and start the app with:
 
 ``` r
-#run_app()
+#
+run_app()
 ```
 
 ## Data Manual
