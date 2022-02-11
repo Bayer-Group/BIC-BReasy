@@ -25,7 +25,8 @@ breasy_forestplot <- function(
   safety_color = "#66B512",
   legend_color = "#D30F4B",
   sorting = "As Input",
-  data_scope = NULL
+  data_scope = NULL,
+  estim.text="Not specified"
   ) {
   
   DATA_SCOPE <- LOWER95 <- Level1 <- OUTCOME <- UPPER95 <- NULL
@@ -297,7 +298,7 @@ breasy_forestplot <- function(
       xpd = NA,
       adj = c(k, 0.5),
       cex = 1 * cex_factor ,
-      labels = paste("Excess number ","of subjects(95%-CI)", sep = "\n"),
+      labels = paste(estim.text,"(95%-CI)", sep = "\n"),
       col = "grey15"
     )
   
@@ -443,7 +444,7 @@ breasy_forestplot <- function(
     xpd = NA,
     adj = c(0.5, 0.5),
     cex=1* cex_factor,
-    labels = "Excess number of subjects",
+    labels = estim.text,
     col = legend_color
   )
 }

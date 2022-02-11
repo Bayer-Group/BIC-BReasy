@@ -413,6 +413,24 @@ app_server <- function( input, output, session ) {
       title_ <- input$title
     }
     
+    if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "ARD") {
+      estim.text <- "Risk Difference"
+    }
+    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "EXCESS") {
+      estim.text <- "Excess number \n of subjects"
+    }
+    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "RR") {
+      estim.text <- "Relative Risk"
+    }
+    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "HR") {
+      estim.text <- "Hazard Ratio"
+    }
+    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "OR") {
+      estim.text <- "Odds Ratio"
+    }
+    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "IRD") {
+      estim.text <- "Incidence Rate Difference"
+    }    
     breasy_forestplot(
       forest_data = dat_t,
       excess_number = input$Info,
@@ -425,7 +443,8 @@ app_server <- function( input, output, session ) {
       efficacy_color = input$col_eff,
       legend_color = input$col_leg,
       sorting = input$var_sorting,
-      data_scope = input$visit
+      data_scope = input$visit,
+      estim.text = estim.text
     )
    }, height = function(x) height_reac() * (input$forestplot_height/100)  + 350)
   
