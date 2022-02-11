@@ -35,6 +35,7 @@ mod_about_breasy_server <- function(input, output, session){
         <li> Hazard Ratios; </li>
         <li> Excess number of subjects, for example based on Kaplan-Meier differences or risk differences;</li>
         <li> Odds Ratios; </li>
+        <li> Incidence Rate Differences; </li>
         <li> Risk Differences; </li>
         <li> Relative risks. </li>
         

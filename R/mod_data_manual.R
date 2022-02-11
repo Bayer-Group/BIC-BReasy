@@ -78,6 +78,7 @@ mod_data_manual_server <- function(input, output, session){
               <td> Variable containing the value of the estimate used for comparison
                   xx indicates the estimate chosen:
                   ARD = Risk difference
+                  IRD = Incidence rate difference
                   EXCESS = Excess number of subjects
                   HR = Hazard Ratio
                   OR = Odds Ratio
