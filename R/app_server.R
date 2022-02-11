@@ -18,7 +18,8 @@ app_server <- function( input, output, session ) {
     # demo data selection
     if (input$selectdata == "Use demo data") {
       res <- utils::read.csv(
-        file = "./data/breasy_demo_data.csv",
+        # file = "./data/breasy_demo_data.csv",
+        file = app_sys("demo_data/breasy_demo_data.csv"),
         header = TRUE,
         sep = ";",
         quote = '"',
