@@ -87,13 +87,59 @@ file_creation_ui <- function(id){
            shiny::uiOutput(ns("parameter"))
          ),
          shiny::column(4,
-           shiny::uiOutput(ns("analysis_set"))
-           #shiny::uiOutput(ns("visit"))
-         ),
-         shiny::column(4,
-          shiny::uiOutput(ns("estimates"))
+           shiny::uiOutput(ns("sel_parameter"))
          )
        ),
+        shiny::fluidRow(
+         shiny::column(4,
+           shiny::uiOutput(ns("analysis_set"))
+          
+           #shiny::uiOutput(ns("visit"))
+         ),
+          shiny::column(4,
+          shiny::uiOutput(ns("subject_identifier"))  
+          )
+        ),
+        fluidRow(
+         shiny::column(4,
+          shiny::uiOutput(ns("data_scope"))
+         
+         ),
+          shiny::column(4,
+            shiny::uiOutput(ns("sel_data_scope"))
+         
+         )
+       ),
+      shinyBS::bsCollapse(
+        shinyBS::bsCollapsePanel(
+          shiny::HTML('<p style="color:black; font-size:100%;"> Filter: </p>'),
+          "Filter options"
+        )
+      ),
+      fluidRow(
+        column(4,
+        shiny::uiOutput(ns("event_identifyer"))
+        ),
+        column(4,
+          shiny::uiOutput(ns("sel_event_identifyer"))
+        )#,
+        # column(4,
+        #   shiny::uiOutput(ns("sel_censor_identifyer"))
+        # )
+       
+      ),
+      fluidRow(
+        column(4,
+        shiny::uiOutput(ns("estimates"))
+        )
+      ),
+      shinyBS::bsCollapse(
+        shinyBS::bsCollapsePanel(
+          shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
+          "Advanced settings",
+          shiny::uiOutput(ns("stratification"))
+        )
+      ),
       shinyBS::bsCollapse(
         shinyBS::bsCollapsePanel(
           shiny::HTML('<p style="color:black; font-size:100%;"> ADTTE (+ADSL) data: </p>'),
@@ -110,7 +156,17 @@ file_creation_ui <- function(id){
             style = "color:black; overflow-y:scroll; max-height: 600px",
             shiny::dataTableOutput(ns('table_csv'))
           )
-        )
+        )),
+        shiny::fluidRow(
+          shiny::actionButton(
+          inputId = ns("save_button"),
+          label = "Save as .csv",
+          icon = icon("save"),
+          style = "color: #fff;
+            background-color: #999999;
+            border-color: #2e6da4;"
+          )
+        
       )
     )
 }
@@ -381,7 +437,7 @@ file_creation_server <- function(input, output, session){
 
     shinyWidgets::pickerInput(
       inputId = ns("parameter"),
-      label = "Select parameter variable",
+      label = "Select outcome variable",
       choices = choices ,
       selected = choices[1],
       multiple = FALSE,
@@ -395,40 +451,46 @@ file_creation_server <- function(input, output, session){
       )
     )
   })
-
-  #   output$visit <- shiny::renderUI({
-  #   if (is.null(adtte_data())) return()
-  #   else {
-  #     choices <- as.list(names(adtte_data()))
-  #     choices <- c(choices[stringr::str_detect(choices, "AVIS")], choices[!(stringr::str_detect(choices, "AVIS"))])
-  #   }
-  # 
-  #   shinyWidgets::pickerInput(
-  #     inputId = ns("visit"),
-  #     label = "Select visit variable",
-  #     choices = choices ,
-  #     selected = choices[1],
-  #     multiple = FALSE,
-  #     options = list(
-  #       `actions-box` = TRUE,
-  #       `selected-text-format` = "count > 0",
-  #       `count-selected-text` = "{0} selected (of {1})",
-  #       `live-search` = TRUE,
-  #       `header` = "Select multiple items",
-  #       `none-selected-text` = "No selection!"
-  #     )
-  #   )
-  # })
    
+   output$sel_parameter <- shiny::renderUI({
+    shiny::req(input$parameter)
+    if (is.null(req(input$parameter))) return()
+    else {
+      if (is.factor(adtte_data()[, which(names(adtte_data()) == input$parameter)])) {
+        choices <- as.list(levels(adtte_data()[, which(names(adtte_data()) == input$parameter)]))
+      } else {
+        choices <- as.list(unique(adtte_data()[, which(names(adtte_data()) == input$parameter)]))
+      }
+    }
+
+    shinyWidgets::pickerInput(
+      inputId = ns("sel_parameter"),
+      label = "Outcome",
+      choices = choices,
+      selected = NULL,
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
+
   output$analysis_set <- shiny::renderUI({
-    if (is.null(adtte_data())) {
-      return()
-    } else {
+    if (is.null(adtte_data())) { return()
+      } else {
+      choices <- as.list(names(adtte_data()))
+      choices <- c(choices[stringr::str_detect(choices, "SAFFL")], choices[!(stringr::str_detect(choices, "SAFFL"))])
+   
       shinyWidgets::pickerInput(
         inputId = ns("analysis_set"),
-        label = "Select analysis set",
-        choices = NULL ,
-        selected = NULL,
+        label = "Analysis set",
+        choices = choices ,
+        selected = choices[1],
         multiple = TRUE,
         options = list(
           `actions-box` = TRUE,
@@ -445,8 +507,7 @@ file_creation_server <- function(input, output, session){
   output$estimates <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
-      #### add New Functions to Pickerinput here ####
-      choices <- c("Risk differences", "Relative risks")
+      choices <- c("Incidence Rate (by 100 pat-yrs)")
     }
 
     shinyWidgets::pickerInput(
@@ -465,7 +526,161 @@ file_creation_server <- function(input, output, session){
       )
     )
   })
+  
+  
+  
+  output$subject_identifier <- shiny::renderUI({
+    if (is.null(adtte_data())) return()
+    else {
+      choices <- as.list(names(adtte_data()))
+      choices <- c(choices[stringr::str_detect(choices, "SUBJID")], choices[!(stringr::str_detect(choices, "SUBJID"))])
+    }
+    
+    shinyWidgets::pickerInput(
+      inputId = ns("subject_identifier"),
+      label = "Subject identifier",
+      choices = choices ,
+      selected = choices[1],
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
+  
+  output$event_identifyer <- shiny::renderUI({
+    if (is.null(adtte_data())) return()
+    else {
+      #### add New Functions to Pickerinput here ####
+      choices <- as.list(names(adtte_data()))
+      choices <- c(choices[stringr::str_detect(choices, "CNSR")], choices[!(stringr::str_detect(choices, "CNSR"))])
+    }
+    
+    shinyWidgets::pickerInput(
+      inputId = ns("event_identifyer"),
+      label = "Event identifyer",
+      choices = choices ,
+      selected = choices[1],
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
+  
+  output$sel_event_identifyer <- shiny::renderUI({
+    shiny::req(input$event_identifyer)
+    if (is.null(req(input$event_identifyer))) return()
+    else {
+      if (is.factor(adtte_data()[, which(names(adtte_data()) == input$event_identifyer)])) {
+        choices <- as.list(levels(adtte_data()[, which(names(adtte_data()) == input$event_identifyer)]))
+      } else {
+        choices <- as.list(unique(adtte_data()[, which(names(adtte_data()) == input$event_identifyer)]))
+      }
+    }
 
+    shinyWidgets::pickerInput(
+      inputId = ns("sel_event_identifyer"),
+      label = "Select Event",
+      choices = choices,
+      selected = choices[1],
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
+  
+  output$data_scope <- shiny::renderUI({
+    if (is.null(adtte_data())) return()
+    else {
+      choices <- as.list(names(adtte_data()))
+      choices <- c(choices[stringr::str_detect(choices, "AVISIT")], choices[!(stringr::str_detect(choices, "AVISIT"))])
+    }
+
+    shinyWidgets::pickerInput(
+      inputId = ns("data_scope"),
+      label = "Data scope",
+      choices = choices ,
+      selected = choices[1],
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
+  
+   output$stratification <- shiny::renderUI({
+   
+    choices <- c("No selection")
+
+    shinyWidgets::pickerInput(
+      inputId = ns("stratification"),
+      label = "Stratification",
+      choices = choices,
+      selected = choices[1],
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
+
+   output$sel_data_scope <- shiny::renderUI({
+    shiny::req(input$data_scope)
+    if (is.null(req(input$data_scope))) return()
+    else {
+      if (is.factor(adtte_data()[, which(names(adtte_data()) == input$data_scope)])) {
+        choices <- as.list(levels(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
+        choices <- c("No selection", choices)
+      } else {
+        choices <- as.list(unique(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
+        choices <- c("No selection", choices)
+      }
+    }
+
+    shinyWidgets::pickerInput(
+      inputId = ns("sel_data_scope"),
+      label = "Data_scope",
+      choices = choices,
+      selected = NULL,
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
+   
   adtte_data2 <- shiny::reactive({
     shiny::req(adtte_data())
     shiny::req(input$sel_treatment)
@@ -475,218 +690,33 @@ file_creation_server <- function(input, output, session){
       return(NULL)
     } else {
       Sel_trt <- shiny::req(input$sel_treatment)
-      #SAStmp <- adtte_data()[which(adtte_data()[,which(names(adtte_data())==Sel_trt)] == input$sel_verum | adtte_data()[,which(names(adtte_data())==Sel_trt)] == input$sel_comparator),]
       if (!is.null(input$sel_verum) & !is.null(input$sel_comparator))
         tmp <- adtte_data() %>%
-          dplyr::filter(!!rlang::sym(Sel_trt) == input$sel_verum | !!rlang::sym(Sel_trt) == input$sel_comparator)
-      #SAStmp[order(SAStmp$PARAM, SAStmp$AVISITN, SAStmp[,which(names(SAStmp)==input$sel_treatment)]),]
+          dplyr::filter(!!rlang::sym(Sel_trt) %in% input$sel_verum | !!rlang::sym(Sel_trt) %in% input$sel_comparator)
     }
     tmp
   })
-
-  shiny::observeEvent(adtte_data2(), {
-    if (is.null(adtte_data2())) {
-      return(NULL)
-    } else {
-      if(dim(adtte_data2())[1] == 0) {
-        return(NULL)
-      } else {
-      adtte <- adtte_data2()
-    
-      
-      ## ANALYSIS_SET:
-      analysis_set_list <- vector(mode = "list", length = 2)
-      #Safety analysis set:
-      if (any(c("SAFFN","SAFFL") %in% colnames(adtte))) {
-        analysis_set_list[[1]] <- c(analysis_set_list[[1]],"Safety analysis set")
-        analysis_set_list[[2]] <- c(analysis_set_list[[2]],"saf")
-      }
-      #Full analysis set:
-      if (any(c("FASFN","FASFL") %in% colnames(adtte))) {
-        analysis_set_list[[1]] <- c(analysis_set_list[[1]],"Full analysis set")
-        analysis_set_list[[2]] <- c(analysis_set_list[[2]],"fas")
-      }
-      #Intention to treat analysis set:
-      if (any(c("ITTFN","ITTFL") %in% colnames(adtte))) {
-        analysis_set_list[[1]] <- c(analysis_set_list[[1]],"Intention to treat analysis set")
-        analysis_set_list[[2]] <- c(analysis_set_list[[2]],"itt")
-      }
-      #Per Protocol analysis set:
-      if (any(c("PPSFN","PPSFL") %in% colnames(adtte))) {
-        analysis_set_list[[1]] <- c(analysis_set_list[[1]],"Per protocol analysis set")
-        analysis_set_list[[2]] <- c(analysis_set_list[[2]],"pps")
-      }  
-      
-      shinyWidgets::updatePickerInput(
-        session,
-        inputId = "analysis_set",
-        selected = analysis_set_list[[1]][1],
-        choices = analysis_set_list[[1]]
-      )
-      }
-    }
-    })
-  
   
   csv_file <- shiny::reactive({
  
       adtte <- adtte_data2()
-      ## ANALYSIS_SET:
-      if ("Safety analysis set" %in% input$analysis_set) {
-        if ("SAFFN" %in% colnames(adtte)) {
-          saf_adtte <- adtte %>%
-            dplyr::filter(SAFFN == 1) %>% 
-            dplyr::mutate(ANALYSIS_SET = "Safety analysis set")
-        } else if ("SAFFL" %in% colnames(adtte)) {
-          saf_adtte <- adtte %>% 
-            dplyr::filter(SAFFL == "Y") %>% 
-            dplyr::mutate(ANALYSIS_SET = "Safety analysis set")
-        }
-      } else {
-        saf_adtte <- NULL
-      }
       
-      if ("Full analysis set" %in% input$analysis_set) {
-        if ("FASFN" %in% colnames(adtte)) {
-          fas_adtte <- adtte %>%
-            dplyr::filter(FASFN == 1) %>% 
-            dplyr::mutate(ANALYSIS_SET = "Full analysis set")
-        } else if ("FASFL" %in% colnames(adtte)) {
-          fas_adtte <- adtte %>% 
-            dplyr::filter(FASFL == "Y") %>% 
-            dplyr::mutate(ANALYSIS_SET = "Full analysis set")
-        }
-      } else {
-        fas_adtte <- NULL
-      }
-      
-      if ("Intention to treat analysis set" %in% input$analysis_set) {
-        if ("ITTFN" %in% colnames(adtte)) {
-          itt_adtte <- adtte %>%
-            dplyr::filter(ITTFN == 1) %>% 
-            dplyr::mutate(ANALYSIS_SET = "Intention to treat analysis set")
-        } else if ("ITTFL" %in% colnames(adtte)) {
-          itt_adtte <- adtte %>% 
-            dplyr::filter(ITTFL == "Y") %>% 
-            dplyr::mutate(ANALYSIS_SET = "Intention to treat analysis set")
-        }
-      } else {
-        itt_adtte <- NULL
-      }
-      
-      if ("Per protocol analysis set" %in% input$analysis_set) {
-        if ("PPSFN" %in% colnames(adtte)) {
-          pps_adtte <- adtte %>%
-            dplyr::filter(PPSFN == 1) %>% 
-            dplyr::mutate(ANALYSIS_SET = "Per protocol analysis set")
-        } else if ("PPSFL" %in% colnames(adtte)) {
-          pps_adtte <- adtte %>% 
-            dplyr::filter(PPSFL == "Y") %>% 
-            dplyr::mutate(ANALYSIS_SET = "Per protocol analysis set")
-        }
-      } else {
-        pps_adtte <- NULL
-      }
-      
-      adtte <- rbind(saf_adtte, fas_adtte, itt_adtte, pps_adtte)
-    
-      ## OUTCOME:
-      adtte <- adtte %>% 
-        dplyr::mutate(OUTCOME = !!rlang::sym(input$parameter))
-      ## EFFECT_xx:
-
-      ## LOWER_xx:
-
-      ## UPPER_xx:
-   
-      ## NUMBER_EVENTS_VERUM:
-      
-      adtte <- adtte %>% 
-        dplyr::left_join(
-          adtte %>%
-            dplyr::filter(CNSR == 0) %>% 
-            dplyr::group_by(!!rlang::sym(input$sel_treatment), !!rlang::sym(input$parameter), ANALYSIS_SET) %>% 
-            dplyr::distinct(SUBJIDN) %>% 
-            dplyr::summarise(NUMBER_EVENTS_VERUM = n(), .groups = 'drop') %>%
-            dplyr::filter(!!rlang::sym(input$sel_treatment) == input$sel_verum) %>%
-            dplyr::select(ANALYSIS_SET, !!rlang::sym(input$parameter), NUMBER_EVENTS_VERUM),
-          by = c("ANALYSIS_SET", input$parameter)
-        )
-      
-      
-      ## NUMBER_PATIENTS_VERUM:
-   
-
-      adtte <- adtte %>% 
-        dplyr::left_join(
-          adtte %>%
-            group_by(!!rlang::sym(input$sel_treatment), ANALYSIS_SET) %>% 
-            dplyr::distinct(SUBJIDN) %>% 
-            dplyr::summarise(NUMBER_PATIENTS_VERUM = n()) %>% 
-            dplyr::filter(!!rlang::sym(input$sel_treatment) == input$sel_verum) %>%
-            dplyr::ungroup() %>%
-            dplyr::select(ANALYSIS_SET, NUMBER_PATIENTS_VERUM),
-          by = c("ANALYSIS_SET")
-        )
-      ## NUMBER_EVENTS_COMPARATOR:
-
-      adtte <- adtte %>% 
-        dplyr::left_join(
-          adtte %>%
-            dplyr::filter(CNSR == 0) %>% 
-            dplyr::group_by(!!rlang::sym(input$sel_treatment), !!rlang::sym(input$parameter), ANALYSIS_SET) %>% 
-            dplyr::distinct(SUBJIDN) %>% 
-            dplyr::summarise(NUMBER_EVENTS_COMPARATOR = n(), .groups = 'drop') %>%
-            dplyr::filter(!!rlang::sym(input$sel_treatment) == input$sel_comparator) %>%
-            dplyr::select(ANALYSIS_SET, !!rlang::sym(input$parameter), NUMBER_EVENTS_COMPARATOR),
-          by = c("ANALYSIS_SET", input$parameter)
+      tmp <- ratediff(
+        data = adtte,
+        outcome = input$sel_parameter,
+        scope = input$data_scope,
+        datascope = input$sel_data_scope ,
+        population = input$analysis_set,
+        treatment= input$sel_treatment,
+        verum = input$sel_verum,
+        comparator = input$sel_comparator,
+        cnsr = input$event_identifyer,
+        param = input$parameter,
+        event = input$sel_event_identifyer,
+        strat = input$stratification
       )
-      ## NUMBER_PATIENTS_COMPARATOR:
-      adtte <- adtte %>% 
-        dplyr::left_join(
-          adtte %>%
-            group_by(!!rlang::sym(input$sel_treatment), ANALYSIS_SET) %>% 
-            dplyr::distinct(SUBJIDN) %>% 
-            dplyr::summarise(NUMBER_PATIENTS_COMPARATOR = n()) %>% 
-            dplyr::filter(!!rlang::sym(input$sel_treatment) == input$sel_comparator) %>%
-            dplyr::ungroup() %>%
-            dplyr::select(ANALYSIS_SET, NUMBER_PATIENTS_COMPARATOR),
-          by = c("ANALYSIS_SET")
-        )
-      ## STUDY/TRIAL
 
-      ## DATA_SCOPE/AVISIT
-
-      ## SUBGROUP
-
-      ## SUBLEVEL
-
-      ## STRATUM
-
-      ## NNT
-
-      ## ESTIMATE:
-      # if ("Relative risks" %in% input$estimates) {
-      #   
-      #   
-      # }
-      # 
-      # if ("Risk differences" %in% input$estimates) {
-      #    
-      #     
-      #     for (a in 1:dim(csv2)[1]) {
-      #      riskCI <- fmsb::riskdifference(csv2[a,]$NUMBER_EVENTS_VERUM, csv2[a,]$NUMBER_EVENTS_COMP, csv2[a,]$NUMBER_PATIENTS_VERUM, csv2[a,]$NUMBER_PATIENTS_COMP)
-      #      csv2[a,]$EFFECT <- riskCI[["estimate"]]
-      #      csv2[a,which(names(csv2) %in% c("LOWER95", "UPPER95"))] <- c(riskCI[["conf.int"]])
-      #    }
-      #   
-      # }
-      # 
-      adtte <- adtte %>%
-        dplyr::select(ANALYSIS_SET, OUTCOME, NUMBER_EVENTS_VERUM, NUMBER_PATIENTS_VERUM, NUMBER_EVENTS_COMPARATOR, NUMBER_PATIENTS_COMPARATOR) %>%
-        unique()
-      
-      csv2 <- adtte
+      csv2 <- tmp
       return(csv2)
   })
 
@@ -699,4 +729,136 @@ file_creation_server <- function(input, output, session){
 
 ## To be copied in the server
 # callModule(file_creation_server, "file_creation")
+  
+ratediff <- function(data = data, outcome = outcome, datascope = datascope, population = population, treatment = treatment, verum = verum, comparator = comparator, 
+                     cnsr = cnsr, event = event, strat = strat,
+  #add param:
+  scope = scope,
+  param = param) {
+ 
+ result <- c()
+ total <- c()
+ result_test_1 <- vector(mode = "list")
+ 
+  
+ for (j in 1:length(outcome)) {
+   
+  if(all(datascope != "No selection")) { 
+    data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "Y"),]
+  } 
+  else {
+    data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "Y"),]
+    }
+
+  if(strat != "No selection") { 
+    strat_factor <- factor(data_test[[strat]])
+    adtte <- vector(mode = "list", length=nlevels(strat_factor))
+    adtte_trt <- vector(mode = "list", length=nlevels(strat_factor))
+    adtte_com <- vector(mode = "list", length=nlevels(strat_factor))
+    x1 <- c()
+    x2 <- c()
+    t1 <- c()
+    t2 <- c()
+    n1 <- c()
+    n2 <- c()
+    
+    
+    for (i in 1:nlevels(strat_factor)) {
+      adtte[[i]] <- data_test[(data_test[[strat]]==levels(factor(data_test[[strat]]))[i]),]
+      adtte_trt[[i]] <- adtte[[i]][(adtte[[i]][[treatment]] %in% verum),]
+      adtte_com[[i]] <- adtte[[i]][(adtte[[i]][[treatment]] %in% comparator),]
+      x1[[i]] <- length(which(adtte_trt[[i]][[cnsr]] %in% event))
+      x2[[i]] <- length(which(adtte_com[[i]][[cnsr]] %in% event))
+      t1[[i]] <- sum(adtte_trt[[i]]$AVAL, na.rm=TRUE)/(100*365.25)
+      t2[[i]] <- sum(adtte_com[[i]]$AVAL, na.rm=TRUE)/(100*365.25)
+      n1[[i]] <- nrow(adtte_trt[[i]])
+      n2[[i]] <- nrow(adtte_com[[i]])
+    }
+    
+    x1 <- unlist(x1)
+    x2 <- unlist(x2)
+    t1 <- unlist(t1)
+    t2 <- unlist(t2)
+    n1 <- unlist(n1)
+    n2 <- unlist(n2)
+    res_extract.effect.ci.single <- c()
+    res_extract.effect.ci <- c()
+    
+    
+    data_meta <- data.frame(x1,x2,t1,t2)
+
+    res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_meta)
+    res_extract.effect.ci.meta <- res %>%
+      confint() %>%
+      .$fixed
+    
+    for (m in 1:nrow(data_meta)) {
+      data_single <- data_meta[m,]
+      res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_single)
+      res_extract.effect.ci.single[[m]] <- res %>%
+        confint() %>%
+        .$fixed
+       }
+    
+    for(p in 1:nrow(data_meta)) {res_extract.effect.ci <- rbind(res_extract.effect.ci,res_extract.effect.ci.single[[p]])}
+    res_extract.effect.ci <- rbind(res_extract.effect.ci.meta, as.data.frame(res_extract.effect.ci))
+    
+    nnt <- (1/(res_extract.effect.ci[1])*100)
+    if (any(nnt < 0))  {nnt <- ceiling(nnt)}
+    else {nnt <- floor(nnt)}
+    
+
+    stratum_level <- c("Overall",levels(factor(data_test[[strat]]))[1:nlevels(strat_factor)])
+    x_1 <- c(sum(x1),x1)
+    x_2 <- c(sum(x2),x2)
+    n_1 <- c(sum(n1),n1)
+    n_2 <- c(sum(n2),n2)
+    
+    
+    result_test <- c(res_extract.effect.ci, nnt)
+    names(result_test) <- c("Esimate","lower","uper","nnt")
+    result_test <- as.data.frame(result_test)
+    result_test <- cbind(STRATUM_LEVEL = stratum_level,events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test)
+
+    result_test_1[[j]] <- c("Incidence Rate by 100 pat-yrs",population,outcome[[j]],"Overall",strat,result_test)
+    names(result_test_1[[j]]) <- c("ESTIMATE","ANALYSIS_SET","OUTCOME","SUBGROUP","STRATVAR","STRATUM","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_IRD","LOWER95","UPPER95","NNT")
+ } else {
+    adtte_trt <- data_test[(data_test[[treatment]] %in% verum),]
+    adtte_com <- data_test[(data_test[[treatment]] %in% comparator),]
+    x1 <- length(which(adtte_trt[[cnsr]] %in% event))
+    x2 <- length(which(adtte_com[[cnsr]] %in% event))
+    t1 <- sum(adtte_trt$AVAL, na.rm=TRUE)/(100*365.25)
+    t2 <- sum(adtte_com$AVAL, na.rm=TRUE)/(100*365.25)
+    n1 <- nrow(adtte_trt)
+    n2 <- nrow(adtte_com)
+    
+    res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95)
+    res_extract.effect.ci <- res %>%
+      confint() %>%
+      .$fixed
+    
+    nnt <- (1/(res_extract.effect.ci[1])*100)
+    if (nnt < 0)  {
+      nnt <- ceiling(nnt)
+    } else {
+      nnt <- floor(nnt)
+    }
+    
+
+    result_test_1[[j]] <- c("Incidence Rate by 100 pat-yrs",population,outcome[[j]],"Overall",strat,x1,n1,x2,n2,res_extract.effect.ci,nnt)
+    names(result_test_1[[j]]) <- c("ESTIMATE","ANALYSIS_SET","OUTCOME","SUBGROUP","STRATVAR","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_IRD","LOWER95","UPPER95","NNT")
+  }
+  
+ }
+
+
+  if(strat != "No selection") {
+  for(k in 1:length(outcome)) {total <- rbind(total,as.data.frame(result_test_1[[k]]))}
+  return(as.data.frame(total))
+  }
+  else{
+  for(k in 1:length(outcome)) {total <- cbind(total,result_test_1[[k]])}
+  return(as.data.frame(t(total)))
+  }
+}
 
