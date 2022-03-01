@@ -6,6 +6,7 @@ effect_calc <- function(data = data, effect = effect, param = param, outcome = o
   result_test_1 <- vector(mode = "list")
   
   
+  
   for (j in 1:length(outcome)) {
     
     if(datascope != "No selection") {
