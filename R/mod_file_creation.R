@@ -14,132 +14,148 @@ file_creation_ui <- function(id){
        ns('start_text')
     }),
     shinyWidgets::prettyRadioButtons(
-         inputId = ns('adtte_data'),
-         label = 'Select SAS data',
-         shape = 'round',
-         animation = 'smooth',
-         choices = c(
-           "SAS file (from Disc)" = "sas",
-           "SAS file (from Server)" = "server"
-         )
-       ),
-        shiny::conditionalPanel(
-          condition = paste0("input['", ns("adtte_data"), "\'] == \'sas\'"),
-          #condition = "input.adtte_data == 'sas'",
-          shiny::fluidRow(
-            column(6,
-              shiny::fileInput(
-                inputId =  ns("adtte_file"),
-                label = "ADTTE data",
-                multiple = FALSE,
-                accept = NULL,
-                width = NULL
-              ),
-              shiny::uiOutput(ns("wrong_adtte_format_text"))
-            ),
-            column(6,
-              shiny::fileInput(
-                inputId =  ns("adsl_file"),
-                label = "ADSL data (optional for treatment variable)",
-                multiple = FALSE,
-                accept = NULL,
-                width = NULL
-              ),
-              shiny::uiOutput(ns("wrong_adsl_format_text"))
-            )
-         )
+      inputId = ns('adtte_data'),
+      label = 'Select SAS data',
+      shape = 'round',
+      animation = 'smooth',
+      choices = c(
+        "SAS file (from Disc)" = "sas",
+        "SAS file (from Server)" = "server"
+      )
+    ),
+    shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'sas\'"),
+      shiny::fluidRow(
+        shiny::column(6,
+          shiny::fileInput(
+            inputId =  ns("adtte_file"),
+            label = "ADTTE data",
+            multiple = FALSE,
+            accept = NULL,
+            width = NULL
+          ),
+          shiny::uiOutput(ns("wrong_adtte_format_text"))
+        ),
+        shiny::column(6,
+          shiny::fileInput(
+            inputId =  ns("adsl_file"),
+            label = "ADSL data (optional for treatment variable)",
+            multiple = FALSE,
+            accept = NULL,
+            width = NULL
+          ),
+          shiny::uiOutput(ns("wrong_adsl_format_text"))
+        )
+      )
+    ),
+    shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'server\'"),
+      shiny::uiOutput(ns("studySelect")),
+      shiny::textInput(
+        inputId =  ns("user"),
+        label = "Username:"
       ),
-      shiny::conditionalPanel(
-       condition = paste0("input['", ns("adtte_data"), "\'] == \'server\'"),
-         shiny::uiOutput(ns("studySelect")),
-         shiny::textInput(
-           inputId =  ns("user"),
-           label = "Username:"
-           ),
-         shiny::passwordInput(
-           inputId =  ns("password"),
-           label = "Password:"
-           ),
-         shiny::tags$br(),
-         shiny::actionButton(
-           inputId =  ns("retrieve_files"),
-           label = "Retrieve files",
-           icon = icon("download"),
-           style = paste0("color:#FFFFFF ; background-color: ", breasy_blue, ";")
-         )
-       ),
-       shiny::fluidRow(
-         shiny::column(4,
-            shiny::uiOutput(ns("sel_treatment")),
-            shiny::uiOutput(ns("sel_treatment_check"))
-         ),
-         shiny::column(4,
-           shiny::uiOutput(ns("sel_verum")),
-           shiny::uiOutput(ns("sel_verum_check"))
-         ),
-         shiny::column(4,
-           shiny::uiOutput(ns("sel_comparator")),
-           shiny::uiOutput(ns("sel_comparator_check"))
-         )
-       ),
-       shiny::fluidRow(
-         shiny::column(4,
-           shiny::uiOutput(ns("parameter"))
-         ),
-         shiny::column(4,
-           shiny::uiOutput(ns("sel_parameter"))
-         )
-       ),
+      shiny::passwordInput(
+        inputId =  ns("password"),
+        label = "Password:"
+      ),
+      shiny::tags$br(),
+      shiny::actionButton(
+        inputId =  ns("retrieve_files"),
+        label = "Retrieve files",
+        icon = icon("download"),
+        style = paste0("color:#FFFFFF ; background-color: ", breasy_blue, ";")
+      )
+    ),
+    shiny::fluidRow(
+      shiny::column(4,
+        shiny::uiOutput(ns("sel_treatment")),
+        shiny::uiOutput(ns("sel_treatment_check"))
+      ),
+      shiny::column(4,
+        shiny::uiOutput(ns("sel_verum")),
+        shiny::uiOutput(ns("sel_verum_check"))
+      ),
+      shiny::column(4,
+        shiny::uiOutput(ns("sel_comparator")),
+        shiny::uiOutput(ns("sel_comparator_check"))
+      )
+    ),
+    shiny::fluidRow(
+      shiny::column(4,
+        shiny::uiOutput(ns("parameter"))
+      ),
+      shiny::column(4,
+        shiny::uiOutput(ns("sel_parameter"))
+      )
+    ),
+    shiny::fluidRow(
+      shiny::column(4,
+        shiny::uiOutput(ns("analysis_set"))
+      ),
+      shiny::column(4,
+        shiny::uiOutput(ns("subject_identifier"))  
+      )
+    ),
+    shiny::fluidRow(
+      shiny::column(4,
+        shiny::uiOutput(ns("data_scope"))
+      ),
+      shiny::column(4,
+        shiny::uiOutput(ns("sel_data_scope"))
+      )
+    ),
+    shinyBS::bsCollapse(
+      shinyBS::bsCollapsePanel(
+        shiny::HTML('<p style="color:black; font-size:100%;"> Filter: </p>'),
+        "Filter options",
+        shiny::uiOutput(ns("filter_percentage")),
+        shiny::uiOutput(ns("pickerinput_adtte")),
         shiny::fluidRow(
-         shiny::column(4,
-           shiny::uiOutput(ns("analysis_set"))
-          
-           #shiny::uiOutput(ns("visit"))
-         ),
           shiny::column(4,
-          shiny::uiOutput(ns("subject_identifier"))  
+            shiny::actionButton(
+              inputId = ns("insertBtn"),
+              label = "Add",
+              icon = icon("plus")
+            )
+          ),
+          shiny::column(4,
+            shiny::actionButton(
+              inputId = ns("removeBtn"),
+              label = "Delete",
+              icon = icon("minus")
+            )
           )
-        ),
-        fluidRow(
-         shiny::column(4,
-          shiny::uiOutput(ns("data_scope"))
-         
-         ),
-          shiny::column(4,
-            shiny::uiOutput(ns("sel_data_scope"))
-         
-         )
-       ),
-      shinyBS::bsCollapse(
-        shinyBS::bsCollapsePanel(
-          shiny::HTML('<p style="color:black; font-size:100%;"> Filter: </p>'),
-          "Filter options"
+        ), 
+        shiny::tags$div(id = "placeholder"),
+        shiny::conditionalPanel(condition = "output.condition_filter == true",
+          shiny::actionButton(
+            inputId = ns("apply"),
+            label = "Apply Filter Selection!",
+            icon = icon("redo"),
+            style = "color: #fff; background-color: #61a337; border-color: #fff"
+          )
         )
-      ),
-      fluidRow(
-        column(4,
+      )
+    ),
+    shiny::fluidRow(
+      shiny::column(4,
         shiny::uiOutput(ns("event_identifyer"))
-        ),
-        column(4,
-          shiny::uiOutput(ns("sel_event_identifyer"))
-        )#,
-        # column(4,
-        #   shiny::uiOutput(ns("sel_censor_identifyer"))
-        # )
-       
       ),
-      fluidRow(
-        column(4,
+      shiny::column(4,
+        shiny::uiOutput(ns("sel_event_identifyer"))
+      )
+    ),
+    shiny::fluidRow(
+      shiny::column(4,
         shiny::uiOutput(ns("estimates"))
-        )
-      ),
-      shinyBS::bsCollapse(
-        shinyBS::bsCollapsePanel(
-          shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
-          "Advanced settings",
-          shiny::uiOutput(ns("stratification"))
-        )
-      ),
+      )
+    ),
+    shinyBS::bsCollapse(
+      shinyBS::bsCollapsePanel(
+        shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
+        "Advanced settings",
+        shiny::uiOutput(ns("stratification"))
+      )
+    ),
       shinyBS::bsCollapse(
         shinyBS::bsCollapsePanel(
           shiny::HTML('<p style="color:black; font-size:100%;"> ADTTE (+ADSL) data: </p>'),
@@ -156,17 +172,10 @@ file_creation_ui <- function(id){
             style = "color:black; overflow-y:scroll; max-height: 600px",
             shiny::dataTableOutput(ns('table_csv'))
           )
-        )),
-        shiny::fluidRow(
-          shiny::actionButton(
-          inputId = ns("save_button"),
-          label = "Save as .csv",
-          icon = icon("save"),
-          style = "color: #fff;
-            background-color: #999999;
-            border-color: #2e6da4;"
-          )
-        
+        )
+      ),
+      shiny::fluidRow(
+        shiny::downloadButton("downloadData", "Save as .csv")
       )
     )
 }
@@ -260,6 +269,7 @@ file_creation_server <- function(input, output, session){
       options = shinyWidgets::pickerOptions(maxOptions = 1)
     )
   })
+  
   treatment_check_flag <- shiny::reactiveValues(val = FALSE)
   shiny::observeEvent(c(adtte_data(), input$sel_treatment), {
     shiny::req(adtte_data())
@@ -324,8 +334,8 @@ file_creation_server <- function(input, output, session){
   shiny::observeEvent(c(adtte_data(), input$sel_treatment, input$sel_verum), {
     shiny::req(adtte_data())
     
-    if (!is.null(input$sel_treatment)){
-    if (is.null(input$sel_verum)) {
+    if (!is.null(input$sel_treatment)) {
+      if (is.null(input$sel_verum)) {
       output$sel_verum_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
@@ -431,7 +441,7 @@ file_creation_server <- function(input, output, session){
    output$parameter <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
-      choices <- as.list(names(adtte_data()))
+      choices <- as.list(sort(names(adtte_data())))
       choices <- c(choices[stringr::str_detect(choices, "PARA")], choices[!(stringr::str_detect(choices, "PARA"))])
     }
 
@@ -609,7 +619,7 @@ file_creation_server <- function(input, output, session){
   output$data_scope <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
-      choices <- as.list(names(adtte_data()))
+      choices <- as.list(sort(names(adtte_data())))
       choices <- c(choices[stringr::str_detect(choices, "AVISIT")], choices[!(stringr::str_detect(choices, "AVISIT"))])
     }
 
@@ -697,8 +707,41 @@ file_creation_server <- function(input, output, session){
     tmp
   })
   
+  adtte_filtered <- shiny::reactive({
+    shiny::req(adtte_data2())
+    adtte_data <- adtte_data2()
+    data <- adtte_data
+    if (length(id_adtte_m$myList) != 0) {
+      names <- id_adtte_m$myList2
+      vars <- id_adtte_m$myList
+      if (length(id_adtte_m$myList) && !is.null(id_adtte_m$myList2)) {
+        data_filt <- data
+        for (i in 1:length(id_adtte_m$myList)) {
+          if(adtte_data %>%
+             dplyr::pull(id_adtte_m$myList2[i]) %>%
+             is.numeric()) {
+            if(!is.null(input[[id_adtte_m$myList[[i]]]]))
+              data_filt <- data_filt[data_filt %>%
+                                       dplyr::pull(id_adtte_m$myList2[i]) %>%
+                                       dplyr::between(input[[id_adtte_m$myList[[i]]]][1],input[[id_adtte_m$myList[[i]]]][2]),]
+          }else{
+            data_filt <- data_filt %>%
+              dplyr::filter(!! rlang::sym(id_adtte_m$myList2[i]) %in% c(input[[id_adtte_m$myList[i]]]))
+          }
+        }
+      }
+    } else {
+      data_filt <- data
+    }
+    data_filt
+  })
+  
   csv_file <- shiny::reactive({
  
+    
+      # include filtered data_
+      #   need a button to update
+      #adtte <- adtte_filtered()
       adtte <- adtte_data2()
       
       tmp <- effect_calc(
@@ -722,6 +765,238 @@ file_creation_server <- function(input, output, session){
 
   output$table_adtte <- renderDataTable(adtte_data2(), options = list(autoWidth = FALSE))
   output$table_csv <- renderDataTable(csv_file(), options = list(autoWidth = FALSE))
+  
+  
+  
+  #### FILTER ####
+  # filter_percentage <- shiny::renderUI({
+  #   total_tmp <- dim(adtte_data2())[1]
+  #   value_tmp <- dim(adtte_filtered())[1]
+  #     
+  #   shinyWidgets::progressBar(
+  #           id = ns("filter_percentage"),
+  #           value = 100,
+  #           total = 100,
+  #           title = "Title",
+  #           display_pct = TRUE
+  #         )
+  #  })
+  # Reset initial values if Remove Button is clicked
+  shiny::observeEvent(input$removeBtn, {
+    id_adtte_m$myList <- list()
+    id_adtte_m$myList2 <- list()
+  })
+
+  # Delete UI Elements if Remove Button is clicked
+  shiny::observeEvent(input$removeBtn, {
+    for (i in 1:length(inserted_adtte)) {
+      removeUI(selector = paste0("#", inserted_adtte[i]))
+    }
+  })
+  
+  output$filter_percentage <- shiny::renderUI({
+    total_tmp <- dim(adtte_data2())[1]
+    value_tmp <- dim(adtte_filtered())[1]
+    shinyWidgets::progressBar(
+            id = ns("filter_percentage"),
+            value = value_tmp,
+            total = total_tmp,
+            title = "Number of Rows of adtte (+adsl)",
+            display_pct = TRUE
+    )
+  })
+  output$pickerinput_adtte <- shiny::renderUI({
+    shiny::req(adtte_data2())
+    
+    adtte_data <- adtte_data2()
+    
+    adtte_data_variables_tmp <- purrr::map(
+      adtte_data,
+      function(x) attr(x, "label", exact = TRUE)
+    )
+    adtte_data_variables = names(adtte_data_variables_tmp)
+    names(adtte_data_variables) = paste0(
+      names(adtte_data_variables_tmp),
+      ifelse(
+        as.character(adtte_data_variables_tmp) == "NULL",
+        "",
+        paste0(" - ", as.character(adtte_data_variables_tmp))
+      )
+    )
+    
+    choices <- adtte_data_variables
+    #colors <- rep("color: white; background: #424242;", length(choices))
+    
+    shinyWidgets::pickerInput(
+      inputId = ns('pickerinput_adtte'),
+      label = 'Select filter variable(s) for adtte data set',
+      choices = choices, 
+      selected = NULL,
+      multiple = TRUE,
+     # choicesOpt = list(style = colors),
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = 'count > 0',
+        `count-selected-text` = '{0} selected (of {1})',
+        `live-search` = TRUE,
+        `header` = 'Select multiple items',
+        `none-selected-text` = 'No selection!'
+      )
+    )
+  })
+  
+  inserted_adtte <- c()
+
+  id_adtte_nr <- c()
+  id_adtte_nr2 <- c()
+
+  id_adtte_m <- shiny::reactiveValues()
+  id_adtte_m$myList <- list()
+  id_adtte_m$myList2 <- list()
+  inserted_adtte_list <- shiny::reactive({
+    list()
+  })
+  
+  condition_filter <- shiny::reactiveValues(val = FALSE)
+  output$condition_filter <- shiny::reactive(condition_filter$val)
+  # observe the 'Insert' Button click:
+  shiny::observeEvent(c(input$insertBtn), {
+    
+    shiny::req(adtte_data2())
+    
+    adtte_data <- adtte_data2()
+    
+    ins_adtte <- inserted_adtte_list()
+    id_adtte_nr <<- c()
+    id_adtte_nr2 <<- c()
+    
+    if (length(inserted_adtte) > 0) {
+      for (i in 1:length(inserted_adtte)) {
+        shiny::removeUI(
+          ## pass in appropriate div id
+          selector = paste0('#', inserted_adtte[i])
+        )
+      }
+    }
+    
+    inserted_adtte <<- c()
+    
+    btn <- input$insertBtn
+    
+    pickerinput_adtte <- input$pickerinput_adtte
+    
+    if (length(pickerinput_adtte) > 0) {
+      for (i in 1: length(pickerinput_adtte)) {
+        id <- paste0(pickerinput_adtte[i], btn)
+        shiny::insertUI(
+          selector = '#placeholder',
+          ui = shiny::tags$div(
+            if (!is.numeric(adtte_data %>%
+                           dplyr::pull(pickerinput_adtte[i]))) {
+              shinyWidgets::pickerInput(
+                inputId = ns(id),
+                label = paste0(pickerinput_adtte[i]),
+                choices = adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i]) %>%
+                  unique,
+                selected = adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i]) %>%
+                  unique,
+                multiple = TRUE,
+                choicesOpt = list(style = rep("color: white; background: #424242;",
+                  length(adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i]) %>%
+                  unique))),
+                options = list(
+                  `actions-box` = TRUE,
+                  `selected-text-format` = 'count > 0',
+                  `count-selected-text` = '{0} selected (of {1})',
+                  `live-search` = TRUE,
+                  `header` = 'Select multiple items',
+                  `none-selected-text` = 'All dropped!'
+                )
+              )
+            } else if (
+              is.numeric(
+                adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i])
+              ) && !is.integer(
+                adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i])
+                )
+            ) {
+              shiny::sliderInput(
+                inputId = ns(id),
+                label = paste0(pickerinput_adtte[i]),
+                value = c(
+                  adtte_data %>%
+                    dplyr::pull(pickerinput_adtte[i]) %>%
+                    base::min(na.rm = TRUE), adtte_data %>%
+                    dplyr::pull(pickerinput_adtte[i]) %>%
+                    base::max(na.rm = TRUE)
+                ),
+                min = adtte_data %>%
+                 dplyr::pull(pickerinput_adtte[i]) %>%
+                 base::min(na.rm = TRUE),
+                max = adtte_data %>%
+                 dplyr::pull(pickerinput_adtte[i]) %>%
+                 base::max(na.rm = TRUE)
+              )
+            } else if (is.numeric(adtte_data %>%
+                                 dplyr::pull(pickerinput_adtte[i])) && is.integer(adtte_data %>%
+                                                                                 dplyr::pull(pickerinput_adtte[i]))) {
+              shiny::sliderInput(
+                inputId = ns(id), 
+                label = paste0(pickerinput_adtte[i]),
+                value = c(adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i]) %>%
+                  base::min(na.rm = TRUE),adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i]) %>%
+                  base::max(na.rm = TRUE)
+                ),
+                min = adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i]) %>%
+                  base::min(na.rm = TRUE),
+                max = adtte_data %>%
+                  dplyr::pull(pickerinput_adtte[i]) %>%
+                  base::max(na.rm = TRUE),
+                step = 1,
+                sep = "",
+                ticks = FALSE
+              )
+            },
+            id = id
+          )
+        )
+        inserted_adtte <<- c(id, inserted_adtte)
+        ins_adtte[[pickerinput_adtte[i]]]  <- adtte_data %>%
+          dplyr::pull(pickerinput_adtte[i])
+        id_adtte_nr2 <<- c(id_adtte_nr2, pickerinput_adtte[[i]])
+        id_adtte_nr <<- c(id_adtte_nr,id)
+      }
+    }
+    
+    if (length(id_adtte_nr) > 0) {
+      condition_filter$val <- TRUE
+    } else {
+      condition_filter$val <- FALSE
+    }
+    id_adtte_m$myList2 <- id_adtte_nr2
+    id_adtte_m$myList <- id_adtte_nr
+  })
+  
+  
+  #### save as csv ####
+  
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("BReasy_", gsub(":","-", Sys.time()), ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(csv_file(), file, row.names = FALSE)
+    }
+  )
+  
 }
 
 ## To be copied in the UI
