@@ -642,7 +642,9 @@ file_creation_server <- function(input, output, session){
   
    output$stratification <- shiny::renderUI({
    
-    choices <- c("No selection")
+    # choices <- c("Overall")
+    choices <- as.list(sort(names(adtte_data())))
+    choices <- c("Overall", choices)
 
     shinyWidgets::pickerInput(
       inputId = ns("stratification"),
