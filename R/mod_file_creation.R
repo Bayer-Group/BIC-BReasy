@@ -103,6 +103,11 @@ file_creation_ui <- function(id){
         shiny::uiOutput(ns("sel_data_scope"))
       )
     ),
+    shiny::fluidRow(
+      shiny::column(4,
+        shiny::uiOutput(ns("subgroups"))
+      )
+    ),
     shinyBS::bsCollapse(
       shinyBS::bsCollapsePanel(
         shiny::HTML('<p style="color:black; font-size:100%;"> Filter: </p>'),
@@ -147,6 +152,9 @@ file_creation_ui <- function(id){
     shiny::fluidRow(
       shiny::column(4,
         shiny::uiOutput(ns("estimates"))
+      ),
+      shiny::column(4,
+        shiny::uiOutput(ns("effect"))
       )
     ),
     shinyBS::bsCollapse(
@@ -537,6 +545,28 @@ file_creation_server <- function(input, output, session){
     )
   })
   
+  output$effect <- shiny::renderUI({
+    if (is.null(adtte_data())) return()
+    else {
+      choices <- c("Excess number", "IRD")
+    }
+
+    shinyWidgets::pickerInput(
+      inputId = ns("effect"),
+      label = "Select effect",
+      choices = choices,
+      selected = choices[1],
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
   
   
   output$subject_identifier <- shiny::renderUI({
@@ -642,7 +672,6 @@ file_creation_server <- function(input, output, session){
   
    output$stratification <- shiny::renderUI({
    
-    # choices <- c("Overall")
     choices <- as.list(sort(names(adtte_data())))
     choices <- c("Overall", choices)
 
@@ -693,6 +722,30 @@ file_creation_server <- function(input, output, session){
     )
   })
    
+  output$subgroups <- shiny::renderUI({
+    if (is.null(adtte_data())) return()
+    else {
+      choices <- as.list(sort(names(adtte_data())))
+      choices <- c("None", choices)
+    }
+
+    shinyWidgets::pickerInput(
+      inputId = ns("subgroups"),
+      label = "Subgroup variable(s)",
+      choices = choices ,
+      selected = choices[1],
+      multiple = TRUE,
+      options = list(
+        `actions-box` = TRUE,
+        `selected-text-format` = "count > 0",
+        `count-selected-text` = "{0} selected (of {1})",
+        `live-search` = TRUE,
+        `header` = "Select multiple items",
+        `none-selected-text` = "No selection!"
+      )
+    )
+  })
+    
   adtte_data2 <- shiny::reactive({
     shiny::req(adtte_data())
     shiny::req(input$sel_treatment)
