@@ -1,5 +1,37 @@
-effect_calc <- function(data = data, effect = effect, param = param, outcome = outcome, scope = scope, datascope = datascope, population = population, treatment = treatment, verum = verum, comparator = comparator, 
-                        cnsr = cnsr, event = event, strat = strat, subgroup = subgroup) {
+#' file creation function
+#' 
+#' @param data
+#' @param effect
+#' @param param
+#' @param outcome
+#' @param scope
+#' @param datascope
+#' @param population
+#' @param treatment
+#' @param verum
+#' @param comparator
+#' @param cnsr
+#' @param event
+#' @param strat
+#' @param subgroup
+#' 
+
+effect_calc <- function(
+  data = data, 
+  effect = effect,
+  param = param, 
+  outcome = outcome,
+  scope = scope, 
+  datascope = datascope, 
+  population = population, 
+  treatment = treatment, 
+  verum = verum, 
+  comparator = comparator, 
+  cnsr = cnsr, 
+  event = event, 
+  strat = strat, 
+  subgroup = subgroup
+  ) {
   
   result <- c()
   total <- c()
@@ -8,19 +40,19 @@ effect_calc <- function(data = data, effect = effect, param = param, outcome = o
   total_res <- c()
   result_test_1 <- vector(mode = "list")
   
-  if(subgroup == "Overall") { 
+  if(subgroup == "None") { 
     
     for (j in 1:length(outcome)) {
       
-      if(datascope != "No selection") {
-        if(is.numeric(population)) {
+      if (datascope != "No selection") {
+        # change is.numeric to is.numeric(data[[population]])
+        #if(is.numeric(population)) {
+        if (is.numeric(data[[population]])) {
           data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "1"),]
-        }
-        else {
+        } else {
           data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "Y"),]
         } 
-      }
-      else {
+      } else {
         if(is.numeric(population)) {
           data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "1"),]
         }
@@ -29,7 +61,7 @@ effect_calc <- function(data = data, effect = effect, param = param, outcome = o
         }
       }
       
-      if(strat != "Overall") { 
+      if (strat != "Overall") { 
         strat_factor <- factor(data_test[[strat]])
         adtte <- vector(mode = "list", length=nlevels(strat_factor))
         adtte_trt <- vector(mode = "list", length=nlevels(strat_factor))
@@ -121,9 +153,7 @@ effect_calc <- function(data = data, effect = effect, param = param, outcome = o
           result_test_1[[j]] <- c("Incidence Rate by 100 pat-yrs",population,outcome[[j]],datascope,"Overall","All",strat,result_test_excess)
           names(result_test_1[[j]]) <- c("ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","STRATVAR","STRATUM","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
         }
-      }
-      
-      else {
+      } else if (strat == "Overall") {
         adtte_trt <- data_test[(data_test[[treatment]] %in% verum),]
         adtte_com <- data_test[(data_test[[treatment]] %in% comparator),]
         x1 <- length(which(adtte_trt[[cnsr]] %in% event))
@@ -139,7 +169,6 @@ effect_calc <- function(data = data, effect = effect, param = param, outcome = o
           .$fixed
         res_extract.effect.ci.rounded <- round(res_extract.effect.ci,2)
         
-        
         nnt <- (1/(res_extract.effect.ci[1])*100)
         # if (nnt < 0)  {nnt <- ceiling(nnt)}
         # else {nnt <- floor(nnt)}
@@ -152,11 +181,16 @@ effect_calc <- function(data = data, effect = effect, param = param, outcome = o
         excess_lower <- round((res_extract.effect.ci[2])*100)
         excess_upper <- round((res_extract.effect.ci[3])*100)
         
-        if (effect == "IRD") {
+        # effect %in% "IRD"
+        #if (effect == "IRD") {
+        if ("IRD" %in% effect) {
           result_test_1[[j]] <- c("Incidence Rate by 100 pat-yrs",population,outcome[[j]],datascope,"Overall","All",x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
           names(result_test_1[[j]]) <- c("ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_IRD","LOWER95","UPPER95","NNT")
         }
-        if (effect == "excess") {
+
+        # Problem when IRD & Excess number is selected since result_test_1 would be overwritten
+        #if (effect == "Excess number") {
+        if ("Excess number" %in% effect) {
           result_test_1[[j]] <- c("Incidence Rate by 100 pat-yrs",population,outcome[[j]],datascope,"Overall","All",x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
           names(result_test_1[[j]]) <- c("ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
         }
@@ -165,15 +199,14 @@ effect_calc <- function(data = data, effect = effect, param = param, outcome = o
     if(strat != "Overall") {
       for(k in 1:length(outcome)) {total <- rbind(total,as.data.frame(result_test_1[[k]]))}
       return(as.data.frame(total))
-    }
-    else{
-      for(k in 1:length(outcome)) {total <- cbind(total,result_test_1[[k]])}
+    } else {
+      for (k in 1:length(outcome)) {
+        total <- cbind(total,result_test_1[[k]])
+      }
       return(as.data.frame(t(total)))
     }
-  }
-  
-  
-  else { 
+    # else if (subgroup != "None")
+  } else { 
     
     
     for (q in 1:length(subgroup)) {

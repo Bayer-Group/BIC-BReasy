@@ -84,7 +84,8 @@ file_creation_ui <- function(id){
         shiny::uiOutput(ns("parameter"))
       ),
       shiny::column(4,
-        shiny::uiOutput(ns("sel_parameter"))
+        shiny::uiOutput(ns("sel_parameter")),
+        shiny::uiOutput(ns("sel_outcome_check"))
       )
     ),
     shiny::fluidRow(
@@ -100,7 +101,8 @@ file_creation_ui <- function(id){
         shiny::uiOutput(ns("data_scope"))
       ),
       shiny::column(4,
-        shiny::uiOutput(ns("sel_data_scope"))
+        shiny::uiOutput(ns("sel_data_scope")),
+        shiny::uiOutput(ns("sel_datascope_check"))
       )
     ),
     shiny::fluidRow(
@@ -146,7 +148,8 @@ file_creation_ui <- function(id){
         shiny::uiOutput(ns("event_identifyer"))
       ),
       shiny::column(4,
-        shiny::uiOutput(ns("sel_event_identifyer"))
+        shiny::uiOutput(ns("sel_event_identifyer")),
+        shiny::uiOutput(ns("sel_event_identifyer_check"))
       )
     ),
     shiny::fluidRow(
@@ -155,15 +158,18 @@ file_creation_ui <- function(id){
       ),
       shiny::column(4,
         shiny::uiOutput(ns("effect"))
-      )
-    ),
-    shinyBS::bsCollapse(
-      shinyBS::bsCollapsePanel(
-        shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
-        "Advanced settings",
+      ),
+    
+    # shinyBS::bsCollapse(
+    #   shinyBS::bsCollapsePanel(
+    #     shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
+    #     "Advanced settings",
+        shiny::column(4,
         shiny::uiOutput(ns("stratification"))
-      )
-    ),
+        )
+      ),
+    #   )
+    # ),
       shinyBS::bsCollapse(
         shinyBS::bsCollapsePanel(
           shiny::HTML('<p style="color:black; font-size:100%;"> ADTTE (+ADSL) data: </p>'),
@@ -178,8 +184,10 @@ file_creation_ui <- function(id){
           shiny::wellPanel(
             id = "table_csv_Panel",
             style = "color:black; overflow-y:scroll; max-height: 600px",
+            
             shiny::dataTableOutput(ns('table_csv'))
-          )
+          ),
+          shiny::uiOutput(ns('required_variables_text'))
         )
       ),
       shiny::fluidRow(
@@ -446,6 +454,36 @@ file_creation_server <- function(input, output, session){
      
   }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
+  
+  
+  
+  #### OUTCOME ####
+  outcome_check_flag <- shiny::reactiveValues(val = FALSE)
+  
+  shiny::observeEvent(c(adtte_data(), input$sel_parameter), {
+    shiny::req(adtte_data())
+    if (is.null(input$sel_parameter)) {
+      output$sel_outcome_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color:#E43157"> <i class="fa fa-exclamation">
+            Please select an outcome variable. </i></span>'
+          )
+        )
+      })
+      outcome_check_flag$val <- FALSE
+    } else {
+      outcome_check_flag$val <- TRUE
+      output$sel_outcome_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+          )
+        )
+      })
+    }
+  }, ignoreNULL = FALSE, ignoreInit = TRUE)
+  
    output$parameter <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
@@ -593,6 +631,34 @@ file_creation_server <- function(input, output, session){
     )
   })
   
+  
+  #### EVENT IDENTTIFYER ####
+  event_identifyer_check_flag <- shiny::reactiveValues(val = FALSE)
+  
+  shiny::observeEvent(c(adtte_data(), input$sel_event_identifyer), {
+    shiny::req(adtte_data())
+    if (is.null(input$sel_event_identifyer)) {
+      output$sel_event_identifyer_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color:#E43157"> <i class="fa fa-exclamation">
+            Please select an event identifyer variable. </i></span>'
+          )
+        )
+      })
+      event_identifyer_check_flag$val <- FALSE
+    } else {
+      event_identifyer_check_flag$val <- TRUE
+      output$sel_event_identifyer_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+          )
+        )
+      })
+    }
+  }, ignoreNULL = FALSE, ignoreInit = TRUE)
+  
   output$event_identifyer <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
@@ -646,6 +712,34 @@ file_creation_server <- function(input, output, session){
     )
   })
   
+  
+  #### DATA SCOPE ####
+  datascope_check_flag <- shiny::reactiveValues(val = FALSE)
+  
+  shiny::observeEvent(c(adtte_data(), input$sel_data_scope), {
+    shiny::req(adtte_data())
+    if (is.null(input$sel_data_scope)) {
+      output$sel_datascope_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color:#E43157"> <i class="fa fa-exclamation">
+            Please select a data scope variable. </i></span>'
+          )
+        )
+      })
+      datascope_check_flag$val <- FALSE
+    } else {
+      datascope_check_flag$val <- TRUE
+      output$sel_datascope_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+          )
+        )
+      })
+    }
+  }, ignoreNULL = FALSE, ignoreInit = TRUE)
+  
   output$data_scope <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
@@ -655,7 +749,7 @@ file_creation_server <- function(input, output, session){
 
     shinyWidgets::pickerInput(
       inputId = ns("data_scope"),
-      label = "Data scope",
+      label = "Data scope variable",
       choices = choices ,
       selected = choices[1],
       multiple = TRUE,
@@ -707,7 +801,7 @@ file_creation_server <- function(input, output, session){
 
     shinyWidgets::pickerInput(
       inputId = ns("sel_data_scope"),
-      label = "Data_scope",
+      label = "Data scope",
       choices = choices,
       selected = NULL,
       multiple = TRUE,
@@ -793,14 +887,21 @@ file_creation_server <- function(input, output, session){
   
   csv_file <- shiny::reactive({
  
-    
       # include filtered data_
       #   need a button to update
       #adtte <- adtte_filtered()
       adtte <- adtte_data2()
+        
       
+      #start the calculation only if the required variables are 
+      #available:
+      if(
+        treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
+        outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
+      ) {
       tmp <- effect_calc(
         data = adtte,
+        effect = input$effect,
         outcome = input$sel_parameter,
         scope = input$data_scope,
         datascope = input$sel_data_scope ,
@@ -811,16 +912,35 @@ file_creation_server <- function(input, output, session){
         cnsr = input$event_identifyer,
         param = input$parameter,
         event = input$sel_event_identifyer,
-        strat = input$stratification
+        strat = input$stratification,
+        subgroup = input$subgroups
       )
-
+      output$required_variables_text <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            ''
+          )
+        )
+      })
       csv2 <- tmp
       return(csv2)
+      } else {
+        output$required_variables_text <- shiny::renderUI({
+          shiny::HTML(
+            paste0(
+              '<span style = "color:#E43157"> <i class="fa fa-exclamation">
+              Please select all required variables! </i></span>'
+            )
+          )
+        })
+        return(NULL)
+      }
   })
 
   output$table_adtte <- renderDataTable(adtte_data2(), options = list(autoWidth = FALSE))
   output$table_csv <- renderDataTable(csv_file(), options = list(autoWidth = FALSE))
   
+
   
   
   #### FILTER ####
