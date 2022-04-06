@@ -14,7 +14,7 @@ app_server <- function( input, output, session ) {
   # possibility to upload up to 4 files which are combined
   # to one reactive data frame called df()
   df <- shiny::reactive({
-    # demo data selection
+    # demo data selection 
     if (input$selectdata == "Use demo data") {
       res <- read.csv(
         file = "./data/demo.csv",
@@ -36,75 +36,144 @@ app_server <- function( input, output, session ) {
       }
       res <- NULL
       if (!is.null(input$file)) {
-        tmp <- read.csv(
-          file = input$file$datapath,
-          header = TRUE,
-          sep = input$sep,
-          na.strings = ".",
-          quote = input$quote,
-          dec = input$dec,
-          row.names = NULL
-        )
-        res <- rbind(res, tmp)
-      }
-      if (!is.null(input$file2)) {
-        tmp2 <- read.csv(
-          file = input$file2$datapath,
-          header = TRUE,
-          sep = input$sep,
-          na.strings = ".",
-          quote = input$quote,
-          dec = input$dec,
-          row.names = NULL
-        )
-        if (!is.null(res)) {
-          if (all(sort(colnames(res)) == sort(colnames(tmp2)))) {
-            res <- rbind(res, tmp2)
-          } else {
-            stop("Different column names in selected data sets.")
-          }
+        #04.04.2022
+        inFile <- input$file$datapath
+        split_path <- strsplit(x = inFile, split = "[.]")
+        path_ending <- split_path[[1]][length(split_path[[1]])]
+        if (path_ending %in% c("csv")) {
+        
+          tmp <- read.csv(
+            file = input$file$datapath,
+            header = TRUE,
+            sep = input$sep,
+            na.strings = ".",
+            quote = input$quote,
+            dec = input$dec,
+            row.names = NULL
+          )
+          output$wrong_file_format_text <- shiny::renderUI({
+                HTML(paste0(""))
+          })
+          res <- rbind(res, tmp)
         } else {
-          res <- rbind(res, tmp2)
+          output$wrong_file_format_text <- shiny::renderUI({
+              HTML(paste0("
+              <b style = 'color:#E43157'>
+                Wrong data format! <br>
+              Please upload .csv data!
+              </b>"))
+            })
         }
       }
-      if (!is.null(input$file3)) {
-        tmp3 <- read.csv(
-          file = input$file3$datapath,
-          header = TRUE,
-          sep = input$sep,
-          na.strings = ".",
-          quote = input$quote,
-          dec = input$dec,
-          row.names = NULL
-        )
-        if (!is.null(res)) {
-          if (all(sort(colnames(res)) == sort(colnames(tmp3)))) {
-            res <- rbind(res, tmp3)
+      if (!is.null(input$file2)) {
+        #04.04.2022
+        inFile <- input$file2$datapath
+        split_path <- strsplit(x = inFile, split = "[.]")
+        path_ending <- split_path[[1]][length(split_path[[1]])]
+        if (path_ending %in% c("csv")) {
+          tmp2 <- read.csv(
+            file = input$file2$datapath,
+            header = TRUE,
+            sep = input$sep,
+            na.strings = ".",
+            quote = input$quote,
+            dec = input$dec,
+            row.names = NULL
+          )
+          output$wrong_file2_format_text <- shiny::renderUI({
+                HTML(paste0(""))
+          })
+          if (!is.null(res)) {
+            if (all(sort(colnames(res)) == sort(colnames(tmp2)))) {
+              res <- rbind(res, tmp2)
+            } else {
+              stop("Different column names in selected data sets.")
+            }
           } else {
-            stop("Different column names in selected data sets.")
+            res <- rbind(res, tmp2)
           }
         } else {
-          res <- rbind(res, tmp3)
+            output$wrong_file2_format_text <- shiny::renderUI({
+              HTML(paste0("
+              <b style = 'color:#E43157'>
+                Wrong data format! <br>
+              Please upload .csv data!
+              </b>"))
+            })
+        } 
+      }  
+      if (!is.null(input$file3)) {
+        #04.04.2022
+        inFile <- input$file3$datapath
+        split_path <- strsplit(x = inFile, split = "[.]")
+        path_ending <- split_path[[1]][length(split_path[[1]])]
+        if (path_ending %in% c("csv")) {
+          tmp3 <- read.csv(
+            file = input$file3$datapath,
+            header = TRUE,
+            sep = input$sep,
+            na.strings = ".",
+            quote = input$quote,
+            dec = input$dec,
+            row.names = NULL
+          )
+          output$wrong_file3_format_text <- shiny::renderUI({
+            HTML(paste0(""))
+          })
+          if (!is.null(res)) {
+            if (all(sort(colnames(res)) == sort(colnames(tmp3)))) {
+              res <- rbind(res, tmp3)
+            } else {
+              stop("Different column names in selected data sets.")
+            }
+          } else {
+            res <- rbind(res, tmp3)
+          }
+        } else {
+          output$wrong_file3_format_text <- shiny::renderUI({
+            HTML(paste0("
+            <b style = 'color:#E43157'>
+              Wrong data format! <br>
+            Please upload .csv data!
+            </b>"))
+          })
         }
       }
       if (!is.null(input$file4)) {
-        tmp4 <- read.csv(
-          file = input$file4$datapath,
-          header = TRUE,
-          sep = input$sep,
-          na.strings = ".",
-          quote = input$quote,
-          dec = input$dec,
-          row.names = NULL
-        )
-        if (!is.null(res)) {
-          if (all(sort(colnames(res)) == sort(colnames(tmp4)))) {
-            res <- rbind(res, tmp4)
+        #04.04.2022
+        inFile <- input$file4$datapath
+        split_path <- strsplit(x = inFile, split = "[.]")
+        path_ending <- split_path[[1]][length(split_path[[1]])]
+        if (path_ending %in% c("csv")) {
+          tmp4 <- read.csv(
+            file = input$file4$datapath,
+            header = TRUE,
+            sep = input$sep,
+            na.strings = ".",
+            quote = input$quote,
+            dec = input$dec,
+            row.names = NULL
+          )
+          output$wrong_file4_format_text <- shiny::renderUI({
+            HTML(paste0(""))
+          })
+          if (!is.null(res)) {
+            if (all(sort(colnames(res)) == sort(colnames(tmp4)))) {
+              res <- rbind(res, tmp4)
+            } else {
+              stop("Different column names in selected data sets.")
+            }
           } else {
-            stop("Different column names in selected data sets.")
+            res <- rbind(res, tmp4)
           }
         } else {
-          res <- rbind(res, tmp4)
+          output$wrong_file4_format_text <- shiny::renderUI({
+            HTML(paste0("
+            <b style = 'color:#E43157'>
+              Wrong data format! <br>
+            Please upload .csv data!
+            </b>"))
+          })
         }
       }
     }

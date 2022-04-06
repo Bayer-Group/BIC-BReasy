@@ -33,6 +33,7 @@ effect_calc <- function(
   subgroup = subgroup
   ) {
   
+  
   result <- c()
   total <- c()
   total_final <- c()
@@ -43,8 +44,8 @@ effect_calc <- function(
   if(subgroup == "None") { 
     
     for (j in 1:length(outcome)) {
-      
-      if (datascope != "No selection") {
+      if (!"No selection" %in% datascope) {
+      #if (datascope != "No selection") {
         # change is.numeric to is.numeric(data[[population]])
         #if(is.numeric(population)) {
         if (is.numeric(data[[population]])) {
@@ -191,6 +192,8 @@ effect_calc <- function(
         # Problem when IRD & Excess number is selected since result_test_1 would be overwritten
         #if (effect == "Excess number") {
         if ("Excess number" %in% effect) {
+          
+          ### 04.04. error if length(datascope!=1):
           result_test_1[[j]] <- c("Incidence Rate by 100 pat-yrs",population,outcome[[j]],datascope,"Overall","All",x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
           names(result_test_1[[j]]) <- c("ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
         }

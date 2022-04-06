@@ -77,26 +77,30 @@ app_ui <- function(request) {
                 label = "File input:",
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
               ),
+              shiny::uiOutput("wrong_file_format_text"),
               shiny::conditionalPanel(condition = "output.flag3 >= 2",
                 shiny::fileInput(
                   inputId = "file2",
                   label = "File input:",
                   accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
-                )
+                ),
+                shiny::uiOutput("wrong_file2_format_text")
               ),
               shiny::conditionalPanel(condition = "output.flag3 >= 3",
                 shiny::fileInput(
                   inputId = "file3",
                   label = "File input:",
                   accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
-                )
+                ),
+                shiny::uiOutput("wrong_file3_format_text")
               ),
               shiny::conditionalPanel(condition = "output.flag3 == 4",
                 shiny::fileInput(
                   inputId = "file4",
                   label = "File input:",
                   accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
-                )
+                ),
+                shiny::uiOutput("wrong_file4_format_text")
               ),
               HTML('<p style = "color: white;"> Add/Remove more File Input(s): </p>'),
               shiny::fluidRow(

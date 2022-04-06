@@ -28,7 +28,7 @@ file_creation_ui <- function(id){
         shiny::column(6,
           shiny::fileInput(
             inputId =  ns("adtte_file"),
-            label = "ADTTE data",
+            label = "ADTTE data (.sas7bdat format)",
             multiple = FALSE,
             accept = NULL,
             width = NULL
@@ -165,7 +165,7 @@ file_creation_ui <- function(id){
     #     shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
     #     "Advanced settings",
         shiny::column(4,
-        shiny::uiOutput(ns("stratification"))
+          shiny::uiOutput(ns("stratification"))
         )
       ),
     #   )
@@ -241,6 +241,12 @@ file_creation_server <- function(input, output, session){
             }
             adtte <- adtte %>%
               dplyr::left_join(adsl, by = same_colnames)
+            output$wrong_adsl_format_text <- shiny::renderUI({
+              HTML(paste0(""))
+            })
+            output$wrong_adsl_format_text <- shiny::renderUI({
+              HTML(paste0(""))
+            })
           } else {
             output$wrong_adsl_format_text <- shiny::renderUI({
               HTML(paste0("
@@ -613,13 +619,13 @@ file_creation_server <- function(input, output, session){
       choices <- as.list(names(adtte_data()))
       choices <- c(choices[stringr::str_detect(choices, "SUBJID")], choices[!(stringr::str_detect(choices, "SUBJID"))])
     }
-    
+      
     shinyWidgets::pickerInput(
       inputId = ns("subject_identifier"),
       label = "Subject identifier",
       choices = choices ,
       selected = choices[1],
-      multiple = TRUE,
+      multiple = FALSE,
       options = list(
         `actions-box` = TRUE,
         `selected-text-format` = "count > 0",
@@ -672,7 +678,7 @@ file_creation_server <- function(input, output, session){
       label = "Event identifyer",
       choices = choices ,
       selected = choices[1],
-      multiple = TRUE,
+      multiple = FALSE,
       options = list(
         `actions-box` = TRUE,
         `selected-text-format` = "count > 0",
@@ -752,7 +758,7 @@ file_creation_server <- function(input, output, session){
       label = "Data scope variable",
       choices = choices ,
       selected = choices[1],
-      multiple = TRUE,
+      multiple = FALSE,
       options = list(
         `actions-box` = TRUE,
         `selected-text-format` = "count > 0",
@@ -766,6 +772,7 @@ file_creation_server <- function(input, output, session){
   
    output$stratification <- shiny::renderUI({
    
+    shiny::req(adtte_data())
     choices <- as.list(sort(names(adtte_data())))
     choices <- c("Overall", choices)
 
@@ -774,7 +781,7 @@ file_creation_server <- function(input, output, session){
       label = "Stratification",
       choices = choices,
       selected = choices[1],
-      multiple = TRUE,
+      multiple = FALSE,
       options = list(
         `actions-box` = TRUE,
         `selected-text-format` = "count > 0",
@@ -792,10 +799,10 @@ file_creation_server <- function(input, output, session){
     else {
       if (is.factor(adtte_data()[, which(names(adtte_data()) == input$data_scope)])) {
         choices <- as.list(levels(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
-        choices <- c("No selection", choices)
+        #choices <- c("No selection", choices)
       } else {
         choices <- as.list(unique(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
-        choices <- c("No selection", choices)
+        #choices <- c("No selection", choices)
       }
     }
 
@@ -803,8 +810,9 @@ file_creation_server <- function(input, output, session){
       inputId = ns("sel_data_scope"),
       label = "Data scope",
       choices = choices,
-      selected = NULL,
-      multiple = TRUE,
+      selected = choices[1],
+      # should be multiple =  TRUE
+      multiple = FALSE,
       options = list(
         `actions-box` = TRUE,
         `selected-text-format` = "count > 0",
@@ -889,8 +897,8 @@ file_creation_server <- function(input, output, session){
  
       # include filtered data_
       #   need a button to update
-      #adtte <- adtte_filtered()
-      adtte <- adtte_data2()
+      adtte <- adtte_filtered()
+      #adtte <- adtte_data2()
         
       
       #start the calculation only if the required variables are 
