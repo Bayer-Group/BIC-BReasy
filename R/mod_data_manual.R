@@ -160,7 +160,7 @@ mod_data_manual_server <- function(input, output, session){
            
            <h3> Important points to consider </h3>
            <p> If the data is stored in more than one file of the same format, it is possible to upload several CSV files into BReasy. </p>
-          <p> The maximal file size is 40 MB.</p> 
+          <p> The maximal file size is 100 MB.</p> 
          "
         )
       )

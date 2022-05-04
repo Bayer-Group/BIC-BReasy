@@ -106,8 +106,12 @@ file_creation_ui <- function(id){
       )
     ),
     shiny::fluidRow(
+      shiny::column(2,
+        shiny::uiOutput(ns("subgroups_1"))
+      ),
       shiny::column(4,
-        shiny::uiOutput(ns("subgroups"))
+        
+        shiny::uiOutput(ns("subgroups_2"))
       )
     ),
     shinyBS::bsCollapse(
@@ -158,16 +162,23 @@ file_creation_ui <- function(id){
       ),
       shiny::column(4,
         shiny::uiOutput(ns("effect"))
-      ),
-    
+      )
+    ),
+    shiny::fluidRow(
+      
+    shiny::column(2,
+      shiny::uiOutput(ns("stratification_1"))
+    ),
     # shinyBS::bsCollapse(
     #   shinyBS::bsCollapsePanel(
     #     shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
     #     "Advanced settings",
         shiny::column(4,
-          shiny::uiOutput(ns("stratification"))
+        
+          shiny::uiOutput(ns("stratification_2"))
         )
-      ),
+    ),
+      
     #   )
     # ),
       shinyBS::bsCollapse(
@@ -600,7 +611,7 @@ file_creation_server <- function(input, output, session){
       label = "Select effect",
       choices = choices,
       selected = choices[1],
-      multiple = TRUE,
+      multiple = FALSE,
       options = list(
         `actions-box` = TRUE,
         `selected-text-format` = "count > 0",
@@ -610,6 +621,22 @@ file_creation_server <- function(input, output, session){
         `none-selected-text` = "No selection!"
       )
     )
+    
+    #  shinyWidgets::pickerInput(
+    #   inputId = ns("event_identifyer"),
+    #   label = "Event identifyer",
+    #   choices = choices ,
+    #   selected = choices[1],
+    #   multiple = FALSE,
+    #   options = list(
+    #     `actions-box` = TRUE,
+    #     `selected-text-format` = "count > 0",
+    #     `count-selected-text` = "{0} selected (of {1})",
+    #     `live-search` = TRUE,
+    #     `header` = "Select multiple items",
+    #     `none-selected-text` = "No selection!"
+    #   )
+    # )
   })
   
   
@@ -770,27 +797,56 @@ file_creation_server <- function(input, output, session){
     )
   })
   
-   output$stratification <- shiny::renderUI({
+  #### Stratification ####
+   output$stratification_1 <- shiny::renderUI({
+    if (is.null(adtte_data())) return()
+    else {
+      checkboxInput(
+        inputId = ns("stratification_1"),
+        label = "Use stratification",
+        value = FALSE
+      )
+    }
+  })
+  
+  stratification_reac_val <- shiny::reactiveValues(val = "Overall"
+  )
+  
+  observeEvent(c(input$stratification_1,input$stratification_2), {
+    if(!is.null(input$stratification_1) & !is.null(input$stratification_2)) {
+      if(input$stratification_1) {
+        stratification_reac_val$val <- input$stratification_2
+      } else {
+        stratification_reac_val$val <- "Overall"
+      }
+    }
+  })
+  
+   output$stratification_2 <- shiny::renderUI({
    
     shiny::req(adtte_data())
     choices <- as.list(sort(names(adtte_data())))
     choices <- c("Overall", choices)
 
-    shinyWidgets::pickerInput(
-      inputId = ns("stratification"),
-      label = "Stratification",
-      choices = choices,
-      selected = choices[1],
-      multiple = FALSE,
-      options = list(
-        `actions-box` = TRUE,
-        `selected-text-format` = "count > 0",
-        `count-selected-text` = "{0} selected (of {1})",
-        `live-search` = TRUE,
-        `header` = "Select multiple items",
-        `none-selected-text` = "No selection!"
+     if (input$stratification_1 == FALSE) {
+     return()
+   } else {
+      shinyWidgets::pickerInput(
+        inputId = ns("stratification_2"),
+        label = "Stratification",
+        choices = choices,
+        selected = choices[1],
+        multiple = FALSE,
+        options = list(
+          `actions-box` = TRUE,
+          `selected-text-format` = "count > 0",
+          `count-selected-text` = "{0} selected (of {1})",
+          `live-search` = TRUE,
+          `header` = "Select multiple items",
+          `none-selected-text` = "No selection!"
+        )
       )
-    )
+    }  
   })
 
    output$sel_data_scope <- shiny::renderUI({
@@ -824,15 +880,43 @@ file_creation_server <- function(input, output, session){
     )
   })
    
-  output$subgroups <- shiny::renderUI({
+  output$subgroups_1 <- shiny::renderUI({
+    if (is.null(adtte_data())) return()
+    else {
+      checkboxInput(
+        inputId = ns("subgroups_1"),
+        label = "Use subgroups",
+        value = FALSE
+      )
+    }
+  })
+  
+  subgroups_reac_val <- shiny::reactiveValues(val = "Overall"
+  )
+  
+  observeEvent(c(input$subgroups_1,input$subgroups_2), {
+    if(!is.null(input$subgroups_1) & !is.null(input$subgroups_2)) {
+      if(input$subgroups_1) {
+        subgroups_reac_val$val <- input$subgroups_2
+      } else {
+        subgroups_reac_val$val <- "Overall"
+      }
+    }
+  })
+  output$subgroups_2 <- shiny::renderUI({
+    
     if (is.null(adtte_data())) return()
     else {
       choices <- as.list(sort(names(adtte_data())))
-      choices <- c("None", choices)
     }
+    
+   if (input$subgroups_1 == FALSE) {
+     return()
+   }
+    else {
 
     shinyWidgets::pickerInput(
-      inputId = ns("subgroups"),
+      inputId = ns("subgroups_2"),
       label = "Subgroup variable(s)",
       choices = choices ,
       selected = choices[1],
@@ -846,6 +930,7 @@ file_creation_server <- function(input, output, session){
         `none-selected-text` = "No selection!"
       )
     )
+    }
   })
     
   adtte_data2 <- shiny::reactive({
@@ -920,8 +1005,8 @@ file_creation_server <- function(input, output, session){
         cnsr = input$event_identifyer,
         param = input$parameter,
         event = input$sel_event_identifyer,
-        strat = input$stratification,
-        subgroup = input$subgroups
+        strat = stratification_reac_val$val,
+        subgroup = subgroups_reac_val$val
       )
       output$required_variables_text <- shiny::renderUI({
         shiny::HTML(

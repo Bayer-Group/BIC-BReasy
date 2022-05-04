@@ -7,8 +7,8 @@
 #' @noRd
 app_server <- function( input, output, session ) {
   # List the first level callModules here
-  #increase file upload size to 40MB
-  options(shiny.maxRequestSize = 40*1024^2)
+  #increase file upload size to 100MB
+  options(shiny.maxRequestSize = 100*1024^2)
   
   #### Data Upload-tab ####
   # possibility to upload up to 4 files which are combined
@@ -36,7 +36,6 @@ app_server <- function( input, output, session ) {
       }
       res <- NULL
       if (!is.null(input$file)) {
-        #04.04.2022
         inFile <- input$file$datapath
         split_path <- strsplit(x = inFile, split = "[.]")
         path_ending <- split_path[[1]][length(split_path[[1]])]
@@ -66,7 +65,6 @@ app_server <- function( input, output, session ) {
         }
       }
       if (!is.null(input$file2)) {
-        #04.04.2022
         inFile <- input$file2$datapath
         split_path <- strsplit(x = inFile, split = "[.]")
         path_ending <- split_path[[1]][length(split_path[[1]])]
@@ -103,7 +101,6 @@ app_server <- function( input, output, session ) {
         } 
       }  
       if (!is.null(input$file3)) {
-        #04.04.2022
         inFile <- input$file3$datapath
         split_path <- strsplit(x = inFile, split = "[.]")
         path_ending <- split_path[[1]][length(split_path[[1]])]
@@ -140,7 +137,6 @@ app_server <- function( input, output, session ) {
         }
       }
       if (!is.null(input$file4)) {
-        #04.04.2022
         inFile <- input$file4$datapath
         split_path <- strsplit(x = inFile, split = "[.]")
         path_ending <- split_path[[1]][length(split_path[[1]])]

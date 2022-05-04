@@ -205,7 +205,7 @@ app_ui <- function(request) {
             icon = icon("folder-open")
           )
         ),
-        HTML(paste0("This version (from 2021-03-09) of", br())),
+        HTML(paste0("This version (from 2022-05-04) of", br())),
         HTML(paste0(img(
           src = "www/AppSign_BReasy_220x76mm_WHT.png",
           height = 35,
