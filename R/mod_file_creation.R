@@ -202,7 +202,7 @@ file_creation_ui <- function(id){
         )
       ),
       shiny::fluidRow(
-        shiny::downloadButton("downloadData", "Save as .csv")
+        shiny::downloadButton(ns("downloadData"), "Save as .csv")
       )
     )
 }
@@ -993,6 +993,7 @@ file_creation_server <- function(input, output, session){
         outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
       ) {
         
+
       tmp <- effect_calc(
         data = adtte,
         effect = input$effect,
@@ -1262,7 +1263,7 @@ file_creation_server <- function(input, output, session){
       paste("BReasy_", gsub(":","-", Sys.time()), ".csv", sep = "")
     },
     content = function(file) {
-      write.csv(csv_file(), file, row.names = FALSE)
+      write.csv(apply(csv_file(),2, as.character), file, row.names = FALSE)
     }
   )
   
