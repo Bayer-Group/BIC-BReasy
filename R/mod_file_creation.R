@@ -603,7 +603,7 @@ file_creation_server <- function(input, output, session){
   output$effect <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
-      choices <- c("Excess number", "IRD")
+      choices <- c("excess", "IRD")
     }
 
     shinyWidgets::pickerInput(
@@ -992,6 +992,7 @@ file_creation_server <- function(input, output, session){
         treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
         outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
       ) {
+        
       tmp <- effect_calc(
         data = adtte,
         effect = input$effect,
