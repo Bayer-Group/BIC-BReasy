@@ -30,7 +30,9 @@ effect_calc <- function(
   cnsr = cnsr, 
   event = event, 
   strat = strat, 
-  subgroup = subgroup
+  subgroup = subgroup,
+  # add aval
+  aval = aval
   ) {
 
  result <- c()
@@ -80,8 +82,8 @@ effect_calc <- function(
       adtte_com[[i]] <- adtte[[i]][(adtte[[i]][[treatment]] %in% comparator),]
       x1[[i]] <- length(which(adtte_trt[[i]][[cnsr]] %in% event))
       x2[[i]] <- length(which(adtte_com[[i]][[cnsr]] %in% event))
-      t1[[i]] <- sum(adtte_trt[[i]]$AVAL, na.rm=TRUE)/(100*365.25)
-      t2[[i]] <- sum(adtte_com[[i]]$AVAL, na.rm=TRUE)/(100*365.25)
+      t1[[i]] <- sum(adtte_trt[[i]][[aval]], na.rm=TRUE)/(100*365.25)
+      t2[[i]] <- sum(adtte_com[[i]][[aval]], na.rm=TRUE)/(100*365.25)
       n1[[i]] <- nrow(adtte_trt[[i]])
       n2[[i]] <- nrow(adtte_com[[i]])
     }
@@ -157,12 +159,13 @@ effect_calc <- function(
   }
   
   else {
+    
     adtte_trt <- data_test[(data_test[[treatment]] %in% verum),]
     adtte_com <- data_test[(data_test[[treatment]] %in% comparator),]
     x1 <- length(which(adtte_trt[[cnsr]] %in% event))
     x2 <- length(which(adtte_com[[cnsr]] %in% event))
-    t1 <- sum(adtte_trt$AVAL, na.rm=TRUE)/(100*365.25)
-    t2 <- sum(adtte_com$AVAL, na.rm=TRUE)/(100*365.25)
+    t1 <- sum(adtte_trt[[aval]], na.rm=TRUE)/(100*365.25)
+    t2 <- sum(adtte_com[[aval]], na.rm=TRUE)/(100*365.25)
     n1 <- nrow(adtte_trt)
     n2 <- nrow(adtte_com)
     
@@ -255,8 +258,8 @@ effect_calc <- function(
                adtte_com[[i]] <- adtte[[i]][(adtte[[i]][[treatment]] %in% comparator),]
                x1[[i]] <- length(which(adtte_trt[[i]][[cnsr]] %in% event))
                x2[[i]] <- length(which(adtte_com[[i]][[cnsr]] %in% event))
-               t1[[i]] <- sum(adtte_trt[[i]]$AVAL, na.rm=TRUE)/(100*365.25)
-               t2[[i]] <- sum(adtte_com[[i]]$AVAL, na.rm=TRUE)/(100*365.25)
+               t1[[i]] <- sum(adtte_trt[[i]][[aval]], na.rm=TRUE)/(100*365.25)
+               t2[[i]] <- sum(adtte_com[[i]][[aval]], na.rm=TRUE)/(100*365.25)
                n1[[i]] <- nrow(adtte_trt[[i]])
                n2[[i]] <- nrow(adtte_com[[i]])
              }
@@ -335,8 +338,8 @@ effect_calc <- function(
              adtte_com <- data_test[(data_test[[treatment]] %in% comparator),]
              x1 <- length(which(adtte_trt[[cnsr]] %in% event))
              x2 <- length(which(adtte_com[[cnsr]] %in% event))
-             t1 <- sum(adtte_trt$AVAL, na.rm=TRUE)/(100*365.25)
-             t2 <- sum(adtte_com$AVAL, na.rm=TRUE)/(100*365.25)
+             t1 <- sum(adtte_trt[[aval]], na.rm=TRUE)/(100*365.25)
+             t2 <- sum(adtte_com[[aval]], na.rm=TRUE)/(100*365.25)
              n1 <- nrow(adtte_trt)
              n2 <- nrow(adtte_com)
              

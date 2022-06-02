@@ -86,6 +86,10 @@ file_creation_ui <- function(id){
       shiny::column(4,
         shiny::uiOutput(ns("sel_parameter")),
         shiny::uiOutput(ns("sel_outcome_check"))
+      ),
+      shiny::column(4,
+        shiny::uiOutput(ns("sel_aval"))#,
+       # shiny::uiOutput(ns("sel_outcome_check"))
       )
     ),
     shiny::fluidRow(
@@ -553,6 +557,31 @@ file_creation_server <- function(input, output, session){
     )
   })
 
+  #### Select analysis value ####
+  output$sel_aval <- shiny::renderUI({
+    if (is.null(adtte_data())) {
+      return()
+    } else {
+      choices <- as.list(names(adtte_data()))
+      choices <- c(choices[stringr::str_detect(choices, "AVAL")], choices[!(stringr::str_detect(choices, "AVAL"))])
+    }
+    if(choices[1] == "AVAL") {
+      selected <- choices[1]
+    } else {
+      selected <- NULL
+    }
+
+    shinyWidgets::pickerInput(
+      inputId = ns("sel_aval"),
+      label = "Analysis value",
+      choices = choices,
+      selected = choices[1],
+      multiple = FALSE
+    )
+  }) 
+   
+   
+   
   output$analysis_set <- shiny::renderUI({
     if (is.null(adtte_data())) { return()
       } else {
@@ -836,7 +865,7 @@ file_creation_server <- function(input, output, session){
         label = "Stratification",
         choices = choices,
         selected = choices[1],
-        multiple = FALSE,
+        multiple = TRUE,
         options = list(
           `actions-box` = TRUE,
           `selected-text-format` = "count > 0",
@@ -1008,7 +1037,9 @@ file_creation_server <- function(input, output, session){
         param = input$parameter,
         event = input$sel_event_identifyer,
         strat = stratification_reac_val$val,
-        subgroup = subgroups_reac_val$val
+        subgroup = subgroups_reac_val$val,
+        #add aval
+        aval = input$sel_aval
       )
       output$required_variables_text <- shiny::renderUI({
         shiny::HTML(
