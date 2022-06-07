@@ -100,7 +100,7 @@ effect_calc <- function(
     
     data_meta <- data.frame(x1,x2,t1,t2)
 
-    res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_meta)
+    res <- suppressWarnings(metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_meta))
     res_extract.effect.ci.meta <- res %>%
       confint() %>%
       .$fixed
@@ -108,7 +108,7 @@ effect_calc <- function(
     
     for (m in 1:nrow(data_meta)) {
       data_single <- data_meta[m,]
-      res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_single)
+      res <- suppressWarnings(metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_single))
       res_extract.effect.ci.single[[m]] <- res %>%
         confint() %>%
         .$fixed
@@ -169,7 +169,7 @@ effect_calc <- function(
     n1 <- nrow(adtte_trt)
     n2 <- nrow(adtte_com)
     
-    res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95)
+    res <- suppressWarnings(metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95))
     res_extract.effect.ci <- res %>%
       confint() %>%
       .$fixed
@@ -276,7 +276,7 @@ effect_calc <- function(
              
              data_meta <- data.frame(x1,x2,t1,t2)
              
-             res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_meta)
+             res <- suppressWarnings(metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_meta))
              res_extract.effect.ci.meta <- res %>%
                confint() %>%
                .$fixed
@@ -284,7 +284,7 @@ effect_calc <- function(
              
              for (m in 1:nrow(data_meta)) {
                data_single <- data_meta[m,]
-               res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_single)
+               res <- suppressWarnings(metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95, data=data_single))
                res_extract.effect.ci.single[[m]] <- res %>%
                  confint() %>%
                  .$fixed
@@ -343,7 +343,7 @@ effect_calc <- function(
              n1 <- nrow(adtte_trt)
              n2 <- nrow(adtte_com)
              
-             res <- metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95)
+             res <- suppressWarnings(metafor::rma.mh(x1i=x1, x2i=x2, t1i=t1, t2i=t2, measure = "IRD", level = 95))
              res_extract.effect.ci <- res %>%
                confint() %>%
                .$fixed

@@ -370,7 +370,6 @@ file_creation_server <- function(input, output, session){
   verum_check_flag <- shiny::reactiveValues(val = FALSE)
   shiny::observeEvent(c(adtte_data(), input$sel_treatment, input$sel_verum), {
     shiny::req(adtte_data())
-    
     if (!is.null(input$sel_treatment)) {
       if (is.null(input$sel_verum)) {
       output$sel_verum_check <- shiny::renderUI({
@@ -441,7 +440,6 @@ file_creation_server <- function(input, output, session){
   comparator_check_flag <- shiny::reactiveValues(val = FALSE)
   shiny::observeEvent(c(adtte_data(), input$sel_treatment, input$sel_comparator), {
     shiny::req(adtte_data())
-    
     if (!is.null(input$sel_treatment)){
     if (is.null(input$sel_comparator)) {
       output$sel_comparator_check <- shiny::renderUI({
@@ -852,12 +850,12 @@ file_creation_server <- function(input, output, session){
   })
   
    output$stratification_2 <- shiny::renderUI({
-   
+    shiny::req(input$stratification_1)
     shiny::req(adtte_data())
     choices <- as.list(sort(names(adtte_data())))
     choices <- c("Overall", choices)
 
-     if (input$stratification_1 == FALSE) {
+     if (isTruthy(input$stratification_1 == FALSE)) {
      return()
    } else {
       shinyWidgets::pickerInput(
@@ -865,7 +863,7 @@ file_creation_server <- function(input, output, session){
         label = "Stratification",
         choices = choices,
         selected = choices[1],
-        multiple = TRUE,
+        multiple = FALSE,
         options = list(
           `actions-box` = TRUE,
           `selected-text-format` = "count > 0",
@@ -939,7 +937,7 @@ file_creation_server <- function(input, output, session){
       choices <- as.list(sort(names(adtte_data())))
     }
     
-   if (input$subgroups_1 == FALSE) {
+   if (isTruthy(input$subgroups_1 == FALSE)) {
      return()
    }
     else {
