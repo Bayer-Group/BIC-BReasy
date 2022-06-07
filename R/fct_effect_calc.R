@@ -35,6 +35,7 @@ effect_calc <- function(
   aval = aval
   ) {
 
+  
  result <- c()
  total <- c()
  total_final <- c()
@@ -47,8 +48,8 @@ effect_calc <- function(
  for (j in 1:length(outcome)) {
    
   if(datascope != "No selection") {
-    if(is.numeric(population)) {
-      data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "1"),]
+    if(apply(data[population],2,is.numeric)) {
+      data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% 1),]
     }
     else {
     data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "Y"),]
@@ -56,7 +57,7 @@ effect_calc <- function(
     }
   else {
     if(is.numeric(population)) {
-      data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "1"),]
+      data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% 1),]
     }
     else {
     data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "Y"),]
@@ -223,7 +224,7 @@ effect_calc <- function(
            
            if(datascope != "No selection") {
              if(is.numeric(population)) {
-               data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "1") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
+               data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% 1) & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
              }
              else {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "Y") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
@@ -231,7 +232,7 @@ effect_calc <- function(
            }
            else {
              if(is.numeric(population)) {
-               data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "1") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
+               data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% 1) & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
              }
              else {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "Y") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]

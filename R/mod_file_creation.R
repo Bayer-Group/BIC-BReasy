@@ -1020,7 +1020,6 @@ file_creation_server <- function(input, output, session){
         outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
       ) {
         
-
       tmp <- effect_calc(
         data = adtte,
         effect = input$effect,
