@@ -94,7 +94,8 @@ file_creation_ui <- function(id){
     ),
     shiny::fluidRow(
       shiny::column(4,
-        shiny::uiOutput(ns("analysis_set"))
+        shiny::uiOutput(ns("analysis_set")),
+        shiny::uiOutput(ns("analysis_set_check"))
       ),
       shiny::column(4,
         shiny::uiOutput(ns("subject_identifier"))  
@@ -120,7 +121,7 @@ file_creation_ui <- function(id){
     ),
     shinyBS::bsCollapse(
       shinyBS::bsCollapsePanel(
-        shiny::HTML('<p style="color:black; font-size:100%;"> Filter: </p>'),
+        shiny::HTML('<p style="color:black; font-size:100%;"> Filter: (click to open) </p>'),
         "Filter options",
         shiny::uiOutput(ns("filter_percentage")),
         shiny::uiOutput(ns("pickerinput_adtte")),
@@ -223,8 +224,6 @@ file_creation_server <- function(input, output, session){
       HTML(
         "
           <h1> Create a csv file from your ADTTE SAS file </h1>
-          <p> Required variables in ADTTE: </p>
-
         "
       )
     )
@@ -474,6 +473,32 @@ file_creation_server <- function(input, output, session){
   }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
   
+  #### ANALYSIS SET ####
+  analysis_set_check_flag <- shiny::reactiveValues(val = FALSE)
+  
+  shiny::observeEvent(c(adtte_data(), input$analysis_set), {
+    shiny::req(adtte_data())
+    if (is.null(input$analysis_set)) {
+      output$analysis_set_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color:#E43157"> <i class="fa fa-exclamation">
+            Please select an analysis set variable. </i></span>'
+          )
+        )
+      })
+      analysis_set_check_flag$val <- FALSE
+    } else {
+      analysis_set_check_flag$val <- TRUE
+      output$analysis_set_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+          )
+        )
+      })
+    }
+  }, ignoreNULL = FALSE, ignoreInit = TRUE)
   
   
   #### OUTCOME ####
@@ -584,14 +609,21 @@ file_creation_server <- function(input, output, session){
     if (is.null(adtte_data())) { return()
       } else {
       choices <- as.list(names(adtte_data()))
-      choices <- c(choices[stringr::str_detect(choices, "SAFFL")], choices[!(stringr::str_detect(choices, "SAFFL"))])
-   
+      choices1 <- c(choices[stringr::str_detect(choices, "SAFF|ITT|FAS")])
+      choices2 <- c(choices[!(stringr::str_detect(choices, "SAFFL|ITT|FAS"))])
+      
+      if (length(choices1) == 0) {
+        selected <- NULL
+      } else {
+        selected <- choices1[1]
+      }
+      
       shinyWidgets::pickerInput(
         inputId = ns("analysis_set"),
         label = "Analysis set",
-        choices = choices ,
-        selected = choices[1],
-        multiple = TRUE,
+        choices = c(choices1,choices2),
+        selected = selected,
+        multiple = FALSE,
         options = list(
           `actions-box` = TRUE,
           `selected-text-format` = "count > 0",
