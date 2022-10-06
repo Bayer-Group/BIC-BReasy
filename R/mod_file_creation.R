@@ -13,6 +13,7 @@ file_creation_ui <- function(id){
     shiny::uiOutput({
        ns('start_text')
     }),
+    shiny::uiOutput(ns("update_button_panel")),
     shinyWidgets::prettyRadioButtons(
       inputId = ns('adtte_data'),
       label = 'Select SAS data',
@@ -25,7 +26,7 @@ file_creation_ui <- function(id){
     ),
     shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'sas\'"),
       shiny::fluidRow(
-        shiny::column(6,
+        shiny::column(5,
           shiny::fileInput(
             inputId =  ns("adtte_file"),
             label = "ADTTE data (.sas7bdat format)",
@@ -35,7 +36,7 @@ file_creation_ui <- function(id){
           ),
           shiny::uiOutput(ns("wrong_adtte_format_text"))
         ),
-        shiny::column(6,
+        shiny::column(5,
           shiny::fileInput(
             inputId =  ns("adsl_file"),
             label = "ADSL data (optional for treatment variable)",
@@ -66,46 +67,46 @@ file_creation_ui <- function(id){
       )
     ),
     shiny::fluidRow(
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("sel_treatment")),
         shiny::uiOutput(ns("sel_treatment_check"))
       ),
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("sel_verum")),
         shiny::uiOutput(ns("sel_verum_check"))
       ),
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("sel_comparator")),
         shiny::uiOutput(ns("sel_comparator_check"))
       )
     ),
     shiny::fluidRow(
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("parameter"))
       ),
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("sel_parameter")),
         shiny::uiOutput(ns("sel_outcome_check"))
       ),
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("sel_aval"))#,
        # shiny::uiOutput(ns("sel_outcome_check"))
       )
     ),
     shiny::fluidRow(
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("analysis_set")),
         shiny::uiOutput(ns("analysis_set_check"))
       ),
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("subject_identifier"))  
       )
     ),
     shiny::fluidRow(
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("data_scope"))
       ),
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("sel_data_scope")),
         shiny::uiOutput(ns("sel_datascope_check"))
       )
@@ -114,58 +115,60 @@ file_creation_ui <- function(id){
       shiny::column(2,
         shiny::uiOutput(ns("subgroups_1"))
       ),
-      shiny::column(4,
+      shiny::column(3,
         
         shiny::uiOutput(ns("subgroups_2"))
       )
     ),
-    shinyBS::bsCollapse(
-      shinyBS::bsCollapsePanel(
-        shiny::HTML('<p style="color:black; font-size:100%;"> Filter: (click to open) </p>'),
-        "Filter options",
-        shiny::uiOutput(ns("filter_percentage")),
-        shiny::uiOutput(ns("pickerinput_adtte")),
-        shiny::fluidRow(
-          shiny::column(4,
-            shiny::actionButton(
-              inputId = ns("insertBtn"),
-              label = "Add",
-              icon = icon("plus")
+    shiny::column(10,
+      shinyBS::bsCollapse(
+        shinyBS::bsCollapsePanel(
+          shiny::HTML('<p style="color:black; font-size:100%;"> Filter: (click to open) </p>'),
+          "Filter options",
+          shiny::uiOutput(ns("filter_percentage")),
+          shiny::uiOutput(ns("pickerinput_adtte")),
+          shiny::fluidRow(
+            shiny::column(4,
+              shiny::actionButton(
+                inputId = ns("insertBtn"),
+                label = "Add",
+                icon = icon("plus")
+              )
+            ),
+            shiny::column(4,
+              shiny::actionButton(
+                inputId = ns("removeBtn"),
+                label = "Delete",
+                icon = icon("minus")
+              )
             )
-          ),
-          shiny::column(4,
+          ), 
+          shiny::tags$div(id = "placeholder"),
+          shiny::conditionalPanel(condition = "output.condition_filter == true",
             shiny::actionButton(
-              inputId = ns("removeBtn"),
-              label = "Delete",
-              icon = icon("minus")
+              inputId = ns("apply"),
+              label = "Apply Filter Selection!",
+              icon = icon("redo"),
+              style = "color: #fff; background-color: #61a337; border-color: #fff"
             )
-          )
-        ), 
-        shiny::tags$div(id = "placeholder"),
-        shiny::conditionalPanel(condition = "output.condition_filter == true",
-          shiny::actionButton(
-            inputId = ns("apply"),
-            label = "Apply Filter Selection!",
-            icon = icon("redo"),
-            style = "color: #fff; background-color: #61a337; border-color: #fff"
           )
         )
       )
     ),
     shiny::fluidRow(
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("event_identifyer"))
       ),
-      shiny::column(4,
+      shiny::column(3,
         shiny::uiOutput(ns("sel_event_identifyer")),
         shiny::uiOutput(ns("sel_event_identifyer_check"))
       )
     ),
     shiny::fluidRow(
-      shiny::column(4,
-        shiny::uiOutput(ns("estimates"))
-      ),
-      shiny::column(4,
+      # shiny::column(4,
+      #   shiny::uiOutput(ns("estimates"))
+      # ),
+      shiny::column(3,
         shiny::uiOutput(ns("effect"))
       )
     ),
@@ -178,7 +181,7 @@ file_creation_ui <- function(id){
     #   shinyBS::bsCollapsePanel(
     #     shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
     #     "Advanced settings",
-        shiny::column(4,
+        shiny::column(3,
         
           shiny::uiOutput(ns("stratification_2"))
         )
@@ -186,28 +189,27 @@ file_creation_ui <- function(id){
       
     #   )
     # ),
-      shinyBS::bsCollapse(
-        shinyBS::bsCollapsePanel(
-          shiny::HTML('<p style="color:black; font-size:100%;"> ADTTE (+ADSL) data: </p>'),
-          shiny::wellPanel(
-            id = "table_adtte_Panel",
-            style = "color:black; overflow-y:scroll; max-height: 600px",
-            shiny::dataTableOutput(ns('table_adtte'))
-          )
-        ),
-        shinyBS::bsCollapsePanel(
-          shiny::HTML('<p style="color:black; font-size:100%;"> CSV Output file: </p>'),
-          shiny::wellPanel(
-            id = "table_csv_Panel",
-            style = "color:black; overflow-y:scroll; max-height: 600px",
-            
-            shiny::dataTableOutput(ns('table_csv'))
+      shiny::column(10,
+        shinyBS::bsCollapse(
+          shinyBS::bsCollapsePanel(
+            shiny::HTML('<p style="color:black; font-size:100%;"> ADTTE (+ADSL) data: </p>'),
+            shiny::wellPanel(
+              id = "table_adtte_Panel",
+              style = "color:black; overflow-y:scroll; max-height: 600px",
+              shiny::dataTableOutput(ns('table_adtte'))
+            )
           ),
-          shiny::uiOutput(ns('required_variables_text'))
+          shinyBS::bsCollapsePanel(
+            shiny::HTML('<p style="color:black; font-size:100%;"> CSV Output file: </p>'),
+            shiny::wellPanel(
+              id = "table_csv_Panel",
+              style = "color:black; overflow-y:scroll; max-height: 600px",
+              
+              shiny::dataTableOutput(ns('table_csv'))
+            ),
+            shiny::uiOutput(ns('required_variables_text'))
+          )
         )
-      ),
-      shiny::fluidRow(
-        shiny::downloadButton(ns("downloadData"), "Save as .csv")
       )
     )
 }
@@ -226,6 +228,36 @@ file_creation_server <- function(input, output, session){
           <h1> Create a csv file from your ADTTE SAS file </h1>
         "
       )
+    )
+  })
+  
+  output$update_button_panel <- shiny::renderUI({
+    shiny::absolutePanel(
+      id = "update_button_panel",
+      class = "modal-content",
+      fixed = TRUE,
+      draggable = FALSE,
+      HTML(paste0("<div style='background-color: white'>")),
+      top = 200,
+      left = "auto",
+      right = 50,
+      bottom = "auto",
+      width = "auto",
+      height = "auto",
+        shiny::fluidRow(
+          column(2,
+            shiny::actionButton(
+            inputId = ns("btn2"),
+            label = "Calculate!"
+            )
+          )),
+          br(),
+         shiny::fluidRow(
+          column(2,
+            shiny::downloadButton(ns("downloadData"), "Save as .csv")
+          )
+        ),
+      style = "z-index: 10;"
     )
   })
 
@@ -662,7 +694,7 @@ file_creation_server <- function(input, output, session){
   output$effect <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
-      choices <- c("excess", "IRD")
+      choices <- c("IRD","EXCESS_IRD","ARD","EXCESS_ARD")
     }
 
     shinyWidgets::pickerInput(
