@@ -927,7 +927,7 @@ file_creation_server <- function(input, output, session){
         label = "Stratification",
         choices = choices,
         selected = choices[1],
-        multiple = FALSE,
+        multiple = TRUE,
         options = list(
           `actions-box` = TRUE,
           `selected-text-format` = "count > 0",
