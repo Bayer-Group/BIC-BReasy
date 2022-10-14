@@ -214,10 +214,11 @@ file_creation_ui <- function(id){
     )
 }
 
+
 #' File creation Server Function
 #'
 #' @noRd
-file_creation_server <- function(input, output, session){
+file_creation_server <- function(input, output, session) {
   ns <- session$ns
 
   #Start text
@@ -232,6 +233,7 @@ file_creation_server <- function(input, output, session){
   })
   
   output$update_button_panel <- shiny::renderUI({
+    shiny::req(adtte_data())
     shiny::absolutePanel(
       id = "update_button_panel",
       class = "modal-content",
@@ -247,17 +249,37 @@ file_creation_server <- function(input, output, session){
         shiny::fluidRow(
           column(2,
             shiny::actionButton(
-            inputId = ns("btn2"),
-            label = "Calculate!"
-            )
+              inputId = ns("btn2"),
+              label = "Calculate!",
+              icon = icon("spinner")
+            ),
+            shiny::uiOutput(ns('btn2_cont')),
           )),
           br(),
          shiny::fluidRow(
           column(2,
-            shiny::downloadButton(ns("downloadData"), "Save as .csv")
-          )
+            shiny::downloadButton(ns("downloadData"), "Save as .csv", class="mybutton")
+          ),
+          shiny::uiOutput(ns('downloadData_cont'))
         ),
       style = "z-index: 10;"
+    )
+  })
+  
+  # button colors:
+  output$btn2_cont <- shiny::renderUI({
+    list(
+      shiny::tags$head(
+        tags$style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#E43157;}')))
+      )
+    )
+  })
+  
+  downloadData_cont <- shiny::renderUI({
+    list(
+      shiny::tags$head(
+        tags$style(HTML(paste0('#', session$ns("downloadData"),'{color: #ffffff; background-color:#E43157;}')))
+      )
     )
   })
 
@@ -356,7 +378,7 @@ file_creation_server <- function(input, output, session){
       output$sel_treatment_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
           )
         )
       })
@@ -417,7 +439,7 @@ file_creation_server <- function(input, output, session){
       output$sel_verum_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
           )
         )
       })
@@ -468,6 +490,7 @@ file_creation_server <- function(input, output, session){
       )
     )
   })
+  
   comparator_check_flag <- shiny::reactiveValues(val = FALSE)
   shiny::observeEvent(c(adtte_data(), input$sel_treatment, input$sel_comparator), {
     shiny::req(adtte_data())
@@ -487,7 +510,7 @@ file_creation_server <- function(input, output, session){
       output$sel_comparator_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
           )
         )
       })
@@ -525,7 +548,7 @@ file_creation_server <- function(input, output, session){
       output$analysis_set_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
           )
         )
       })
@@ -553,7 +576,7 @@ file_creation_server <- function(input, output, session){
       output$sel_outcome_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
           )
         )
       })
@@ -776,7 +799,7 @@ file_creation_server <- function(input, output, session){
       output$sel_event_identifyer_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
           )
         )
       })
@@ -857,7 +880,7 @@ file_creation_server <- function(input, output, session){
       output$sel_datascope_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #16de5f"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
           )
         )
       })
@@ -1069,17 +1092,111 @@ file_creation_server <- function(input, output, session){
     data_filt
   })
   
-  csv_file <- shiny::reactive({
+  #observer to change the calculate-button color:
+  shiny::observe({
+    if (
+      treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
+      outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
+    ) {
+      if (
+        all(dim(used_settings$adtte) == dim(adtte_filtered())) &
+        all(used_settings$effect == input$effect) &
+        all(used_settings$outcome == input$sel_parameter) &
+        all(used_settings$scope == input$data_scope) &
+        all(used_settings$datascope == input$sel_data_scope) &
+        all(used_settings$population == input$analysis_set) &
+        all(used_settings$treatment == input$sel_treatment) &
+        all(used_settings$verum == input$sel_verum) &
+        all(used_settings$comparator == input$sel_comparator) &
+        all(used_settings$cnsr == input$event_identifyer) &
+        all(used_settings$param == input$parameter) &
+        all(used_settings$event == input$sel_event_identifyer) &
+        all(used_settings$strat == stratification_reac_val$val) &
+        all(used_settings$subgroup == subgroups_reac_val$val) &
+        all(used_settings$aval == input$sel_aval)
+      ) {
+        output$btn2_cont <- shiny::renderUI({
+          list(
+            shiny::tags$head(
+              tags$style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#e3e3e3;}')))
+            )
+          )
+        })
+      } else if (
+        all(dim(used_settings$adtte) == c(0,0)) &
+        all(used_settings$effect == "") &
+        all(used_settings$outcome == "") &
+        all(used_settings$scope =="") &
+        all(used_settings$datascope =="") &
+        all(used_settings$population == "") &
+        all(used_settings$treatment == "") &
+        all(used_settings$verum == "") &
+        all(used_settings$comparator == "") &
+        all(used_settings$cnsr == "") &
+        all(used_settings$param == "") &
+        all(used_settings$event == "") &
+        all(used_settings$strat == "") &
+        all(used_settings$subgroup == "") &
+        all(used_settings$aval == "")
+      ) {
+        output$btn2_cont <- shiny::renderUI({
+          list(
+            shiny::tags$head(
+              tags$style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#61a337;}')))
+            )
+          )
+        })
+      } else {
+        output$btn2_cont <- shiny::renderUI({
+          list(
+            shiny::tags$head(
+              tags$style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#61a337;}')))
+            )
+          )
+        })
+      }
+    } else {
+      output$btn2_cont <- shiny::renderUI({
+        list(
+          shiny::tags$head(
+            tags$ style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#E43157;}')))
+          )
+        )
+      })
+    }
+  })
+  
+  used_settings <- shiny::reactiveValues(
+    adtte = data.frame(),
+    effect = "",
+    outcome = "",
+    scope = "",
+    datascope = "",
+    population = "",
+    treatment= "",
+    verum = "",
+    comparator = "",
+    cnsr = "",
+    param = "",
+    event = "",
+    strat = "",
+    subgroup = "",
+    aval = ""
+  )
+  
+  shiny::observe({
+    csv_file()
+  })
+  
+  csv_file <- shiny::eventReactive(input$btn2, {
  
       # include filtered data_
       #   need a button to update
       adtte <- adtte_filtered()
       #adtte <- adtte_data2()
-        
-      
       #start the calculation only if the required variables are 
       #available:
-      if(
+      if (
         treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
         outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
       ) {
@@ -1102,6 +1219,29 @@ file_creation_server <- function(input, output, session){
         #add aval
         aval = input$sel_aval
       )
+       output$btn2_cont <- shiny::renderUI({
+        list(
+          shiny::tags$head(
+            tags$ style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#e3e3e3;}')))
+          )
+        )
+      })
+        used_settings$adtte <- adtte
+        used_settings$effect <- input$effect
+        used_settings$outcome <- input$sel_parameter
+        used_settings$scope <- input$data_scope
+        used_settings$datascope <- input$sel_data_scope
+        used_settings$population <- input$analysis_set
+        used_settings$treatment <- input$sel_treatment
+        used_settings$verum <- input$sel_verum
+        used_settings$comparator <- input$sel_comparator
+        used_settings$cnsr <- input$event_identifyer
+        used_settings$param <- input$parameter
+        used_settings$event <- input$sel_event_identifyer
+        used_settings$strat <- stratification_reac_val$val
+        used_settings$subgroup <- subgroups_reac_val$val
+        used_settings$aval <- input$sel_aval
+      
       output$required_variables_text <- shiny::renderUI({
         shiny::HTML(
           paste0(
@@ -1131,18 +1271,6 @@ file_creation_server <- function(input, output, session){
   
   
   #### FILTER ####
-  # filter_percentage <- shiny::renderUI({
-  #   total_tmp <- dim(adtte_data2())[1]
-  #   value_tmp <- dim(adtte_filtered())[1]
-  #     
-  #   shinyWidgets::progressBar(
-  #           id = ns("filter_percentage"),
-  #           value = 100,
-  #           total = 100,
-  #           title = "Title",
-  #           display_pct = TRUE
-  #         )
-  #  })
   # Reset initial values if Remove Button is clicked
   shiny::observeEvent(input$removeBtn, {
     id_adtte_m$myList <- list()

@@ -272,7 +272,7 @@ app_ui <- function(request) {
                 .main-sidebar .sidebar .sidebar-menu .treeview-menu li:hover a {background-color: ", breasy_purple, " !important;}
                 .skin-blue .main-header .logo { background-color: ", breasy_grey, ";}
                 .skin-blue .main-header .logo:hover {background-color: ", breasy_grey, ";}
-                .progress-bar{background-color:", breasy_green, ";}
+                .progress-bar{background-color:", breasy_blue, ";}
                 .skin-blue .main-header .navbar {background-color: ", breasy_grey, ";}
                 /* main sidebar */
                 .skin-blue .main-sidebar {background-color: ", "#424242", ";}
