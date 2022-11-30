@@ -34,6 +34,7 @@ effect_calc <- function(
   # add aval
   aval = aval
   ) {
+  
   result <- total <- total_final <- total_end <- total_res <- c()
   result_test_1 <- vector(mode = "list")
   '%notin%' <- Negate('%in%')
@@ -54,13 +55,15 @@ effect_calc <- function(
         data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "Y"),]
       }
     }
-
-    if(strat != "Overall") { 
+    
+    if(all(strat != "Overall")) { 
     
       numlevels <- alllevels <- allnames <- strat_names <- c()
-  
+      
       for (g in 1:length(strat)) {
-        strat_factor <- factor(data[strat][,g])
+        # Wed Nov 30 08:25:49 2022 ------------------------------
+        #strat_factor <- factor(data[strat][,g])
+        strat_factor <- factor(as.character(data[[strat[g]]]))
         alllevels[[g]] <- levels(strat_factor)
         numlevels[g] <- nlevels(strat_factor)
         for (i in 1:nlevels(strat_factor)) {
@@ -71,7 +74,9 @@ effect_calc <- function(
         
       total_levels <- sum(numlevels)
       name_levels <- unlist(alllevels)
-      name_strat <- unlist(strat_names)
+      # Wed Nov 30 12:24:38 2022 ------------------------------
+      name_strat <- rep(strat,numlevels)
+      # name_strat <- unlist(strat_names)
   
       pre_adtte <- pre_adtte_trt <- pre_adtte_com <- vector(mode = "list")
       adtte <- adtte_trt <- adtte_com <- c()
@@ -176,8 +181,10 @@ effect_calc <- function(
         nnt <- round(1/(res_extract.effect.ci[1]))
       }
   
+      ### need to be changed
       stratum_level <- c("All",name_levels)
       stratum_name <- c(paste(strat, collapse = "/"), name_strat)
+      
       x_1 <- c(sum(x1),x1)
       x_2 <- c(sum(x2),x2)
       n_1 <- c(sum(n1),n1)
@@ -186,9 +193,12 @@ effect_calc <- function(
       
       result_test <- c(res_extract.effect.ci.rounded, nnt)
       names(result_test) <- c("Esimate","lower","upper","nnt")
+      
       result_test <- as.data.frame(result_test)
+      
       result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test)
   
+      
       result_test_excess <- c(excess, excess_lower, excess_upper, nnt)
       names(result_test_excess) <- c("Excess","Excess_lower","Excess_upper","nnt")
       result_test_excess <- as.data.frame(result_test_excess)
@@ -271,7 +281,7 @@ effect_calc <- function(
     }
   }
  
-  if (strat != "Overall") {
+  if (all(strat != "Overall")) {
     for(k in 1:length(outcome)) {total <- rbind(total,as.data.frame(result_test_1[[k]]))}
     total_res <- as.data.frame(total)
   } else{
@@ -307,7 +317,7 @@ effect_calc <- function(
              }
            }
 
-           if (strat != "Overall") {
+            if (all(strat != "Overall")) {
 
              numlevels <- alllevels <- allnames <- strat_names <- c()
 
@@ -430,9 +440,12 @@ effect_calc <- function(
              nnt <- round(1/(res_extract.effect.ci[1]))
             }
 
-
+            
+             ###
              stratum_level <- c("All",name_levels)
              stratum_name <- c(paste(strat, collapse = "/"),name_strat)
+             
+        
              x_1 <- c(sum(x1),x1)
              x_2 <- c(sum(x2),x2)
              n_1 <- c(sum(n1),n1)
@@ -442,7 +455,6 @@ effect_calc <- function(
              c_1 <- c(sum(c1),c1)
              d_1 <- c(sum(d1),d1)
              
-
              result_test <- c(res_extract.effect.ci.rounded, nnt)
              names(result_test) <- c("Esimate","lower","upper","nnt")
              result_test <- as.data.frame(result_test)
@@ -535,7 +547,7 @@ effect_calc <- function(
            }
          }
 
-         if (strat != "Overall") {
+         if (all(strat != "Overall")) {
            for(k in 1:length(outcome)) {total <- rbind(total,as.data.frame(result_test_1[[k]]))}
            total_final[[l]] <- as.data.frame(total)
 

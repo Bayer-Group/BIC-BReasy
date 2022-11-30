@@ -891,7 +891,7 @@ file_creation_server <- function(input, output, session) {
     if (is.null(adtte_data())) return()
     else {
       choices <- as.list(sort(names(adtte_data())))
-      choices <- c(choices[stringr::str_detect(choices, "AVISIT")], choices[!(stringr::str_detect(choices, "AVISIT"))])
+      choices <- c(choices[stringr::str_detect(choices, "AVISIT")], "No selection", choices[!(stringr::str_detect(choices, "AVISIT"))])
     }
 
     shinyWidgets::pickerInput(
@@ -965,8 +965,11 @@ file_creation_server <- function(input, output, session) {
 
    output$sel_data_scope <- shiny::renderUI({
     shiny::req(input$data_scope)
-    if (is.null(req(input$data_scope))) return()
-    else {
+    if (is.null(shiny::req(input$data_scope))) {
+      return() 
+    } else if (shiny::req(input$data_scope) == "No selection" ) {
+     choices <- "No selection"
+    } else {
       if (is.factor(adtte_data()[, which(names(adtte_data()) == input$data_scope)])) {
         choices <- as.list(levels(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
         #choices <- c("No selection", choices)
