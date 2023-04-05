@@ -16,12 +16,12 @@ file_creation_ui <- function(id){
     shiny::uiOutput(ns("update_button_panel")),
     shinyWidgets::prettyRadioButtons(
       inputId = ns('adtte_data'),
-      label = 'Select SAS data',
+      label = 'Input type',
       shape = 'round',
       animation = 'smooth',
       choices = c(
-        "SAS file (from Disc)" = "sas",
-        "SAS file (from Server)" = "server"
+        "SAS file (from Disc)" = "sas"#,
+        #"SAS file (from Server)" = "server"
       )
     ),
     shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'sas\'"),
@@ -170,19 +170,23 @@ file_creation_ui <- function(id){
       # ),
       shiny::column(3,
         shiny::uiOutput(ns("effect"))
+      ),
+      shiny::conditionalPanel(condition = paste0("input['", ns("effect"), "\'] == \'CID\' | input['", ns("effect"), "\'] == \'EXCESS_CID\'" ),
+        shiny::column(3,
+          shiny::uiOutput(ns("day_variable")),
+          shiny::uiOutput(ns("day_variable_check"))
+        )
       )
     ),
     shiny::fluidRow(
-      
-    shiny::column(2,
-      shiny::uiOutput(ns("stratification_1"))
-    ),
+      shiny::column(2,
+        shiny::uiOutput(ns("stratification_1"))
+      ),
     # shinyBS::bsCollapse(
     #   shinyBS::bsCollapsePanel(
     #     shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
     #     "Advanced settings",
         shiny::column(3,
-        
           shiny::uiOutput(ns("stratification_2"))
         )
     ),
@@ -226,7 +230,14 @@ file_creation_server <- function(input, output, session) {
     list(
       HTML(
         "
-          <h1> Create a csv file from your ADTTE SAS file </h1>
+          <h1> Create a BReasy input file (as .csv) from your ADTTE SAS file </h1>
+          <h5> Please upload your adtte file and complete all required settings.
+               If necessary also upload the appropriate adsl data set.</h5>
+          <h5> After completing all settings, press the <span style='color: white;background-color: #61a337;height: 26px;border-radius:25px;'> <i class='fa-solid fa-spinner'></i> Calculate! </span>-button.
+               The results of the calculation appear in the 'CSV Output file' box.</h5>
+          <h5> If this dataset has the appropriate form, please press the <span style='color: white; background-color: #61a337;height: 26px;border-radius:25px'><i class='fa-solid fa-download'></i>Save as .csv </span>-button.
+               The saved data can be uploaded via <b><i class='fa-solid fa-upload'></i> Data Upload </b>-tab.</h5>
+          
         "
       )
     )
@@ -367,8 +378,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_treatment_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            Please select a treatment variable. </i></span>'
+            '<span style = "color:#E43157"> <i class="fa fa-exclamation"></i> Please select a treatment variable. </span>'
           )
         )
       })
@@ -378,7 +388,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_treatment_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -428,8 +438,8 @@ file_creation_server <- function(input, output, session) {
       output$sel_verum_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            Please select verum term. </i></span>'
+            '<span style = "color:#E43157"> <i class="fa fa-exclamation"></i> 
+            Please select verum term. </span>'
           )
         )
       })
@@ -439,7 +449,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_verum_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -500,7 +510,7 @@ file_creation_server <- function(input, output, session) {
         shiny::HTML(
           paste0(
             '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            Please select comparator term. </i></span>'
+            </i> Please select comparator term. </span>'
           )
         )
       })
@@ -510,7 +520,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_comparator_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -538,7 +548,7 @@ file_creation_server <- function(input, output, session) {
         shiny::HTML(
           paste0(
             '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            Please select an analysis set variable. </i></span>'
+            </i> Please select an analysis set variable. </span>'
           )
         )
       })
@@ -548,7 +558,7 @@ file_creation_server <- function(input, output, session) {
       output$analysis_set_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -566,7 +576,7 @@ file_creation_server <- function(input, output, session) {
         shiny::HTML(
           paste0(
             '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            Please select an outcome variable. </i></span>'
+             </i> Please select an outcome variable. </span>'
           )
         )
       })
@@ -576,7 +586,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_outcome_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -717,7 +727,7 @@ file_creation_server <- function(input, output, session) {
   output$effect <- shiny::renderUI({
     if (is.null(adtte_data())) return()
     else {
-      choices <- c("IRD","EXCESS_IRD","ARD","EXCESS_ARD")
+      choices <- c("CID","EXCESS_CID","HR","IRD","ARD","EXCESS_IRD")
     }
 
     shinyWidgets::pickerInput(
@@ -779,6 +789,42 @@ file_creation_server <- function(input, output, session) {
   })
   
   
+  #### DAY VARIABLE ####
+  output$day_variable <- shiny::renderUI({
+    shiny::numericInput(
+      inputId = ns("day_variable"),
+      label = "Day variable",
+      value = NULL,
+      min = 0,
+      step = 1
+    )
+  })
+  
+  day_variable_check_flag <- shiny::reactiveValues(val = FALSE)
+  shiny::observeEvent(c(adtte_data(), input$day_variable), {
+    shiny::req(adtte_data())
+    if (is.na(input$day_variable)) {
+      output$day_variable_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color:#E43157"> <i class="fa fa-exclamation">
+            </i> Please select a day variable.  </span>'
+          )
+        )
+      })
+      day_variable_check_flag$val <- FALSE
+    } else {
+      day_variable_check_flag$val <- TRUE
+      output$day_variable_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+          )
+        )
+      })
+    }
+  }, ignoreNULL = FALSE, ignoreInit = TRUE)
+  
   #### EVENT IDENTTIFYER ####
   event_identifyer_check_flag <- shiny::reactiveValues(val = FALSE)
   
@@ -789,7 +835,7 @@ file_creation_server <- function(input, output, session) {
         shiny::HTML(
           paste0(
             '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            Please select an event identifyer variable. </i></span>'
+            </i> Please select an event identifyer variable. </span>'
           )
         )
       })
@@ -799,7 +845,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_event_identifyer_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -870,7 +916,7 @@ file_creation_server <- function(input, output, session) {
         shiny::HTML(
           paste0(
             '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            Please select a data scope variable. </i></span>'
+            </i> Please select a data scope variable. </span>'
           )
         )
       })
@@ -880,7 +926,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_datascope_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa fa-check"></i></span>'
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -1203,11 +1249,12 @@ file_creation_server <- function(input, output, session) {
         treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
         outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
       ) {
-        
+     
       tmp <- effect_calc(
         data = adtte,
         effect = input$effect,
         outcome = input$sel_parameter,
+        day = input$day_variable,
         scope = input$data_scope,
         datascope = input$sel_data_scope ,
         population = input$analysis_set,
@@ -1219,7 +1266,6 @@ file_creation_server <- function(input, output, session) {
         event = input$sel_event_identifyer,
         strat = stratification_reac_val$val,
         subgroup = subgroups_reac_val$val,
-        #add aval
         aval = input$sel_aval
       )
        output$btn2_cont <- shiny::renderUI({
@@ -1259,7 +1305,7 @@ file_creation_server <- function(input, output, session) {
           shiny::HTML(
             paste0(
               '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-              Please select all required variables! </i></span>'
+              </i> Please select all required variables! </span>'
             )
           )
         })

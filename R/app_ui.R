@@ -289,7 +289,7 @@ app_ui <- function(request) {
           shinydashboard::box(
             width = NULL,
             status ="primary",
-            title = div(HTML('<i class ="fa fa-notes-medical"; style ="color : white";> Patient characteristics</i>')),
+            title = div(HTML('<p style ="color: white"><i class ="fa fa-notes-medical"; style ="color : white";></i>  Patient characteristics</p>')),
             collapsible = TRUE,
             collapsed = FALSE,
             shiny::fluidPage(

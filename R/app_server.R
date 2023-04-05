@@ -595,7 +595,7 @@ app_server <- function( input, output, session ) {
           </span>
           <p>
           <span style = 'font-size: 30px'> 
-          the R Shiny application for structured Benefit-Risk assessment.
+          a shiny application for structured Benefit-Risk assessment.
           <p>
           <span style = 'font-size:24px'>
           For uploading CSV file(s), please use the 'Data Upload'-tab.
