@@ -801,8 +801,11 @@ file_creation_server <- function(input, output, session) {
   })
   
   day_variable_check_flag <- shiny::reactiveValues(val = FALSE)
-  shiny::observeEvent(c(adtte_data(), input$day_variable), {
+  
+  shiny::observeEvent(c(adtte_data(), input$effect, input$day_variable), {
     shiny::req(adtte_data())
+    shiny::req(input$effect)
+    if (input$effect %in% c("CID","EXCESS_CID")) {
     if (is.na(input$day_variable)) {
       output$day_variable_check <- shiny::renderUI({
         shiny::HTML(
@@ -813,6 +816,16 @@ file_creation_server <- function(input, output, session) {
         )
       })
       day_variable_check_flag$val <- FALSE
+    } else {
+      day_variable_check_flag$val <- TRUE
+      output$day_variable_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+          )
+        )
+      })
+    }
     } else {
       day_variable_check_flag$val <- TRUE
       output$day_variable_check <- shiny::renderUI({
@@ -1145,7 +1158,8 @@ file_creation_server <- function(input, output, session) {
   shiny::observe({
     if (
       treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
-      outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
+      outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val &
+      day_variable_check_flag$val
     ) {
       if (
         all(dim(used_settings$adtte) == dim(adtte_filtered())) &
@@ -1162,7 +1176,8 @@ file_creation_server <- function(input, output, session) {
         all(used_settings$event == input$sel_event_identifyer) &
         all(used_settings$strat == stratification_reac_val$val) &
         all(used_settings$subgroup == subgroups_reac_val$val) &
-        all(used_settings$aval == input$sel_aval)
+        all(used_settings$aval == input$sel_aval) &
+        all(used_settings$day == input$day_variable)
       ) {
         output$btn2_cont <- shiny::renderUI({
           list(
@@ -1186,7 +1201,8 @@ file_creation_server <- function(input, output, session) {
         all(used_settings$event == "") &
         all(used_settings$strat == "") &
         all(used_settings$subgroup == "") &
-        all(used_settings$aval == "")
+        all(used_settings$aval == "") &
+        all(used_settings$day == "")
       ) {
         output$btn2_cont <- shiny::renderUI({
           list(
@@ -1230,7 +1246,8 @@ file_creation_server <- function(input, output, session) {
     event = "",
     strat = "",
     subgroup = "",
-    aval = ""
+    aval = "",
+    day = ""
   )
   
   shiny::observe({
@@ -1247,7 +1264,8 @@ file_creation_server <- function(input, output, session) {
       #available:
       if (
         treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
-        outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val
+        outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val &
+        day_variable_check_flag$val
       ) {
      
       tmp <- effect_calc(
@@ -1290,6 +1308,7 @@ file_creation_server <- function(input, output, session) {
         used_settings$strat <- stratification_reac_val$val
         used_settings$subgroup <- subgroups_reac_val$val
         used_settings$aval <- input$sel_aval
+        used_settings$day <- input$day_variable
       
       output$required_variables_text <- shiny::renderUI({
         shiny::HTML(
