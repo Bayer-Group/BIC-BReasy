@@ -7,8 +7,8 @@
 #' @noRd
 app_server <- function( input, output, session ) {
   # List the first level callModules here
-  #increase file upload size to 100MB
-  options(shiny.maxRequestSize = 100*1024^2)
+  #increase file upload size to 1200MB
+  options(shiny.maxRequestSize = 1200*1024^2)
   
   #### Data Upload-tab ####
   # possibility to upload up to 4 files which are combined
