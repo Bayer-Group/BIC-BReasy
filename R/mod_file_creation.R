@@ -794,7 +794,7 @@ file_creation_server <- function(input, output, session) {
     shiny::numericInput(
       inputId = ns("day_variable"),
       label = "Day variable",
-      value = NULL,
+      value = 0,
       min = 0,
       step = 1
     )
@@ -1247,7 +1247,7 @@ file_creation_server <- function(input, output, session) {
     strat = "",
     subgroup = "",
     aval = "",
-    day = ""
+    day = 0
   )
   
   shiny::observe({
