@@ -1083,21 +1083,29 @@ if ("Overall" %notin% subgroup) {
                result_test_1[[j]] <- c(trialno, "Hazard Ratio",population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded[j,])
                names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_HR","LOWER95","UPPER95")
              }
-             if (effect == "CID" & nlevels(as.factor(data_decision[[cnsr]])) > 2) {
-               result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on AJ",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
-               names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_CID","LOWER95","UPPER95","NNT")
+             if (effect == "CID"){
+               if (nlevels(as.factor(data_decision[[cnsr]])) > 2) {
+                 result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on AJ",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
+                 names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_CID","LOWER95","UPPER95","NNT")
+               }
              }
-             if (effect == "EXCESS_CID" & nlevels(as.factor(data_decision[[cnsr]])) > 2) {
-               result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on AJ",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
-               names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
+             if (effect == "EXCESS_CID"){
+               if (nlevels(as.factor(data_decision[[cnsr]])) > 2) {
+                 result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on AJ",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
+                 names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
+               }
              }
-             if (effect == "CID" & nlevels(as.factor(data_decision[[cnsr]])) == 2) {
-               result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on KM",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
-               names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_CID","LOWER95","UPPER95","NNT")
+             if (effect == "CID"){
+               if (nlevels(as.factor(data_decision[[cnsr]])) == 2) {
+                 result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on KM",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
+                 names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_CID","LOWER95","UPPER95","NNT")
+               }
              }
-             if (effect == "EXCESS_CID" & nlevels(as.factor(data_decision[[cnsr]])) == 2) {
-               result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on KM",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
-               names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
+             if (effect == "EXCESS_CID"){
+               if (nlevels(as.factor(data_decision[[cnsr]])) == 2) {
+                 result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on KM",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
+                 names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
+               }
              }
 
            }
