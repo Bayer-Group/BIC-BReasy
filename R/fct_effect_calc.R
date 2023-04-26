@@ -37,7 +37,7 @@ effect_calc <- function(
     aval = aval
 ) {
  
- result <- total <- total_final <- total_end <- total_res <-  c() 
+ result <- total <- total_final <- total_end <- total_res <-  c()  
  result_test_1 <- vector(mode = "list")
  '%notin%' <- Negate('%in%')
  
@@ -1080,7 +1080,7 @@ if ("Overall" %notin% subgroup) {
                names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
              }
              if (effect == "HR") {
-               result_test_1[[j]] <- c(trialno, "Hazard Ratio",population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded[j,])
+               result_test_1[[j]] <- c(trialno, "Hazard Ratio",population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded)
                names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_HR","LOWER95","UPPER95")
              }
              if (effect == "CID"){
