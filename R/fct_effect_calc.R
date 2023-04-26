@@ -1058,7 +1058,7 @@ if ("Overall" %notin% subgroup) {
                nnt <- "NA"
                
                excess <- "NA"
-               excess_lower <- "NA"
+               excess_lower <- "NA" 
                excess_upper <- "NA"
              } 
              
