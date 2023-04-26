@@ -37,7 +37,7 @@ effect_calc <- function(
     aval = aval
 ) {
  
- result <- total <- total_final <- total_end <- total_res <-  c()
+ result <- total <- total_final <- total_end <- total_res <-  c() 
  result_test_1 <- vector(mode = "list")
  '%notin%' <- Negate('%in%')
  
@@ -948,7 +948,7 @@ if ("Overall" %notin% subgroup) {
                  
                  data_adtte_cid$CNSR_2 <- ifelse(data_adtte_cid$CNSR_1 != event , 0 , 1)
                  
-                 a <- data_adtte_cid$AVAL
+                 a <- data_adtte_cid$AVAL 
                  b <- as.factor(data_adtte_cid$CNSR_2)
                  c <- data_adtte_cid[[treatment]]
                  
@@ -1109,7 +1109,7 @@ if ("Overall" %notin% subgroup) {
              }
 
            }
-         }
+         } 
 
          if("Overall" %notin% strat) {
            for(k in 1:length(outcome)) {total <- rbind(total,as.data.frame(result_test_1[[k]]))}
