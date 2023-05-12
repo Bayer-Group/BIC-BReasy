@@ -166,7 +166,7 @@ effect_calc <- function(
       data_meta <- data.frame(a1,b1,c1,d1)
       
       data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 2)
+      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
       data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
       
       a <- data_test_hr$AVAL
@@ -466,7 +466,7 @@ effect_calc <- function(
     if (effect == "HR")  {
       
       data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 2)
+      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
       data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
       
       a <- data_test_hr$AVAL
@@ -705,7 +705,7 @@ if ("Overall" %notin% subgroup) {
                data_meta <- data.frame(a1,b1,c1,d1)
                
                data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 2)
+               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
                data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
                
                a <- data_test_hr$AVAL
@@ -1014,7 +1014,7 @@ if ("Overall" %notin% subgroup) {
              if (effect %in% c("HR"))  {
                
                data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 2)
+               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
                data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
                
                a <- data_test_hr$AVAL
