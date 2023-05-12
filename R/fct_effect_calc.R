@@ -587,13 +587,13 @@ if ("Overall" %notin% subgroup) {
          for (j in 1:length(outcome)) {
 
            if(datascope != "No selection") {
-             if(is.numeric(population)) {
+             if (is.numeric(data[[population]])) {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "1") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
              } else {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "Y") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
              }
            } else {
-             if(is.numeric(population)) {
+             if (is.numeric(data[[population]])) {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "1") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
              } else {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "Y") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
