@@ -50,7 +50,7 @@ effect_calc <- function(
  }
  #### create output for subgroup = Overall #####
   
- for (j in 1:length(outcome)) {
+ for (j in 1:length(outcome)) { 
    
   if (datascope != "No selection") {
     if(is.numeric(data[[population]])) {
