@@ -419,7 +419,7 @@ effect_calc <- function(
         cum <- survival::survfit(survival::Surv(a, b) ~ c, data = data_adtte_cid) 
         cum_sum <- summary(cum)
         
-        cum_data <- as.data.frame(cbind(v_1$strata,v_1$time,v_1$n.event,1-v_1$surv,v_1$std.err))
+        cum_data <- as.data.frame(cbind(cum_sum$strata,cum_sum$time,cum_sum$n.event,1-cum_sum$surv,cum_sum$std.err))
         names(cum_data) <- c("strata","time","n.event","cum.inc","std.err")
         
         
@@ -967,7 +967,7 @@ if ("Overall" %notin% subgroup) {
                    cum <- survival::survfit(survival::Surv(a, b) ~ c, data = data_adtte_cid) 
                    cum_sum <- summary(cum)
                    
-                   cum_data <- as.data.frame(cbind(v_1$strata,v_1$time,v_1$n.event,1-v_1$surv,v_1$std.err))
+                   cum_data <- as.data.frame(cbind(cum_sum$strata,cum_sum$time,cum_sum$n.event,1-cum_sum$surv,cum_sum$std.err))
                    names(cum_data) <- c("strata","time","n.event","cum.inc","std.err")
                    
                    
