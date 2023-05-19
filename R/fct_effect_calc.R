@@ -69,6 +69,13 @@ effect_calc <- function(
   if("Overall" %notin% strat) { 
     
     numlevels <- alllevels <- allnames <- strat_names <- c()
+    
+    adtte_trt <- data_test[(data_test[[treatment]] %in% verum),]
+    adtte_com <- data_test[(data_test[[treatment]] %in% comparator),]
+    x1_all <- length(which(adtte_trt[[cnsr]] %in% event))
+    x2_all <- length(which(adtte_com[[cnsr]] %in% event))
+    n1_all <- nrow(adtte_trt)
+    n2_all <- nrow(adtte_com)
 
     for (g in 1:length(strat)) {
       strat_factor <- factor(data[strat][,g])
@@ -231,21 +238,21 @@ effect_calc <- function(
     result_test <- c(res_extract.effect.ci.rounded, nnt)
     names(result_test) <- c("Esimate","lower","upper","nnt")
     result_test <- as.data.frame(result_test)
-    result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test)
+    result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test)
     }
     
     if (effect %in% c("EXCESS_ARD", "EXCESS_IRD")) {
     result_test_excess <- c(excess, excess_lower, excess_upper, nnt)
     names(result_test_excess) <- c("Excess","Excess_lower","Excess_upper","nnt")
     result_test_excess <- as.data.frame(result_test_excess)
-    result_test_excess <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test_excess)
+    result_test_excess <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test_excess)
     }
     
     if (effect == c("HR")) {
     result_test_hr <- res_extract.effect.ci.rounded
     names(result_test_hr) <- c("Esimate","lower","upper")
     result_test_hr <- as.data.frame(result_test_hr)
-    result_test_hr <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test_hr)
+    result_test_hr <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test_hr)
     }
     
     if (effect == "IRD") {
@@ -605,6 +612,13 @@ if ("Overall" %notin% subgroup) {
            if("Overall" %notin% strat) {
 
              numlevels <- alllevels <- allnames <- strat_names <- c()
+             
+             adtte_trt <- data_test[(data_test[[treatment]] %in% verum),]
+             adtte_com <- data_test[(data_test[[treatment]] %in% comparator),]
+             x1_all <- length(which(adtte_trt[[cnsr]] %in% event))
+             x2_all <- length(which(adtte_com[[cnsr]] %in% event))
+             n1_all <- nrow(adtte_trt)
+             n2_all <- nrow(adtte_com)
 
              for (g in 1:length(strat)) {
                strat_factor <- factor(data[strat][,g])
@@ -778,21 +792,21 @@ if ("Overall" %notin% subgroup) {
              result_test <- c(res_extract.effect.ci.rounded, nnt)
              names(result_test) <- c("Esimate","lower","upper","nnt")
              result_test <- as.data.frame(result_test)
-             result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test)
+             result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test)
              }
              
              if (effect %in% c("EXCESS_ARD", "EXCESS_IRD")) {
              result_test_excess <- c(excess, excess_lower, excess_upper, nnt)
              names(result_test_excess) <- c("Excess","Excess_lower","Excess_upper","nnt")
              result_test_excess <- as.data.frame(result_test_excess)
-             result_test_excess <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test_excess)
+             result_test_excess <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test_excess)
              }
              
              if (effect %in% c("HR")) {
                result_test_hr <- res_extract.effect.ci.rounded
                names(result_test_hr) <- c("Esimate","lower","upper")
                result_test_hr <- as.data.frame(result_test_hr)
-               result_test_hr <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test_hr)
+               result_test_hr <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test_hr)
              }
              
              
