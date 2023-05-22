@@ -394,9 +394,12 @@ effect_calc <- function(
       if(is.na(n2))  {n2 <- 0} else {n2 <- n2}
 
       if (x1 >= 1 & x2 >= 1) {
-        cvf_diff <- (cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc) * 100
+        cvf_diff <- cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc
         cvf_lower <- cvf_diff - 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2) 
         cvf_upper <- cvf_diff + 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2)
+        cvf_diff <- cvf_diff*100
+        cvf_lower <- cvf_lower*100
+        cvf_upper <- cvf_upper*100
       } else {
         cvf_diff <- "NA"
         cvf_lower <- "NA"
@@ -456,9 +459,12 @@ effect_calc <- function(
         if(is.na(n2))  {n2 <- 0} else {n2 <- n2}
         
         if (x1 >= 1 & x2 >= 1) {
-          cvf_diff <- (cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc) * 100
+          cvf_diff <- cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc
           cvf_lower <- cvf_diff - 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2) 
           cvf_upper <- cvf_diff + 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2)
+          cvf_diff <- cvf_diff*100
+          cvf_lower <- cvf_lower*100
+          cvf_upper <- cvf_upper*100
         } else {
           cvf_diff <- "NA"
           cvf_lower <- "NA"
@@ -949,9 +955,12 @@ if ("Overall" %notin% subgroup) {
                    if(is.na(n2))  {n2 <- 0} else {n2 <- n2}
                    
                    if (x1 >= 1 & x2 >= 1) {
-                     cvf_diff <- (cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc) * 100
+                     cvf_diff <- cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc
                      cvf_lower <- cvf_diff - 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2) 
                      cvf_upper <- cvf_diff + 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2)
+                     cvf_diff <- cvf_diff*100
+                     cvf_lower <- cvf_lower*100
+                     cvf_upper <- cvf_upper*100
                    } else {
                      cvf_diff <- "NA"
                      cvf_lower <- "NA"
@@ -1011,9 +1020,12 @@ if ("Overall" %notin% subgroup) {
                    if(is.na(n2))  {n2 <- 0} else {n2 <- n2}
                    
                    if (x1 >= 1 & x2 >= 1) {
-                     cvf_diff <- (cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc) * 100
+                     cvf_diff <- cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc
                      cvf_lower <- cvf_diff - 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2) 
                      cvf_upper <- cvf_diff + 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2)
+                     cvf_diff <- cvf_diff*100
+                     cvf_lower <- cvf_lower*100
+                     cvf_upper <- cvf_upper*100
                    } else {
                      cvf_diff <- "NA"
                      cvf_lower <- "NA"
