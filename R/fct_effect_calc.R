@@ -37,7 +37,7 @@ effect_calc <- function(
     aval = aval
 ) {
  
- result <- total <- total_final <- total_end <- total_res <-  c()
+ result <- total <- total_final <- total_end <- total_res <-  c()  
  result_test_1 <- vector(mode = "list")
  '%notin%' <- Negate('%in%')
  
@@ -50,16 +50,16 @@ effect_calc <- function(
  }
  #### create output for subgroup = Overall #####
   
- for (j in 1:length(outcome)) {
+ for (j in 1:length(outcome)) { 
    
   if (datascope != "No selection") {
-    if (is.numeric(population)) {
+    if(is.numeric(data[[population]])) {
       data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "1"),]
     } else {
     data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "Y"),]
     } 
     } else {
-    if(is.numeric(population)) {
+      if(is.numeric(data[[population]])) {
       data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "1"),]
     } else {
     data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "Y"),]
@@ -69,6 +69,13 @@ effect_calc <- function(
   if("Overall" %notin% strat) { 
     
     numlevels <- alllevels <- allnames <- strat_names <- c()
+    
+    adtte_trt <- data_test[(data_test[[treatment]] %in% verum),]
+    adtte_com <- data_test[(data_test[[treatment]] %in% comparator),]
+    x1_all <- length(which(adtte_trt[[cnsr]] %in% event))
+    x2_all <- length(which(adtte_com[[cnsr]] %in% event))
+    n1_all <- nrow(adtte_trt)
+    n2_all <- nrow(adtte_com)
 
     for (g in 1:length(strat)) {
       strat_factor <- factor(data[strat][,g])
@@ -166,6 +173,7 @@ effect_calc <- function(
       data_meta <- data.frame(a1,b1,c1,d1)
       
       data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
+      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
       data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
       
       a <- data_test_hr$AVAL
@@ -230,21 +238,21 @@ effect_calc <- function(
     result_test <- c(res_extract.effect.ci.rounded, nnt)
     names(result_test) <- c("Esimate","lower","upper","nnt")
     result_test <- as.data.frame(result_test)
-    result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test)
+    result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test)
     }
     
     if (effect %in% c("EXCESS_ARD", "EXCESS_IRD")) {
     result_test_excess <- c(excess, excess_lower, excess_upper, nnt)
     names(result_test_excess) <- c("Excess","Excess_lower","Excess_upper","nnt")
     result_test_excess <- as.data.frame(result_test_excess)
-    result_test_excess <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test_excess)
+    result_test_excess <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test_excess)
     }
     
     if (effect == c("HR")) {
     result_test_hr <- res_extract.effect.ci.rounded
     names(result_test_hr) <- c("Esimate","lower","upper")
     result_test_hr <- as.data.frame(result_test_hr)
-    result_test_hr <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test_hr)
+    result_test_hr <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test_hr)
     }
     
     if (effect == "IRD") {
@@ -308,13 +316,13 @@ effect_calc <- function(
     if (effect %in% c("CID" , "EXCESS_CID"))  {
       
       if(datascope != "No selection") {
-        if(is.numeric(population)) {
+        if(is.numeric(data[[population]])) {
           data_decision <- data[(data[[scope]] %in% datascope) & (data[[population]] %in% "1"),]
         } else {
           data_decision <- data[(data[[scope]] %in% datascope) & (data[[population]] %in% "Y"),]
         } 
       } else {
-        if(is.numeric(population)) {
+        if(is.numeric(data[[population]])) {
           data_decision <- data[(data[[population]] %in% "1"),]
         } else {
           data_decision <- data[(data[[population]] %in% "Y"),]
@@ -386,9 +394,12 @@ effect_calc <- function(
       if(is.na(n2))  {n2 <- 0} else {n2 <- n2}
 
       if (x1 >= 1 & x2 >= 1) {
-        cvf_diff <- (cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc) * 100
+        cvf_diff <- cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc
         cvf_lower <- cvf_diff - 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2) 
         cvf_upper <- cvf_diff + 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2)
+        cvf_diff <- cvf_diff*100
+        cvf_lower <- cvf_lower*100
+        cvf_upper <- cvf_upper*100
       } else {
         cvf_diff <- "NA"
         cvf_lower <- "NA"
@@ -418,7 +429,7 @@ effect_calc <- function(
         cum <- survival::survfit(survival::Surv(a, b) ~ c, data = data_adtte_cid) 
         cum_sum <- summary(cum)
         
-        cum_data <- as.data.frame(cbind(v_1$strata,v_1$time,v_1$n.event,1-v_1$surv,v_1$std.err))
+        cum_data <- as.data.frame(cbind(cum_sum$strata,cum_sum$time,cum_sum$n.event[,2],cum_sum$pstate[,2],cum_sum$std.err[,2]))
         names(cum_data) <- c("strata","time","n.event","cum.inc","std.err")
         
         
@@ -448,9 +459,12 @@ effect_calc <- function(
         if(is.na(n2))  {n2 <- 0} else {n2 <- n2}
         
         if (x1 >= 1 & x2 >= 1) {
-          cvf_diff <- (cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc) * 100
+          cvf_diff <- cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc
           cvf_lower <- cvf_diff - 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2) 
           cvf_upper <- cvf_diff + 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2)
+          cvf_diff <- cvf_diff*100
+          cvf_lower <- cvf_lower*100
+          cvf_upper <- cvf_upper*100
         } else {
           cvf_diff <- "NA"
           cvf_lower <- "NA"
@@ -465,6 +479,7 @@ effect_calc <- function(
     if (effect == "HR")  {
       
       data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
+      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
       data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
       
       a <- data_test_hr$AVAL
@@ -587,13 +602,13 @@ if ("Overall" %notin% subgroup) {
          for (j in 1:length(outcome)) {
 
            if(datascope != "No selection") {
-             if(is.numeric(population)) {
+             if (is.numeric(data[[population]])) {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "1") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
              } else {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[scope]] %in% datascope) & (data[[population]] %in% "Y") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
              }
            } else {
-             if(is.numeric(population)) {
+             if (is.numeric(data[[population]])) {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "1") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
              } else {
                data_test <- data[(data[[param]] %in% outcome[[j]]) & (data[[population]] %in% "Y") & (data[[subgroup[[q]]]] %in% subgroup_level[[l]]),]
@@ -603,6 +618,13 @@ if ("Overall" %notin% subgroup) {
            if("Overall" %notin% strat) {
 
              numlevels <- alllevels <- allnames <- strat_names <- c()
+             
+             adtte_trt <- data_test[(data_test[[treatment]] %in% verum),]
+             adtte_com <- data_test[(data_test[[treatment]] %in% comparator),]
+             x1_all <- length(which(adtte_trt[[cnsr]] %in% event))
+             x2_all <- length(which(adtte_com[[cnsr]] %in% event))
+             n1_all <- nrow(adtte_trt)
+             n2_all <- nrow(adtte_com)
 
              for (g in 1:length(strat)) {
                strat_factor <- factor(data[strat][,g])
@@ -703,6 +725,7 @@ if ("Overall" %notin% subgroup) {
                data_meta <- data.frame(a1,b1,c1,d1)
                
                data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
+               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
                data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
                
                a <- data_test_hr$AVAL
@@ -775,21 +798,21 @@ if ("Overall" %notin% subgroup) {
              result_test <- c(res_extract.effect.ci.rounded, nnt)
              names(result_test) <- c("Esimate","lower","upper","nnt")
              result_test <- as.data.frame(result_test)
-             result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test)
+             result_test <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test)
              }
              
              if (effect %in% c("EXCESS_ARD", "EXCESS_IRD")) {
              result_test_excess <- c(excess, excess_lower, excess_upper, nnt)
              names(result_test_excess) <- c("Excess","Excess_lower","Excess_upper","nnt")
              result_test_excess <- as.data.frame(result_test_excess)
-             result_test_excess <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test_excess)
+             result_test_excess <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level,events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test_excess)
              }
              
              if (effect %in% c("HR")) {
                result_test_hr <- res_extract.effect.ci.rounded
                names(result_test_hr) <- c("Esimate","lower","upper")
                result_test_hr <- as.data.frame(result_test_hr)
-               result_test_hr <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x_1, patients_verum = n_1, events_comp = x_2, patients_comp = n_2,  result_test_hr)
+               result_test_hr <- cbind(STRATUM_NAME = stratum_name, STRATUM_LEVEL = stratum_level, events_verum = x1_all, patients_verum = n1_all, events_comp = x2_all, patients_comp = n2_all,  result_test_hr)
              }
              
              
@@ -854,13 +877,13 @@ if ("Overall" %notin% subgroup) {
              if (effect %in% c("CID" , "EXCESS_CID"))  {
                
                if(datascope != "No selection") {
-                 if(is.numeric(population)) {
+                 if(is.numeric(data[[population]])) {
                    data_decision <- data[(data[[scope]] %in% datascope) & (data[[population]] %in% "1"),]
                  } else {
                    data_decision <- data[(data[[scope]] %in% datascope) & (data[[population]] %in% "Y"),]
                  } 
                } else {
-                 if(is.numeric(population)) {
+                 if(is.numeric(data[[population]])) {
                    data_decision <- data[(data[[population]] %in% "1"),]
                  } else {
                    data_decision <- data[(data[[population]] %in% "Y"),]
@@ -932,9 +955,12 @@ if ("Overall" %notin% subgroup) {
                    if(is.na(n2))  {n2 <- 0} else {n2 <- n2}
                    
                    if (x1 >= 1 & x2 >= 1) {
-                     cvf_diff <- (cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc) * 100
+                     cvf_diff <- cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc
                      cvf_lower <- cvf_diff - 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2) 
                      cvf_upper <- cvf_diff + 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2)
+                     cvf_diff <- cvf_diff*100
+                     cvf_lower <- cvf_lower*100
+                     cvf_upper <- cvf_upper*100
                    } else {
                      cvf_diff <- "NA"
                      cvf_lower <- "NA"
@@ -948,7 +974,7 @@ if ("Overall" %notin% subgroup) {
                  
                  data_adtte_cid$CNSR_2 <- ifelse(data_adtte_cid$CNSR_1 != event , 0 , 1)
                  
-                 a <- data_adtte_cid$AVAL
+                 a <- data_adtte_cid$AVAL 
                  b <- as.factor(data_adtte_cid$CNSR_2)
                  c <- data_adtte_cid[[treatment]]
                  
@@ -964,7 +990,7 @@ if ("Overall" %notin% subgroup) {
                    cum <- survival::survfit(survival::Surv(a, b) ~ c, data = data_adtte_cid) 
                    cum_sum <- summary(cum)
                    
-                   cum_data <- as.data.frame(cbind(v_1$strata,v_1$time,v_1$n.event,1-v_1$surv,v_1$std.err))
+                   cum_data <- as.data.frame(cbind(cum_sum$strata,cum_sum$time,cum_sum$n.event[,2],cum_sum$pstate[,2],cum_sum$std.err[,2]))
                    names(cum_data) <- c("strata","time","n.event","cum.inc","std.err")
                    
                    
@@ -994,9 +1020,12 @@ if ("Overall" %notin% subgroup) {
                    if(is.na(n2))  {n2 <- 0} else {n2 <- n2}
                    
                    if (x1 >= 1 & x2 >= 1) {
-                     cvf_diff <- (cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc) * 100
+                     cvf_diff <- cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$cum.inc - cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$cum.inc
                      cvf_lower <- cvf_diff - 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2) 
                      cvf_upper <- cvf_diff + 1.96 * sqrt((cum_data[which(cum_data$time == new_day_verum & cum_data$strata == 1),]$std.err)**2 + (cum_data[which(cum_data$time == new_day_comp & cum_data$strata == 2),]$std.err)**2)
+                     cvf_diff <- cvf_diff*100
+                     cvf_lower <- cvf_lower*100
+                     cvf_upper <- cvf_upper*100
                    } else {
                      cvf_diff <- "NA"
                      cvf_lower <- "NA"
@@ -1011,6 +1040,7 @@ if ("Overall" %notin% subgroup) {
              if (effect %in% c("HR"))  {
                
                data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
+               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
                data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
                
                a <- data_test_hr$AVAL
@@ -1058,7 +1088,7 @@ if ("Overall" %notin% subgroup) {
                nnt <- "NA"
                
                excess <- "NA"
-               excess_lower <- "NA"
+               excess_lower <- "NA" 
                excess_upper <- "NA"
              } 
              
@@ -1080,28 +1110,36 @@ if ("Overall" %notin% subgroup) {
                names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
              }
              if (effect == "HR") {
-               result_test_1[[j]] <- c(trialno, "Hazard Ratio",population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded[j,])
+               result_test_1[[j]] <- c(trialno, "Hazard Ratio",population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded)
                names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_HR","LOWER95","UPPER95")
              }
-             if (effect == "CID" & nlevels(as.factor(data_decision[[cnsr]])) > 2) {
-               result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on AJ",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
-               names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_CID","LOWER95","UPPER95","NNT")
+             if (effect == "CID"){
+               if (nlevels(as.factor(data_decision[[cnsr]])) > 2) {
+                 result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on AJ",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
+                 names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_CID","LOWER95","UPPER95","NNT")
+               }
              }
-             if (effect == "EXCESS_CID" & nlevels(as.factor(data_decision[[cnsr]])) > 2) {
-               result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on AJ",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
-               names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
+             if (effect == "EXCESS_CID"){
+               if (nlevels(as.factor(data_decision[[cnsr]])) > 2) {
+                 result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on AJ",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
+                 names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
+               }
              }
-             if (effect == "CID" & nlevels(as.factor(data_decision[[cnsr]])) == 2) {
-               result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on KM",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
-               names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_CID","LOWER95","UPPER95","NNT")
+             if (effect == "CID"){
+               if (nlevels(as.factor(data_decision[[cnsr]])) == 2) {
+                 result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on KM",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,res_extract.effect.ci.rounded,nnt)
+                 names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_CID","LOWER95","UPPER95","NNT")
+               }
              }
-             if (effect == "EXCESS_CID" & nlevels(as.factor(data_decision[[cnsr]])) == 2) {
-               result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on KM",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
-               names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
+             if (effect == "EXCESS_CID"){
+               if (nlevels(as.factor(data_decision[[cnsr]])) == 2) {
+                 result_test_1[[j]] <- c(trialno, "Cumulative Incidence based on KM",day,population,outcome[[j]],datascope,subgroup[[q]],subgroup_level[[l]],x1,n1,x2,n2,excess,excess_lower,excess_upper,nnt)
+                 names(result_test_1[[j]]) <- c("TRIALNO", "ESTIMATE","DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBGROUP","SUBLEVEL","NUMBER_EVENTS_VERUM","NUMBER_PATIENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP","EFFECT_EXCESS","LOWER95","UPPER95","NNT")
+               }
              }
 
            }
-         }
+         } 
 
          if("Overall" %notin% strat) {
            for(k in 1:length(outcome)) {total <- rbind(total,as.data.frame(result_test_1[[k]]))}
