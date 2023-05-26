@@ -1551,7 +1551,8 @@ file_creation_server <- function(input, output, session) {
       paste("BReasy_", gsub(":","-", Sys.time()), ".csv", sep = "")
     },
     content = function(file) {
-      write.csv(data.frame(lapply(csv,as.character)), file, row.names = FALSE)
+      
+      write.csv(data.frame(lapply(csv_file(),as.character)), file, row.names = FALSE)
     }
   )
   
