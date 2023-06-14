@@ -26,23 +26,38 @@ mod_about_breasy_server <- function(input, output, session){
         
         <p> <img src='www/AppIcon_BReasy_210x210mm_RGB.png' alt='Graphic cannot be displayed' width = '350' height='350' align = 'right'>
         
-      The BReasy R Shiny app provides a handy platform for structured benefit-risk assessment using clinical study or pooled data.
-      With the provided forest plot estimates for all relevant efficacy and safety outcomes can be shown in one graph. In the graphical display the presented outcomes can be separated into efficacy and safety. To enable a structured and transparent approach to assessing the benefit-risk profile, the outcomes shown in the forest plot are based on the same analysis sets and data scopes. 
-      Furthermore, a presentation by study (in case of pooled data), stratum and subgroups is possible to assess the benefit-risk profile in subpopulations of interest.
+      The BReasy R Shiny app provides a handy platform for structured benefit-risk assessment using clinical study or pooled data. </p>
+      
+      <p>With the provided forest plot estimates for all relevant efficacy and safety outcomes can be shown in one graph. In the graphical display the presented outcomes can be separated into efficacy and safety. To enable a structured and transparent approach to assessing the benefit-risk profile, the outcomes shown in the forest plot are based on the same analysis sets and data scopes.</p> 
+      
+      <p>Furthermore, a presentation by study (in case of pooled data), stratum and subgroups is possible to assess the benefit-risk profile in subpopulations of interest.</p>
 
-        The following estimates for comparison can be presented with the BReasy R Shiny app:</p>
+        <p>The following estimates for comparison can be presented with the BReasy R Shiny app:</p>
         
         <li> Hazard Ratios; </li>
-        <li> Excess number of subjects, for example based on Kaplan-Meier differences or risk differences;</li>
+        <li> Excess number of subjects with events, for example based on Kaplan-Meier differences or risk differences;</li>
         <li> Odds Ratios; </li>
         <li> Risk Differences; </li>
-        <li> Relative risks. </li>
-        
+        <li> Relative Risks. </li>
+
         <p> An optional display of the following data is possible to be added to the forest plot: </p>
         
         <li> The actual estimates displayed in the forest plot; </li>
         <li> Event and patient counts; </li>
         <li> Number needed to treat (NNT) / Number needed to harm (NNH).</li>
+        
+        <p> With the file creation tab the following estimates can be generated in an csv-file which then can be used for the forest plot presentation:</p>
+        
+        <li>	Hazard Ratios based on (stratified) Cox regression models;</li>
+        <li>	Absolute risk differences with an optional Mantel-Haenszel stratification;
+           <li>	corresponding Excess number of subjects in a hypothetical population of 10,000 patients;</li></li>
+        <li>	Incidence rate differences per 100 patient years with an optional Mantel-Haenszel stratification;
+           <li>	corresponding Excess number of subjects in a hypothetical population treated for 10,000 patient years.</li></li>
+        <li>	Cumulative incidence differences based on Aalen-Johansen approach for a 3-level censoring variable (0, 1, 2);
+           <li>	corresponding Excess number of subjects in a hypothetical population of 10,000 patients.</li></li>
+        <li>	Cumulative incidence differences based on Kaplan-Meier approach for a 2-level censoring variable;
+           <li>	corresponding Excess number of subjects in a hypothetical population of 10,000 patients.</li></li>
+
         
          <p> <img src='www/Forestplot_example.png' alt='Graphic cannot be displayed' width = '1225' height='575'> </p>
         <h4> Value Tree </h4>
