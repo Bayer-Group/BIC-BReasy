@@ -194,7 +194,8 @@ effect_calc <- function(
     if (effect == "HR" & is.na(res_extract.effect.ci[1]) != TRUE) { 
     res_extract.effect.ci.rounded <- round(res_extract.effect.ci,3)
     
-    nnt <- round(1/(res_extract.effect.ci[1])*100)
+    nnt <- 1/(res_extract.effect.ci[1])*100
+    nnt <- ifelse(nnt<0 ,floor(nnt) ,ceiling(nnt))
     
     excess <- round((res_extract.effect.ci[1])*100)
     excess_lower <- round((res_extract.effect.ci[2])*100)
@@ -212,7 +213,8 @@ effect_calc <- function(
     if (effect %notin% c("HR") & res_extract.effect.ci[1] != "NA") { 
       res_extract.effect.ci.rounded <- round(res_extract.effect.ci,3)
       
-      nnt <- round(1/(res_extract.effect.ci[1])*100)
+      nnt <- 1/(res_extract.effect.ci[1])*100
+      nnt <- ifelse(nnt<0 ,floor(nnt) ,ceiling(nnt))
       
       excess <- round((res_extract.effect.ci[1])*100)
       excess_lower <- round((res_extract.effect.ci[2])*100)
@@ -495,7 +497,8 @@ effect_calc <- function(
       
       res_extract.effect.ci.rounded <- round(res_extract.effect.ci,3)
       
-      nnt <- round(1/(res_extract.effect.ci[1])*100)
+      nnt <- 1/(res_extract.effect.ci[1])*100
+      nnt <- ifelse(nnt<0 ,floor(nnt) ,ceiling(nnt))
       
       excess <- round((res_extract.effect.ci[1])*100)
       excess_lower <- round((res_extract.effect.ci[2])*100)
@@ -515,7 +518,8 @@ effect_calc <- function(
       
       res_extract.effect.ci.rounded <- round(res_extract.effect.ci,3)
       
-      nnt <- round(1/(res_extract.effect.ci[1])*100)
+      nnt <- 1/(res_extract.effect.ci[1])*100
+      nnt <- ifelse(nnt<0 ,floor(nnt) ,ceiling(nnt))
       
       excess <- round((res_extract.effect.ci[1])*100)
       excess_lower <- round((res_extract.effect.ci[2])*100)
@@ -748,7 +752,8 @@ if ("Overall" %notin% subgroup) {
              if (effect == "HR" &  is.na(res_extract.effect.ci[1]) != TRUE) {
              res_extract.effect.ci.rounded <- round(res_extract.effect.ci,3)
              
-             nnt <- round(1/(res_extract.effect.ci[1])*100)
+             nnt <- 1/(res_extract.effect.ci[1])*100
+             nnt <- ifelse(nnt<0 ,floor(nnt) ,ceiling(nnt))
              
              excess <- round((res_extract.effect.ci[1])*100)
              excess_lower <- round((res_extract.effect.ci[2])*100)
@@ -766,7 +771,8 @@ if ("Overall" %notin% subgroup) {
              if (effect %notin% c("HR") &  res_extract.effect.ci[1] != "NA") {
                res_extract.effect.ci.rounded <- round(res_extract.effect.ci,3)
                
-               nnt <- round(1/(res_extract.effect.ci[1])*100)
+               nnt <- 1/(res_extract.effect.ci[1])*100
+               nnt <- ifelse(nnt<0 ,floor(nnt) ,ceiling(nnt))
                
                excess <- round((res_extract.effect.ci[1])*100)
                excess_lower <- round((res_extract.effect.ci[2])*100)
@@ -1056,7 +1062,8 @@ if ("Overall" %notin% subgroup) {
                
                res_extract.effect.ci.rounded <- round(res_extract.effect.ci,3)
                
-               nnt <- round(1/(res_extract.effect.ci[1])*100)
+               nnt <- 1/(res_extract.effect.ci[1])*100
+               nnt <- ifelse(nnt<0 ,floor(nnt) ,ceiling(nnt))
                
                excess <- round((res_extract.effect.ci[1])*100)
                excess_lower <- round((res_extract.effect.ci[2])*100)
@@ -1076,7 +1083,8 @@ if ("Overall" %notin% subgroup) {
                
                res_extract.effect.ci.rounded <- round(res_extract.effect.ci,3)
                
-               nnt <- round(1/(res_extract.effect.ci[1])*100)
+               nnt <- 1/(res_extract.effect.ci[1])*100
+               nnt <- ifelse(nnt<0 ,floor(nnt) ,ceiling(nnt))
                
                excess <- round((res_extract.effect.ci[1])*100)
                excess_lower <- round((res_extract.effect.ci[2])*100)
