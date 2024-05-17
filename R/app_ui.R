@@ -22,7 +22,6 @@ app_ui <- function(request) {
       shinydashboard::dashboardSidebar(
         shinydashboard::sidebarMenu(
           id = 'sidebarmenu', 
-           
            shinydashboard::menuItem(
             "BReasy",
             tabName = "breasy_Plot",

@@ -1,0 +1,572 @@
+#' file creation function
+#' 
+#' @param data
+#' @param effect
+#' @param day
+#' @param param
+#' @param outcome
+#' @param scope
+#' @param datascope
+#' @param population
+#' @param treatment
+#' @param verum
+#' @param comparator
+#' @param cnsr
+#' @param event
+#' @param strat
+#' @param subgroup
+#' @param aval
+#' 
+
+effect_calc_new <- function(
+    data = data,
+    effect = effect,
+    day = day,
+    param = param,
+    outcome = outcome,
+    scope = scope,
+    datascope = datascope,
+    population = population,
+    treatment = treatment,
+    verum = verum,
+    comparator = comparator,
+    cnsr = cnsr,
+    event = event,
+    strat = strat,
+    subgroup = subgroup,
+    aval = aval
+) {
+
+ #helperfunction 
+ '%notin%' <- Negate('%in%')
+
+ #get trialnumbers/names
+ if (nlevels(as.factor(data$STUDYID)) > 1) {
+   trials <- paste(levels(as.factor(data$STUDYID)), collapse = "/")
+   trialno <- paste("Pool of",trials)
+  } else {
+    trialno <- paste(levels(as.factor(data$STUDYID)), collapse = "/")
+  }
+
+  #select all scope variables if no selection is done 
+  if ("No selection" %in% datascope) {datascope <- unique(data[[scope]])}
+
+  #### 1. Filter by datascope, population and outcome ####
+  data_filtered <- data %>%
+    dplyr::filter(!!rlang::sym(scope) %in% datascope) %>%
+    dplyr::filter(!!rlang::sym(population) %in% c("1","Y", "YES")) %>%
+    dplyr::filter(!!rlang::sym(param) %in% outcome)
+
+  #create custom treatment variables breasy_treatment, breasy_treatment_n (0/1 coded)
+  #breasy_treatment_n2 (1/2 coded), breasy_csnr_n (0,1) and breasy_csnr_n_factor
+  data_w_treat <- data_filtered %>%
+    dplyr::mutate(
+      breasy_treatment = dplyr::case_when(
+         !!rlang::sym(treatment) %in% comparator ~ "comparator",
+         !!rlang::sym(treatment) %in% verum ~ "verum",
+         TRUE ~ NA_character_
+      ),
+      breasy_treatment_n = dplyr::case_when(
+         !!rlang::sym(treatment) %in% comparator ~ 0,
+         !!rlang::sym(treatment) %in% verum ~ 1
+      ),
+      breasy_treatment_n2 = dplyr::case_when(
+         !!rlang::sym(treatment) %in% comparator ~ 2,
+         !!rlang::sym(treatment) %in% verum ~ 1
+      ),
+      breasy_cnsr_n = dplyr::case_when(
+         !!rlang::sym(cnsr) %notin% event ~ 0,
+         !!rlang::sym(cnsr) %in% event ~ 1
+      ),
+      breasy_cnsr_n_factor = breasy_cnsr_n + 1
+    )
+
+  #### 2. Group ####
+  # group by treatment and summarize data
+  # add Variable STRATUM
+  data_grouped_overall <- data_w_treat %>%
+     dplyr::group_by(
+       breasy_treatment, !!rlang::sym(param)
+     )
+  
+  # check if stratification is selected
+  # and get stratification factor names
+  if (all(length(strat) == 1 & strat == "Overall")) {
+    stratification_used <- FALSE
+  } else {
+    strat <- strat[strat != "Overall"]
+    stratification_used <- TRUE
+  }
+  
+  # check if subgroups are selected
+  # and get subgroup names
+  if (all(length(subgroup) == 1 & subgroup == "Overall")) {
+    subgroup_used <- FALSE
+  } else {
+    subgroup <- subgroup[subgroup != "Overall"]
+    subgroup_used <- TRUE
+  }
+
+  #### 3. Effect calculation ####
+  # distinguish between cases with or without stratification and subgroup
+  # calculations
+  
+  if (!stratification_used & !subgroup_used) {
+    data_used <- data_grouped_overall
+    join_by <- c(param)
+    grouping_vars <- c(param)
+  } else if (stratification_used & !subgroup_used) {
+    data_used <- data_grouped_overall
+    join_by <- c(param,"STRATA")
+    join_by_strat <- c(param,"STRATA")
+    grouping_vars <- c(param)
+  } else if (!stratification_used & subgroup_used) {
+    data_used <- data_grouped_overall
+    grouping_vars <- join_by <- c(param,"SUBLEVEL","SUBGROUP")
+    if (effect %in% c("HR")) {
+      grouping_vars <- c(param ,subgroup)
+    }
+  } else if (stratification_used & subgroup_used) {
+    data_used <- data_grouped_overall
+    join_by_strat_sub <- c(param ,"STRATA", "SUBGROUP","SUBLEVEL")
+    join_by_strat <- c(param,"STRATA")
+    join_by <- c(param,"SUBLEVEL","SUBGROUP")
+    grouping_vars <- c(param , "SUBLEVEL")
+    if (effect %in% c("HR")) {
+      grouping_vars <- c(param ,subgroup)
+    }
+  }
+  join_by_overall <- c(param)
+  
+  data_summarized_overall <- data_grouped_overall %>% 
+     dplyr::group_by(
+       breasy_treatment,
+       !!rlang::sym(param)
+     ) %>% 
+     dplyr::summarise(
+       t = sum(AVAL, na.rm = TRUE)/(100 * 365.25),
+       n = n(),
+       x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
+       x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
+       .groups ="drop"
+     )
+    
+  if (subgroup_used) {
+    merge_subgroup_data <- c()
+    for(st in subgroup) {
+      rd_summary <- data_used %>% 
+        group_by(breasy_treatment,
+         !!rlang::sym(param),
+         !!rlang::sym(st)
+       ) %>% 
+       dplyr::summarise(
+         t = sum(AVAL, na.rm = TRUE)/(100 * 365.25),
+         n = n(),
+         x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
+         x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
+         .groups ="drop"
+       ) %>% 
+        dplyr::rename("SUBLEVEL" = !!rlang::sym(st)) %>% 
+        dplyr::mutate(
+          SUBGROUP = st
+        )
+      merge_subgroup_data <- rbind(merge_subgroup_data, rd_summary)
+    }
+  }
+
+  #summarise data for number events and number subjects in each treatment arm
+  if (stratification_used) {
+    merge_strata_data <- c()
+    for(st in strat) {
+      rd_summary <- data_used %>% 
+        group_by(breasy_treatment,
+         !!rlang::sym(param),
+         !!rlang::sym(st)
+       ) %>% 
+       dplyr::summarise(
+         t = sum(AVAL, na.rm = TRUE)/(100 * 365.25),
+         n = n(),
+         x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
+         x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
+         .groups ="drop"
+       ) %>% dplyr::rename("STRATA" = !!rlang::sym(st))
+      merge_strata_data <- rbind(merge_strata_data, rd_summary)
+    }
+  }
+
+ if (stratification_used & subgroup_used) {
+    merge_strata_subgroup_data <- c()
+    for(st in strat) {
+      for(su in subgroup) {
+      rd_summary <- data_used %>% 
+        group_by(breasy_treatment,
+         !!rlang::sym(param),
+         !!!rlang::sym(su),
+         !!rlang::sym(st)
+       ) %>% 
+       dplyr::summarise(
+         t = sum(AVAL, na.rm = TRUE)/(100 * 365.25),
+         n = n(),
+         x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
+         x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
+         .groups ="drop"
+       ) %>% dplyr::rename(
+         "STRATA" = !!rlang::sym(st),
+         "SUBLEVEL" = !!rlang::sym(su)
+        ) %>% 
+        dplyr::mutate(
+          "SUBGROUP" = su
+        )
+      
+      merge_strata_subgroup_data <- rbind(merge_strata_subgroup_data, rd_summary)
+      }
+    }
+  }
+  #get data in 'wide' format by joining
+  overall_summary_wide <- dplyr::full_join(
+    data_summarized_overall %>% dplyr::filter(breasy_treatment == "verum") %>%  dplyr::select(-breasy_treatment) %>% rename(t_1 = t, n_1 = n, x_1 = x, x_complement_1 = x_complement),
+    data_summarized_overall %>% dplyr::filter(breasy_treatment == "comparator") %>% dplyr::select(-breasy_treatment) %>% rename(t_2 = t, n_2 = n, x_2 = x, x_complement_2 = x_complement),
+    by = join_by_overall
+  )
+  if (stratification_used) {
+    #get data in 'wide' format by joining
+    strat_summary_wide <- dplyr::full_join(
+      merge_strata_data %>% dplyr::filter(breasy_treatment == "verum") %>%  dplyr::select(-breasy_treatment) %>% rename(t_1 = t, n_1 = n, x_1 = x, x_complement_1 = x_complement),
+      merge_strata_data %>% dplyr::filter(breasy_treatment == "comparator") %>% dplyr::select(-breasy_treatment) %>% rename(t_2 = t, n_2 = n, x_2 = x, x_complement_2 = x_complement),
+      by = join_by_strat
+    )
+  }
+  
+  if (subgroup_used) {
+    #get data in 'wide' format by joining
+    subgroup_summary_wide <- dplyr::full_join(
+      merge_subgroup_data %>% dplyr::filter(breasy_treatment == "verum") %>%  dplyr::select(-breasy_treatment) %>% rename(t_1 = t, n_1 = n, x_1 = x, x_complement_1 = x_complement),
+      merge_subgroup_data %>% dplyr::filter(breasy_treatment == "comparator") %>% dplyr::select(-breasy_treatment) %>% rename(t_2 = t, n_2 = n, x_2 = x, x_complement_2 = x_complement),
+      by = join_by
+    )
+  }
+
+  if (subgroup_used & stratification_used) {
+    #get data in 'wide' format by joining
+    strata_subgroup_summary_wide <- dplyr::full_join(
+      merge_strata_subgroup_data %>% dplyr::filter(breasy_treatment == "verum") %>%  dplyr::select(-breasy_treatment) %>% rename(t_1 = t, n_1 = n, x_1 = x, x_complement_1 = x_complement),
+      merge_strata_subgroup_data %>% dplyr::filter(breasy_treatment == "comparator") %>% dplyr::select(-breasy_treatment) %>% rename(t_2 = t, n_2 = n, x_2 = x, x_complement_2 = x_complement),
+      by = join_by_strat_sub
+    )
+  }
+  #remove subjects with t_1 or t_2 equals zero
+  overall_summary_wide_non_zero_times <- overall_summary_wide %>%
+    dplyr::filter(t_1 > 0 & t_2 > 0)
+
+  #remove subjects with t_1 or t_2 equals zero
+  if (stratification_used) {
+    strat_summary_wide_non_zero_times <- strat_summary_wide %>%
+      dplyr::filter(t_1 > 0 & t_2 > 0)
+  }
+  
+   if (subgroup_used) {
+    subgroup_summary_wide_non_zero_times <- subgroup_summary_wide %>%
+      dplyr::filter(t_1 > 0 & t_2 > 0)
+   }
+  
+   if (subgroup_used & stratification_used) {
+    strata_subgroup_summary_wide_non_zero_times <- strata_subgroup_summary_wide %>%
+      dplyr::filter(t_1 > 0 & t_2 > 0)
+  }
+
+ #create different functions for each effect estimate and assign it to rd_func
+  
+ #### IRD ####
+  if (effect %in% c("IRD","IRD_EXCESS","ARD","ARD_EXCESS")) {
+    data_used1 <- overall_summary_wide_non_zero_times
+    
+    if (subgroup_used) {
+      data_used1 <- subgroup_summary_wide_non_zero_times
+    }
+    if (stratification_used & !subgroup_used) {
+      data_used2 <- strat_summary_wide_non_zero_times
+    }
+    if (!stratification_used & !subgroup_used) {
+      data_used2 <- overall_summary_wide_non_zero_times
+    }
+    if (subgroup_used & !stratification_used) {
+      data_used2 <- subgroup_summary_wide_non_zero_times
+    }
+    if (subgroup_used & stratification_used) {
+      data_used2 <- strata_subgroup_summary_wide_non_zero_times
+    }
+    if (effect %in% c("IRD","IRD_EXCESS")) {
+      rd_func <- function(df){confint(metafor::rma.mh(x1i=x_1, x2i=x_2, t1i=t_1, t2i=t_2, measure = "IRD", level = 95, data = df))$fixed}
+    } else if (effect %in% c("ARD","ARD_EXCESS")) {
+      rd_func <- function(df){confint(metafor::rma.mh(ai = x_1, bi = x_complement_1, ci = x_2, di = x_complement_2, measure = "RD", level = 95, data = df))$fixed}
+    } 
+  }
+    
+ if (effect %in% c("CID", "CID_EXCESS")) {
+  #### CID ####
+   data_used1 <- overall_summary_wide_non_zero_times
+    data_used1
+    if (subgroup_used) {
+      data_used1 <- subgroup_summary_wide_non_zero_times
+    }
+    data_used2 <- data_used
+    
+   rd_func <- function(df) {
+    
+   df$CNSR_1 <- as.factor(df[[cnsr]])
+   
+   if (nlevels(as.factor(df[[cnsr]])) > 2) {
+    if (event == 0){
+      levels(df$CNSR_1) <- c("2","1","3")
+    }else if (event == 1){
+      levels(df$CNSR_1) <- c("1","2","3")
+    }else if (event == 2){
+      levels(df$CNSR_1) <- c("1","3","2")
+    }
+  } else if (nlevels(as.factor(df[[cnsr]])) == 2) {
+    df$CNSR_1 <- ifelse(df$CNSR_1 != event , 0 , 1)
+  }
+  
+  tmp <- summary(survival::survfit(survival::Surv(AVAL, factor(CNSR_1, levels = c("1", "2", "3"))) ~ breasy_treatment_n2, data = df))
+      tmp2 <- as.data.frame(cbind(tmp$strata,tmp$time,tmp$n.event[,2],tmp$pstate[,2],tmp$std.err[,2]))
+      names(tmp2) <- c("strata","time","n.event","cum.inc","std.err")
+
+      if (day %in% tmp2[which(tmp2$strata == 1),]$time) {
+      new_day_verum <- day
+    } else if (day %notin% tmp2[which(tmp2$strata == 1),]$time) {
+      new_time_verum <- c(day,tmp2[which(tmp2$strata == 1),]$time)
+      new_time_sort_verum <- sort(new_time_verum)
+      pos_verum <- match(day,new_time_sort_verum)
+      new_day_verum <- new_time_sort_verum[pos_verum - 1]
+    }
+    if (day %in% tmp2[which(tmp2$strata == 2),]$time) {
+      new_day_comp <- day
+    } else if (day %notin% tmp2[which(tmp2$strata == 2),]$time) {
+      new_time_comp <- c(day,tmp2[which(tmp2$strata == 2),]$time)
+      new_time_sort_comp <- sort(new_time_comp)
+      pos_comp <- match(day,new_time_sort_comp)
+      new_day_comp <- new_time_sort_comp[pos_comp - 1]
+    }
+    n1 <- ifelse(!is.na(tmp$n[1]),0,tmp$n[1])
+    x1 <- sum(tmp2[which(tmp2$time <= new_day_verum & tmp2$strata == 1),]$n.event)
+    n2 <- ifelse(!is.na(tmp$n[2]),0,tmp$n[2])
+    x2 <- sum(tmp2[which(tmp2$time <= new_day_comp & tmp2$strata == 2),]$n.event)
+
+    if (x1 >= 1 & x2 >= 1) {
+      cvf_diff <- (tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$cum.inc - tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$cum.inc)
+      cvf_lower <- (cvf_diff - 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))#*100
+      cvf_upper <- (cvf_diff + 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))#*100
+      cvf_diff <- cvf_diff*100
+      cvf_lower <- cvf_lower*100
+      cvf_upper <- cvf_upper*100
+    } else {
+      cvf_diff <- "NA"
+      cvf_lower <- "NA"
+      cvf_upper <- "NA"
+    }
+    return(data.frame("estimate" = cvf_diff, "ci.lb" = cvf_lower, "ci.ub" = cvf_upper, "x1_cid" = x1, "x2_cid" = x2))
+    }
+  }
+      
+  #### HR ####
+  if (effect == c("HR")) {
+    data_used1 <- overall_summary_wide_non_zero_times
+    data_used1
+    if (subgroup_used) {
+      data_used1 <- subgroup_summary_wide_non_zero_times
+    }
+    data_used2 <- data_used
+    rd_func <- function(df) {
+       if (stratification_used) {
+         tmp <- data.frame(
+           t(
+            round(
+              summary(
+                rlang::inject(
+                  survival::coxph(survival::Surv(AVAL, breasy_cnsr_n) ~ breasy_treatment_n + survival::strata(!!!rlang::syms(strat)), data = df)
+                )
+              )$conf.int["breasy_treatment_n",c("exp(coef)","lower .95","upper .95")],
+              3
+            )
+          )
+        )
+       #tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(!!AVAL, breasy_cnsr_n) ~ breasy_treatment_n + strat, df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
+       colnames(tmp) <- c("estimate","ci.lb","ci.ub")
+      } else {
+         tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(AVAL, breasy_cnsr_n) ~ breasy_treatment_n , df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
+         names(tmp) <- c("estimate","ci.lb","ci.ub")
+      }
+      return(tmp)
+    }
+  }
+    
+    
+  if (effect %in% c("CID", "CID_EXCESS","HR") & subgroup_used) {
+    data_used1 <- subgroup_summary_wide_non_zero_times
+    rd_rma_mh_hr <- c()
+    for(st in subgroup) {
+      rd_rma_mh_overall <- cbind(
+      data_used1 %>% dplyr::filter(SUBGROUP == st),
+      data_used2 %>%
+        dplyr::group_by(!!rlang::sym(param),!!rlang::sym(st)) %>%
+        dplyr::group_map(~ rd_func(.)) %>%
+        plyr::ldply(data.frame)
+      ) %>%
+        dplyr::mutate(
+          NNT = dplyr::case_when(
+            1/(as.numeric(estimate))*100 < 0 ~ floor(1/(as.numeric(estimate))*100),
+            1/(as.numeric(estimate))*100 >= 0 ~ ceiling(1/(as.numeric(estimate))*100)
+          )
+        ) %>% suppressWarnings()
+      rd_rma_mh_hr <- rbind(rd_rma_mh_hr, rd_rma_mh_overall)
+    }
+    rd_rma_mh <- rd_rma_mh_hr
+  } else {
+    rd_rma_mh <- cbind(
+      data_used1,
+      data_used2 %>%
+        dplyr::group_by(!!!rlang::syms(grouping_vars)) %>%
+        dplyr::group_map(~ rd_func(.)) %>%
+        plyr::ldply(data.frame)
+      ) %>%
+        dplyr::mutate(
+          NNT = dplyr::case_when(
+            1/(as.numeric(estimate))*100 < 0 ~ floor(1/(as.numeric(estimate))*100),
+            1/(as.numeric(estimate))*100 >= 0 ~ ceiling(1/(as.numeric(estimate))*100)
+          )
+        ) %>% suppressWarnings()
+  }
+  # perform function for overall if subgroup is used
+  if (subgroup_used) {
+    data_used1 <- data_used2 <- overall_summary_wide_non_zero_times
+    if (stratification_used){
+      data_used2 <- strat_summary_wide_non_zero_times
+    }
+    if (effect %in% c("HR","CID","CID_EXCESS")) {
+      data_used2 <- data_used
+    }
+    
+    rd_rma_mh_overall <- cbind(
+      data_used1,
+      data_used2 %>%
+        dplyr::group_by(!!rlang::sym(param)) %>%
+        dplyr::group_map(~ rd_func(.)) %>%
+        plyr::ldply(data.frame)
+    ) %>%
+      dplyr::mutate(
+        NNT = dplyr::case_when(
+          1 / as.numeric(estimate) * 100 < 0 ~ floor(1 / (as.numeric(estimate)) * 100),
+          1 / as.numeric(estimate) * 100 >= 0 ~ ceiling(1 / (as.numeric(estimate)) * 100)
+        ),
+        SUBGROUP = "Overall",
+        SUBLEVEL = "All"
+      ) %>% suppressWarnings()
+    
+    rd_rma_mh <- rbind(rd_rma_mh_overall,rd_rma_mh)
+  }
+    
+  #### 4. Transform/Rename variables in desired form ####
+  if (effect %in% c("IRD","IRD_EXCESS")){
+    effect_name <- "Incidence Rate"
+    effect_var_name <- "EFFECT_IRD"
+  }
+  if (effect %in% c("ARD","ARD_EXCESS")){
+    effect_name <- "Crude Incidence"
+    effect_var_name <- "EFFECT_ARD"
+  }
+    if (effect == "HR"){
+    effect_name <- "Hazard Ratio"
+    effect_var_name <- "EFFECT_HR"
+    }
+    if (effect %in% c("CID","CID_EXCESS")){
+    effect_name <- "Cumulative Incidence based on AJ"
+    effect_var_name <- "EFFECT_CID"
+  }
+  
+  if (!subgroup_used) {
+    rd_rma_mh <- rd_rma_mh %>% 
+      dplyr::mutate(
+        SUBGROUP = "Overall",
+        SUBLEVEL = "All"
+      )
+  }
+   if (!stratification_used) {
+    rd_rma_mh <- rd_rma_mh %>% 
+      dplyr::mutate(
+        STRATUM = "None"
+      )
+   } else {
+    rd_rma_mh <- rd_rma_mh %>% 
+      dplyr::mutate(
+        STRATUM = paste(strat,collapse = "/")
+      )
+   }
+    
+  if (effect %in% c("CID","CID_EXCESS")) {
+    rd_rma_mh <- rd_rma_mh %>% 
+      dplyr::rename(
+        OUTCOME = !!rlang::sym(param),
+        NUMBER_EVENTS_VERUM = x1_cid,
+        NUMBER_PATIENTS_VERUM = n_1,
+        NUMBER_EVENTS_COMP = x2_cid,
+        NUMBER_PATIENTS_COMP = n_2
+      ) %>% 
+      dplyr::mutate(DAY = day)
+  } else {
+    rd_rma_mh <- rd_rma_mh %>% 
+      dplyr::rename(
+        OUTCOME = !!rlang::sym(param),
+        NUMBER_EVENTS_VERUM = x_1,
+        NUMBER_PATIENTS_VERUM = n_1,
+        NUMBER_EVENTS_COMP = x_2,
+        NUMBER_PATIENTS_COMP = n_2
+      ) 
+  }
+  
+  rd_rma_mh <- rd_rma_mh %>% 
+    dplyr::mutate(
+      !!rlang::sym(effect_var_name) := round(as.numeric(estimate),3),
+      LOWER95 = round(as.numeric(ci.lb),3),
+      UPPER95 = round(as.numeric(ci.ub),3),
+      TRIALNO = trialno,
+      ESTIMATE = effect_name, 
+      ANALYSIS_SET = population,
+      DATA_SCOPE = paste(datascope, collapse = "/")
+    ) %>% suppressWarnings()
+  
+    if(effect %in% c("CID","CID_EXCESS")){
+    rd_rma_mh <- rd_rma_mh %>%  
+    dplyr::select(
+      TRIALNO, ESTIMATE, DAY, ANALYSIS_SET,
+      OUTCOME, DATA_SCOPE, 
+      SUBGROUP, SUBLEVEL,
+      STRATUM,
+      NUMBER_EVENTS_VERUM, NUMBER_PATIENTS_VERUM,
+      NUMBER_EVENTS_COMP,NUMBER_PATIENTS_COMP,
+      !!rlang::sym(effect_var_name),
+      LOWER95, UPPER95, NNT
+    ) %>% suppressWarnings()
+    } else {
+      rd_rma_mh <- rd_rma_mh %>%  
+    dplyr::select(
+      TRIALNO, ESTIMATE, ANALYSIS_SET,
+      OUTCOME, DATA_SCOPE, 
+      SUBGROUP, SUBLEVEL,
+      STRATUM,
+      NUMBER_EVENTS_VERUM, NUMBER_PATIENTS_VERUM,
+      NUMBER_EVENTS_COMP,NUMBER_PATIENTS_COMP,
+      !!rlang::sym(effect_var_name),
+      LOWER95, UPPER95, NNT
+    ) %>% suppressWarnings()
+  }
+  
+ if (startsWith(effect, "EXCESS_")) {
+   rd_rma_mh <- rd_rma_mh %>% 
+     dplyr::mutate(
+       !!rlang::sym(effect_var_name) := !!rlang::sym(effect_var_name)*100,
+       LOWER95 = LOWER95 * 100,
+       UPPER95 = UPPER95 * 100
+     )
+ }
+  return(rd_rma_mh)
+}

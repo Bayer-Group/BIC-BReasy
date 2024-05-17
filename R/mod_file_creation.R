@@ -725,11 +725,16 @@ file_creation_server <- function(input, output, session) {
   })
   
   output$effect <- shiny::renderUI({
-    if (is.null(adtte_data())) return()
-    else {
-      choices <- c("CID","EXCESS_CID","HR","IRD","ARD","EXCESS_IRD")
-    }
-
+    if (!is.null(adtte_data())) {
+      if (is.null(input$stratification_1)){
+        choices <- c("CID","EXCESS_CID","HR","IRD","ARD","EXCESS_IRD") 
+      } else {
+        if (input$stratification_1) {
+          choices <- c("HR","IRD","ARD","EXCESS_IRD")
+        } else {
+          choices <- c("CID","EXCESS_CID","HR","IRD","ARD","EXCESS_IRD")
+        }
+      }    
     shinyWidgets::pickerInput(
       inputId = ns("effect"),
       label = "Select effect",
@@ -761,6 +766,7 @@ file_creation_server <- function(input, output, session) {
     #     `none-selected-text` = "No selection!"
     #   )
     # )
+    }
   })
   
   
@@ -794,8 +800,8 @@ file_creation_server <- function(input, output, session) {
     shiny::numericInput(
       inputId = ns("day_variable"),
       label = "Day variable",
-      value = 0,
-      min = 0,
+      value = 7,
+      min = 1,
       step = 1
     )
   })
@@ -1268,7 +1274,7 @@ file_creation_server <- function(input, output, session) {
         day_variable_check_flag$val
       ) {
      
-      tmp <- effect_calc(
+      tmp <- effect_calc_new(
         data = adtte,
         effect = input$effect,
         outcome = input$sel_parameter,

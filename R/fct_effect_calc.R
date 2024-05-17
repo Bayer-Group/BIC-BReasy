@@ -78,14 +78,16 @@ effect_calc <- function(
     n2_all <- nrow(adtte_com)
 
     for (g in 1:length(strat)) {
-      strat_factor <- factor(data[strat][,g])
+      #strat_factor <- factor(data[strat][,g])
+      strat_factor <- factor(data[[strat[g]]])
+      
       alllevels[[g]] <- levels(strat_factor)
       numlevels[g] <- nlevels(strat_factor)
       for (i in 1:nlevels(strat_factor)) {
         allnames[[i]] <- strat[[g]]
       }
       strat_names[[g]] <- allnames
-      }
+    }
       
     total_levels <- sum(numlevels)
     name_levels <- unlist(alllevels)
@@ -173,15 +175,17 @@ effect_calc <- function(
       data_meta <- data.frame(a1,b1,c1,d1)
       
       data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
-      data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
+      #data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
+      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] %in% verum , 1 , 0)
       
+      #data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
+      data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] %notin% event , 0 , 1)
       a <- data_test_hr$AVAL
       b <- data_test_hr[[cnsr]]
       c <- data_test_hr[[treatment]]
       d <- data_test_hr[strat]
 
-      cox_hr <- survival::coxph(survival::Surv(a, b) ~ c + strata(d) , data_test_hr) 
+      cox_hr <- survival::coxph(survival::Surv(a, b) ~ c + survival::strata(d) , data_test_hr) 
       res_extract.effect.ci.meta <- summary(cox_hr)$conf.int[,c("exp(coef)","lower .95","upper .95")]
     }
     
@@ -333,7 +337,7 @@ effect_calc <- function(
       
       
     data_adtte_cid <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-    data_adtte_cid[[treatment]] <- ifelse(data_adtte_cid[[treatment]] == verum , 1 , 2)
+    data_adtte_cid[[treatment]] <- ifelse(data_adtte_cid[[treatment]] %in% verum , 1 , 2)
     data_adtte_cid$CNSR_1 <- as.factor(data_adtte_cid[[cnsr]])
     
     
@@ -342,11 +346,9 @@ effect_calc <- function(
       
     if (event == 0){
     levels(data_adtte_cid$CNSR_1) <- c("2","1","3")
-    }
-    else if (event == 1){
+    }else if (event == 1){
       levels(data_adtte_cid$CNSR_1) <- c("1","2","3")
-    }
-    else if (event == 2){
+    }else if (event == 2){
       levels(data_adtte_cid$CNSR_1) <- c("1","3","2")
     }
     
@@ -481,10 +483,11 @@ effect_calc <- function(
     if (effect == "HR")  {
       
       data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
+      data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] %in% verum , 1 , 0)
       data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
       
       a <- data_test_hr$AVAL
+    
       b <- data_test_hr[[cnsr]]
       c <- data_test_hr[[treatment]]
       
@@ -585,8 +588,7 @@ effect_calc <- function(
    if("Overall" %notin% strat) {
      for(k in 1:length(outcome)) {total <- rbind(total,as.data.frame(result_test_1[[k]]))}
      total_res <- as.data.frame(total)
-   }
-   else if("Overall" %in% strat){
+   } else if("Overall" %in% strat){
      for(k in 1:length(outcome)) {total <- cbind(total,result_test_1[[k]])}
      total_res <- as.data.frame(t(total))
    }
@@ -729,7 +731,7 @@ if ("Overall" %notin% subgroup) {
                data_meta <- data.frame(a1,b1,c1,d1)
                
                data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
+               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] %in% verum , 1 , 0)
                data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
                
                a <- data_test_hr$AVAL
@@ -1046,9 +1048,8 @@ if ("Overall" %notin% subgroup) {
              if (effect %in% c("HR"))  {
                
                data_test_hr <- data_test[(data_test[[treatment]] %in% c(verum,comparator)),]
-               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] == verum , 1 , 0)
-               data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] != event , 0 , 1)
-               
+               data_test_hr[[treatment]] <- ifelse(data_test_hr[[treatment]] %in% verum , 1 , 0)
+               data_test_hr[[cnsr]] <- ifelse(data_test_hr[[cnsr]] %notin% event , 0 , 1)
                a <- data_test_hr$AVAL
                b <- data_test_hr[[cnsr]]
                c <- data_test_hr[[treatment]]
@@ -1161,6 +1162,5 @@ if ("Overall" %notin% subgroup) {
        total_end[[q]] <- total_final[[nlevels(subgroup_factor)]]
      }
      total_end <- total_end[[length(subgroup)]]
-   }
- else {return(total_res)}
+   }else {return(total_res)}
  }

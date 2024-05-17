@@ -28,30 +28,6 @@ breasy_forestplot <- function(
   data_scope = NULL
   ) {
   
-  forest_data_ <<- forest_data
-  excess_number_ <<- excess_number
-  incidence_values_ <<- incidence_values
-  NNT_ <<- NNT
-  title_ <<- title
-  lower_limit_ <<- lower_limit
-  upper_limit_ <<- upper_limit
-  efficacy_color_ <<- efficacy_color
-  safety_color_ <<- safety_color
-  legend_color_ <<- legend_color
-  sorting_ <<- sorting
-  
-  # forest_data <- forest_data_
-  # excess_number <- excess_number_
-  # incidence_values <- incidence_values_
-  # NNT <- NNT_
-  # title <- title_
-  # lower_limit <- lower_limit_
-  # upper_limit <- upper_limit_
-  # efficacy_color <- efficacy_color_
-  # safety_color <- safety_color_
-  # legend_color <- legend_color_
-  # sorting <- sorting_
-  
   # Split data in Safety/Efficacy Part
   forest_data_saf <- forest_data[forest_data$BReasy_GROUP == "Safety",]
   if (dim(forest_data_saf)[1] > 0) {
