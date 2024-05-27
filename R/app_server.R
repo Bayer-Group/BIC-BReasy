@@ -7,7 +7,7 @@
 #' @noRd
 app_server <- function( input, output, session ) {
   # List the first level callModules here
-  #increase file upload size to 1200MB
+  #increase file upload size to 2400MB
   options(shiny.maxRequestSize = 2400*1024^2)
   
   #### Data Upload-tab ####
@@ -15,6 +15,8 @@ app_server <- function( input, output, session ) {
   # to one reactive data frame called df()
   df <- shiny::reactive({
     # demo data selection 
+    res <- NULL
+  
     if (input$selectdata == "Use demo data") {
       res <- read.csv(
         file = "./data/demo.csv",
@@ -26,7 +28,7 @@ app_server <- function( input, output, session ) {
         na.strings = "."
       )
     # data upload selection
-    } else {
+    } else if (input$selectdata == "Use demo data") {
       # possibility to upload up to four data sets
       if (is.null(input$file) &&
           is.null(input$file2) &&
@@ -172,8 +174,24 @@ app_server <- function( input, output, session ) {
           })
         }
       }
+      
+    } else if (input$selectdata == "Use file creation tab"){
+     res <- file_creation_data$df()
     }
     res
+  })
+  
+  shiny::observeEvent(file_creation_data$send_button(),{
+    if (file_creation_data$send_button() > 0) {
+      shinyWidgets::updatePrettyRadioButtons(
+        session,
+        inputId = 'selectdata',
+        choices = c('Upload data', 'Use demo data','Use file creation tab'),
+        selected = "Use file creation tab"
+      )
+      shinydashboard::updateTabItems(session,"sidebarmenu", "breasy_Plot")
+        
+    }
   })
   
   # hide download forestplot button until plot is shown
@@ -276,7 +294,7 @@ app_server <- function( input, output, session ) {
     shinyWidgets::dropdownButton(
       inputId = "dropdown_esti",
       label = "Estimate(s)",
-      tooltip = shinyWidgets::tooltipOptions(placement = "right", title = "Help Text Estimator"),
+      #tooltip = shinyWidgets::tooltipOptions(placement = "right", title = "Help Text Estimator"),
       icon = icon("sliders"),
       status = "customestimate",
       circle = FALSE,
@@ -580,7 +598,8 @@ app_server <- function( input, output, session ) {
   })
     
   #### Module call: file_creation (server) ####
-  callModule(file_creation_server, "file_creation")
+  file_creation_data <- callModule(file_creation_server, "file_creation")
+  
   #### Module call: value_tree (server) ####  
   callModule(mod_value_tree_server, "value_tree_ui_1")
   

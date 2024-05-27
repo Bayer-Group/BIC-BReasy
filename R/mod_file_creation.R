@@ -149,7 +149,7 @@ file_creation_ui <- function(id){
               inputId = ns("apply"),
               label = "Apply Filter Selection!",
               icon = icon("redo"),
-              style = "color: #fff; background-color: #61a337; border-color: #fff"
+              style = "color: #fff; background-color: #66B512; border-color: #fff"
             )
           )
         )
@@ -233,9 +233,9 @@ file_creation_server <- function(input, output, session) {
           <h1> Create a BReasy input file (as .csv) from your ADTTE SAS file </h1>
           <h5> Please upload your adtte file and complete all required settings.
                If necessary also upload the appropriate adsl data set.</h5>
-          <h5> After completing all settings, press the <span style='color: white;background-color: #61a337;height: 26px;border-radius:25px;'> <i class='fa-solid fa-spinner'></i> Calculate! </span>-button.
+          <h5> After completing all settings, press the <span style='color: white;background-color: #66B512;height: 26px;border-radius:4px;'> <i class='fa-solid fa-spinner'></i> Calculate! </span>-button.
                The results of the calculation appear in the 'CSV Output file' box.</h5>
-          <h5> If this dataset has the appropriate form, please press the <span style='color: white; background-color: #61a337;height: 26px;border-radius:25px'><i class='fa-solid fa-download'></i>Save as .csv </span>-button.
+          <h5> If this dataset has the appropriate form, please press the <span style='color: white; background-color: #66B512;height: 26px;border-radius:4px'><i class='fa-solid fa-file-import'></i>Send to app! </span>- or <span style='color: white; background-color: #66B512;height: 26px;border-radius:4px'><i class='fa-solid fa-download'></i>Save as .csv </span>-button.
                The saved data can be uploaded via <b><i class='fa-solid fa-upload'></i> Data Upload </b>-tab.</h5>
           
         "
@@ -258,18 +258,30 @@ file_creation_server <- function(input, output, session) {
       width = "auto",
       height = "auto",
         shiny::fluidRow(
-          column(2,
+          shiny::column(2,
             shiny::actionButton(
               inputId = ns("btn2"),
               label = "Calculate!",
               icon = icon("spinner")
             ),
-            shiny::uiOutput(ns('btn2_cont')),
-          )),
-          br(),
-         shiny::fluidRow(
-          column(2,
-            shiny::downloadButton(ns("downloadData"), "Save as .csv", class="mybutton")
+            shiny::uiOutput(ns('btn2_cont'))
+          )
+        ),
+        br(),
+        shiny::fluidRow(
+          shiny::column(2,            
+             shiny::actionButton(
+              inputId = ns("btn3"),
+              label = "Send to app!",
+              icon = icon("file-import")
+            ),
+            shiny::uiOutput(ns('btn3_cont'))
+          )
+        ),
+        br(),
+        shiny::fluidRow(
+          shiny::column(2,
+            shiny::downloadButton(ns("downloadData"), "Save as .csv")
           ),
           shiny::uiOutput(ns('downloadData_cont'))
         ),
@@ -286,6 +298,14 @@ file_creation_server <- function(input, output, session) {
     )
   })
   
+  output$btn3_cont <- shiny::renderUI({
+    list(
+      shiny::tags$head(
+        tags$style(HTML(paste0('#', session$ns("btn3"),'{color: #ffffff; background-color:#e3e3e3;}')))
+      )
+    )
+  })
+    
   downloadData_cont <- shiny::renderUI({
     list(
       shiny::tags$head(
@@ -293,6 +313,7 @@ file_creation_server <- function(input, output, session) {
       )
     )
   })
+
 
   #Reactive object to read ADTTE data set
   adtte_data <- shiny::reactive({
@@ -388,7 +409,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_treatment_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -449,7 +470,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_verum_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -520,7 +541,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_comparator_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -558,7 +579,7 @@ file_creation_server <- function(input, output, session) {
       output$analysis_set_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -586,7 +607,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_outcome_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -827,7 +848,7 @@ file_creation_server <- function(input, output, session) {
       output$day_variable_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -837,7 +858,7 @@ file_creation_server <- function(input, output, session) {
       output$day_variable_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -864,7 +885,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_event_identifyer_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -945,7 +966,7 @@ file_creation_server <- function(input, output, session) {
       output$sel_datascope_check <- shiny::renderUI({
         shiny::HTML(
           paste0(
-            '<span style = "color: #61a337"> <i class="fa-solid fa-check"></i></span>'
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
           )
         )
       })
@@ -1213,7 +1234,7 @@ file_creation_server <- function(input, output, session) {
         output$btn2_cont <- shiny::renderUI({
           list(
             shiny::tags$head(
-              tags$style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#61a337;}')))
+              tags$style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#66B512;}')))
             )
           )
         })
@@ -1221,7 +1242,7 @@ file_creation_server <- function(input, output, session) {
         output$btn2_cont <- shiny::renderUI({
           list(
             shiny::tags$head(
-              tags$style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#61a337;}')))
+              tags$style(HTML(paste0('#', session$ns("btn2"),'{color: #ffffff; background-color:#66B512;}')))
             )
           )
         })
@@ -1562,6 +1583,46 @@ file_creation_server <- function(input, output, session) {
     }
   )
   
+  shiny::observeEvent(csv_file(), {
+    if (dim(csv_file())[1] > 0) {
+        output$btn3_cont <- shiny::renderUI({
+        list(
+          shiny::tags$head(
+            tags$style(HTML(paste0('#', session$ns("btn3"),'{color: #ffffff; background-color:#66B512;}')))
+          )
+        )
+      })
+      downloadData_cont <- shiny::renderUI({
+        list(
+          shiny::tags$head(
+            tags$style(HTML(paste0('#', session$ns("downloadData"),'{color: #ffffff; background-color:#66B512;}')))
+          )
+        )
+      })
+    } else {
+        output$btn3_cont <- shiny::renderUI({
+          list(
+            shiny::tags$head(
+              tags$style(HTML(paste0('#', session$ns("btn3"),'{color: #ffffff; background-color:#e3e3e3;}')))
+            )
+          )
+        })
+       downloadData_cont <- shiny::renderUI({
+        list(
+          shiny::tags$head(
+            tags$style(HTML(paste0('#', session$ns("downloadData"),'{color: #ffffff; background-color:#e3e3e3;}')))
+          )
+        )
+      })
+    }
+  })
+  
+  return(
+    list(
+      df = shiny::reactive({csv_file()}),
+      send_button = shiny::reactive({input$btn3})
+    )
+  )
 }
 
 ## To be copied in the UI

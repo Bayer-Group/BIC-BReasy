@@ -37,7 +37,7 @@ app_ui <- function(request) {
               label = 'Select data', 
               shape = 'round', 
               animation = 'smooth',
-              choices = c('Upload data', 'Use demo data')
+              choices = c('Upload data', 'Use demo data','Use file creation tab')
             ),
             shiny::conditionalPanel(
               condition = "input.selectdata == 'Upload data'",
@@ -204,13 +204,14 @@ app_ui <- function(request) {
             icon = icon("folder-open")
           )
         ),
-        HTML(paste0("This version (from 2022-05-04) of", br())),
+        #HTML(paste0("This version (from 2022-05-04) of", br())),
         HTML(paste0(img(
           src = "www/AppSign_BReasy_220x76mm_WHT.png",
           height = 35,
           align = "center"
         ))),
-        HTML(paste0(br(), "was developed under R Version 4.0.2 (2020-06-22).", br()))
+        shiny::HTML(paste0("<span style = 'color: white'> ",utils::packageVersion("breasy")," </span>"))
+        #HTML(paste0(br(), "was developed under R Version 4.0.2 (2020-06-22).", br()))
       ),
       shinydashboard::dashboardBody(
         #shinyjs::useShinyjs(),
