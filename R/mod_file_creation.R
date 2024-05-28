@@ -48,24 +48,24 @@ file_creation_ui <- function(id){
         )
       )
     ),
-    shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'server\'"),
-      shiny::uiOutput(ns("studySelect")),
-      shiny::textInput(
-        inputId =  ns("user"),
-        label = "Username:"
-      ),
-      shiny::passwordInput(
-        inputId =  ns("password"),
-        label = "Password:"
-      ),
-      shiny::tags$br(),
-      shiny::actionButton(
-        inputId =  ns("retrieve_files"),
-        label = "Retrieve files",
-        icon = icon("download"),
-        style = paste0("color:#FFFFFF ; background-color: ", breasy_blue, ";")
-      )
-    ),
+    # shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'server\'"),
+    #   shiny::uiOutput(ns("studySelect")),
+    #   shiny::textInput(
+    #     inputId =  ns("user"),
+    #     label = "Username:"
+    #   ),
+    #   shiny::passwordInput(
+    #     inputId =  ns("password"),
+    #     label = "Password:"
+    #   ),
+    #   shiny::tags$br(),
+    #   shiny::actionButton(
+    #     inputId =  ns("retrieve_files"),
+    #     label = "Retrieve files",
+    #     icon = icon("download"),
+    #     style = paste0("color:#FFFFFF ; background-color: ", breasy_blue, ";")
+    #   )
+    # ),
     shiny::fluidRow(
       shiny::column(3,
         shiny::uiOutput(ns("sel_treatment")),

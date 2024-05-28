@@ -50,6 +50,7 @@ effect_calc_new <- function(
   }
 
   #select all scope variables if no selection is done 
+  if (scope != "No selection") {
   if ("No selection" %in% datascope) {datascope <- unique(data[[scope]])}
 
   #### 1. Filter by datascope, population and outcome ####
@@ -57,7 +58,11 @@ effect_calc_new <- function(
     dplyr::filter(!!rlang::sym(scope) %in% datascope) %>%
     dplyr::filter(!!rlang::sym(population) %in% c("1","Y", "YES")) %>%
     dplyr::filter(!!rlang::sym(param) %in% outcome)
-
+  } else {
+    data_filtered <- data %>%
+    dplyr::filter(!!rlang::sym(population) %in% c("1","Y", "YES")) %>%
+    dplyr::filter(!!rlang::sym(param) %in% outcome)
+  }
   #create custom treatment variables breasy_treatment, breasy_treatment_n (0/1 coded)
   #breasy_treatment_n2 (1/2 coded), breasy_csnr_n (0,1) and breasy_csnr_n_factor
   data_w_treat <- data_filtered %>%
@@ -79,7 +84,8 @@ effect_calc_new <- function(
          !!rlang::sym(cnsr) %notin% event ~ 0,
          !!rlang::sym(cnsr) %in% event ~ 1
       ),
-      breasy_cnsr_n_factor = breasy_cnsr_n + 1
+      breasy_cnsr_n_factor = breasy_cnsr_n + 1,
+      breasy_aval = !!rlang::sym(aval)
     )
 
   #### 2. Group ####
@@ -145,7 +151,7 @@ effect_calc_new <- function(
        !!rlang::sym(param)
      ) %>% 
      dplyr::summarise(
-       t = sum(AVAL, na.rm = TRUE)/(100 * 365.25),
+       t = sum(!!rlang::sym(aval), na.rm = TRUE)/(100 * 365.25),
        n = n(),
        x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
        x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
@@ -161,7 +167,7 @@ effect_calc_new <- function(
          !!rlang::sym(st)
        ) %>% 
        dplyr::summarise(
-         t = sum(AVAL, na.rm = TRUE)/(100 * 365.25),
+         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(100 * 365.25),
          n = n(),
          x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
          x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
@@ -185,7 +191,7 @@ effect_calc_new <- function(
          !!rlang::sym(st)
        ) %>% 
        dplyr::summarise(
-         t = sum(AVAL, na.rm = TRUE)/(100 * 365.25),
+         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(100 * 365.25),
          n = n(),
          x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
          x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
@@ -206,7 +212,7 @@ effect_calc_new <- function(
          !!rlang::sym(st)
        ) %>% 
        dplyr::summarise(
-         t = sum(AVAL, na.rm = TRUE)/(100 * 365.25),
+         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(100 * 365.25),
          n = n(),
          x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
          x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
@@ -328,7 +334,7 @@ effect_calc_new <- function(
     df$CNSR_1 <- ifelse(df$CNSR_1 != event , 0 , 1)
   }
   
-  tmp <- summary(survival::survfit(survival::Surv(AVAL, factor(CNSR_1, levels = c("1", "2", "3"))) ~ breasy_treatment_n2, data = df))
+  tmp <- summary(survival::survfit(survival::Surv(breasy_aval, factor(CNSR_1, levels = c("1", "2", "3"))) ~ breasy_treatment_n2, data = df))
       tmp2 <- as.data.frame(cbind(tmp$strata,tmp$time,tmp$n.event[,2],tmp$pstate[,2],tmp$std.err[,2]))
       names(tmp2) <- c("strata","time","n.event","cum.inc","std.err")
 
@@ -384,7 +390,7 @@ effect_calc_new <- function(
             round(
               summary(
                 rlang::inject(
-                  survival::coxph(survival::Surv(AVAL, breasy_cnsr_n) ~ breasy_treatment_n + survival::strata(!!!rlang::syms(strat)), data = df)
+                  survival::coxph(survival::Surv(breasy_aval, breasy_cnsr_n) ~ breasy_treatment_n + survival::strata(!!!rlang::syms(strat)), data = df)
                 )
               )$conf.int["breasy_treatment_n",c("exp(coef)","lower .95","upper .95")],
               3
@@ -394,7 +400,7 @@ effect_calc_new <- function(
        #tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(!!AVAL, breasy_cnsr_n) ~ breasy_treatment_n + strat, df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
        colnames(tmp) <- c("estimate","ci.lb","ci.ub")
       } else {
-         tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(AVAL, breasy_cnsr_n) ~ breasy_treatment_n , df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
+         tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(breasy_aval, breasy_cnsr_n) ~ breasy_treatment_n , df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
          names(tmp) <- c("estimate","ci.lb","ci.ub")
       }
       return(tmp)
