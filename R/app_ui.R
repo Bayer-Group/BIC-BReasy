@@ -129,7 +129,8 @@ app_ui <- function(request) {
           shinydashboard::menuItem(
             "File Creation (SAS data)",
             tabName = "sas_data",
-            icon = icon("calculator")
+            icon = icon("calculator"),#
+            badgeLabel = "beta", badgeColor = "black"
           ),
           shinydashboard::menuItem(
             text = 'Graphic Options',
