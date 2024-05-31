@@ -9,6 +9,7 @@
 #' @param scope character with scope variable
 #' @param datascope character with scope selection
 #' @param population character with population flag variable
+#' @param population_value numeric or character with population flag value
 #' @param treatment character with treatment variable
 #' @param verum character(s) with treatment selection for verum
 #' @param comparator character(s) with treatment selection for comparator
@@ -28,6 +29,7 @@ effect_calc_new <- function(
     scope = scope,
     datascope = datascope,
     population = population,
+    population_value = population_value,
     treatment = treatment,
     verum = verum,
     comparator = comparator,
@@ -56,11 +58,11 @@ effect_calc_new <- function(
   #### 1. Filter by datascope, population and outcome ####
   data_filtered <- data %>%
     dplyr::filter(!!rlang::sym(scope) %in% datascope) %>%
-    dplyr::filter(!!rlang::sym(population) %in% c("1","Y", "YES")) %>%
+    dplyr::filter(!!rlang::sym(population) %in% population_value) %>%
     dplyr::filter(!!rlang::sym(param) %in% outcome)
   } else {
     data_filtered <- data %>%
-    dplyr::filter(!!rlang::sym(population) %in% c("1","Y", "YES")) %>%
+    dplyr::filter(!!rlang::sym(population) %in% population_value) %>%
     dplyr::filter(!!rlang::sym(param) %in% outcome)
   }
   #create custom treatment variables breasy_treatment, breasy_treatment_n (0/1 coded)

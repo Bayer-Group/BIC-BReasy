@@ -20,8 +20,7 @@ file_creation_ui <- function(id){
       shape = 'round',
       animation = 'smooth',
       choices = c(
-        "SAS file (from Disc)" = "sas"#,
-        #"SAS file (from Server)" = "server"
+        "SAS file (from Disc)" = "sas"
       )
     ),
     shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'sas\'"),
@@ -48,24 +47,6 @@ file_creation_ui <- function(id){
         )
       )
     ),
-    # shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'server\'"),
-    #   shiny::uiOutput(ns("studySelect")),
-    #   shiny::textInput(
-    #     inputId =  ns("user"),
-    #     label = "Username:"
-    #   ),
-    #   shiny::passwordInput(
-    #     inputId =  ns("password"),
-    #     label = "Password:"
-    #   ),
-    #   shiny::tags$br(),
-    #   shiny::actionButton(
-    #     inputId =  ns("retrieve_files"),
-    #     label = "Retrieve files",
-    #     icon = icon("download"),
-    #     style = paste0("color:#FFFFFF ; background-color: ", breasy_blue, ";")
-    #   )
-    # ),
     shiny::fluidRow(
       shiny::column(3,
         shiny::uiOutput(ns("sel_treatment")),
@@ -89,14 +70,17 @@ file_creation_ui <- function(id){
         shiny::uiOutput(ns("sel_outcome_check"))
       ),
       shiny::column(3,
-        shiny::uiOutput(ns("sel_aval"))#,
-       # shiny::uiOutput(ns("sel_outcome_check"))
+        shiny::uiOutput(ns("sel_aval"))
       )
     ),
     shiny::fluidRow(
       shiny::column(3,
         shiny::uiOutput(ns("analysis_set")),
         shiny::uiOutput(ns("analysis_set_check"))
+      ),
+      shiny::column(3,
+        shiny::uiOutput(ns("analysis_set_value")),
+        shiny::uiOutput(ns("analysis_set_value_check"))
       ),
       shiny::column(3,
         shiny::uiOutput(ns("subject_identifier"))  
@@ -165,9 +149,6 @@ file_creation_ui <- function(id){
       )
     ),
     shiny::fluidRow(
-      # shiny::column(4,
-      #   shiny::uiOutput(ns("estimates"))
-      # ),
       shiny::column(3,
         shiny::uiOutput(ns("effect"))
       ),
@@ -182,17 +163,10 @@ file_creation_ui <- function(id){
       shiny::column(2,
         shiny::uiOutput(ns("stratification_1"))
       ),
-    # shinyBS::bsCollapse(
-    #   shinyBS::bsCollapsePanel(
-    #     shiny::HTML('<p style="color:black; font-size:100%;"> Advanced settings: </p>'),
-    #     "Advanced settings",
-        shiny::column(3,
-          shiny::uiOutput(ns("stratification_2"))
-        )
+      shiny::column(3,
+        shiny::uiOutput(ns("stratification_2"))
+      )
     ),
-      
-    #   )
-    # ),
       shiny::column(10,
         shinyBS::bsCollapse(
           shinyBS::bsCollapsePanel(
@@ -377,7 +351,7 @@ file_creation_server <- function(input, output, session) {
     } else {
       choices <- as.list(names(adtte_data()))
       choices <- c(choices[stringr::str_detect(choices, "TRT")], choices[!(stringr::str_detect(choices, "TRT"))])
-      # possible treatment variable names (add more here if nessecary)
+      # possible treatment variable names (add more here if needed)
       trt_variable_names <- c("TRT01P", "TRT01PN", "TRT01A", "TRT01AN","TRTP", "TRTPN", "TRTA", "TRTAN")
       # determine the order of selection (here trt01p is selected as default if available)
       selected <- trt_variable_names[which(trt_variable_names %in% choices)[1]]
@@ -451,7 +425,9 @@ file_creation_server <- function(input, output, session) {
       )
     )
   })
+  
   verum_check_flag <- shiny::reactiveValues(val = FALSE)
+  
   shiny::observeEvent(c(adtte_data(), input$sel_treatment, input$sel_verum), {
     shiny::req(adtte_data())
     if (!is.null(input$sel_treatment)) {
@@ -465,16 +441,16 @@ file_creation_server <- function(input, output, session) {
         )
       })
       verum_check_flag$val <- FALSE
-    } else {
-      verum_check_flag$val <- TRUE
-      output$sel_verum_check <- shiny::renderUI({
-        shiny::HTML(
-          paste0(
-            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
+      } else {
+        verum_check_flag$val <- TRUE
+        output$sel_verum_check <- shiny::renderUI({
+          shiny::HTML(
+            paste0(
+              '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
+            )
           )
-        )
-      })
-    }
+        })
+      }
     } else {
      output$sel_verum_check <- shiny::renderUI({
         shiny::HTML(
@@ -484,7 +460,6 @@ file_creation_server <- function(input, output, session) {
         )
       })
     } 
-     
   }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
   #### Select comparator variable ####
@@ -721,6 +696,67 @@ file_creation_server <- function(input, output, session) {
       )
     }
   })
+  
+  output$analysis_set_value <- shiny::renderUI({
+    if (is.null(adtte_data())) { return()
+      } else {
+      shiny::req(input$analysis_set)
+      if (input$analysis_set %in% colnames(adtte_data())) {
+        choices <- adtte_data() %>% 
+          dplyr::pull(input$analysis_set) %>% 
+          unique()
+        if (length(choices) == 0) {
+          selected <- NULL
+        } else {
+          selected <- choices[choices %in% c("Y","YES","yes","Yes",1,2)]
+        }
+        
+        shinyWidgets::pickerInput(
+          inputId = ns("analysis_set_value"),
+          label = "Analysis set value",
+          choices = choices,
+          selected = selected,
+          multiple = TRUE,
+          options = list(
+            `actions-box` = TRUE,
+            `selected-text-format` = "count > 0",
+            `count-selected-text` = "{0} selected (of {1})",
+            `live-search` = TRUE,
+            `header` = "Select multiple items",
+            `none-selected-text` = "No selection!"
+          )
+        )
+      }  
+    }
+  })
+  
+  
+  analysis_set_value_check_flag <- shiny::reactiveValues(val = FALSE)
+  
+  shiny::observeEvent(c(adtte_data(), input$analysis_set_value), {
+    shiny::req(adtte_data())
+    if (is.null(input$analysis_set_value)) {
+      output$analysis_set_value_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color:#E43157"> <i class="fa fa-exclamation">
+            </i> Please select an analysis set value. </span>'
+          )
+        )
+      })
+      analysis_set_value_check_flag$val <- FALSE
+    } else {
+      analysis_set_value_check_flag$val <- TRUE
+      output$analysis_set_value_check <- shiny::renderUI({
+        shiny::HTML(
+          paste0(
+            '<span style = "color: #66B512"> <i class="fa-solid fa-check"></i></span>'
+          )
+        )
+      })
+    }
+  }, ignoreNULL = FALSE, ignoreInit = TRUE)
+  
 
   output$estimates <- shiny::renderUI({
     if (is.null(adtte_data())) return()
@@ -1186,7 +1222,7 @@ file_creation_server <- function(input, output, session) {
     if (
       treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
       outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val &
-      day_variable_check_flag$val
+      day_variable_check_flag$val & analysis_set_value_check_flag$val
     ) {
       if (
         all(dim(used_settings$adtte) == dim(adtte_filtered())) &
@@ -1195,6 +1231,7 @@ file_creation_server <- function(input, output, session) {
         all(used_settings$scope == input$data_scope) &
         all(used_settings$datascope == input$sel_data_scope) &
         all(used_settings$population == input$analysis_set) &
+        all(used_settings$population_value == input$analysis_set_value) &
         all(used_settings$treatment == input$sel_treatment) &
         all(used_settings$verum == input$sel_verum) &
         all(used_settings$comparator == input$sel_comparator) &
@@ -1220,6 +1257,7 @@ file_creation_server <- function(input, output, session) {
         all(used_settings$scope =="") &
         all(used_settings$datascope =="") &
         all(used_settings$population == "") &
+        all(used_settings$population_value == "") &
         all(used_settings$treatment == "") &
         all(used_settings$verum == "") &
         all(used_settings$comparator == "") &
@@ -1265,6 +1303,7 @@ file_creation_server <- function(input, output, session) {
     scope = "",
     datascope = "",
     population = "",
+    population_value = "",
     treatment= "",
     verum = "",
     comparator = "",
@@ -1292,7 +1331,7 @@ file_creation_server <- function(input, output, session) {
       if (
         treatment_check_flag$val & verum_check_flag$val & comparator_check_flag$val &
         outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val &
-        day_variable_check_flag$val
+        day_variable_check_flag$val & analysis_set_value_check_flag$val
       ) {
      
       tmp <- effect_calc_new(
@@ -1303,6 +1342,7 @@ file_creation_server <- function(input, output, session) {
         scope = input$data_scope,
         datascope = input$sel_data_scope ,
         population = input$analysis_set,
+        population_value = input$analysis_set_value,
         treatment= input$sel_treatment,
         verum = input$sel_verum,
         comparator = input$sel_comparator,
@@ -1326,6 +1366,7 @@ file_creation_server <- function(input, output, session) {
         used_settings$scope <- input$data_scope
         used_settings$datascope <- input$sel_data_scope
         used_settings$population <- input$analysis_set
+        used_settings$population_value <- input$analysis_set_value
         used_settings$treatment <- input$sel_treatment
         used_settings$verum <- input$sel_verum
         used_settings$comparator <- input$sel_comparator

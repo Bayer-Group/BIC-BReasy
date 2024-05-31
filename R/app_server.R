@@ -226,7 +226,6 @@ app_server <- function( input, output, session ) {
     )
   })
   
-  
   output$avisit <- shiny::renderUI({
     if (is.null(df())) return()
     else if (any(names(df()) == "AVISIT") || any(names(df()) == "DATA_SCOPE")) {
