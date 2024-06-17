@@ -911,7 +911,7 @@ file_creation_server <- function(input, output, session) {
         shiny::HTML(
           paste0(
             '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            </i> Please select an event identifyer variable. </span>'
+            </i> Please select an event identifer variable. </span>'
           )
         )
       })
@@ -938,7 +938,7 @@ file_creation_server <- function(input, output, session) {
     
     shinyWidgets::pickerInput(
       inputId = ns("event_identifyer"),
-      label = "Event identifyer",
+      label = "Event identifer",
       choices = choices ,
       selected = choices[1],
       multiple = FALSE,
