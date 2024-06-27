@@ -23,7 +23,7 @@
 effect_calc_new <- function(
     data = data,
     effect = effect,
-    day = day,
+    day = "7",
     param = param,
     outcome = outcome,
     scope = scope,
@@ -39,27 +39,28 @@ effect_calc_new <- function(
     subgroup = subgroup,
     aval = aval
 ) {
-
- #helperfunction 
- '%notin%' <- Negate('%in%')
-
- #get trialnumbers/names
- if (nlevels(as.factor(data$STUDYID)) > 1) {
-   trials <- paste(levels(as.factor(data$STUDYID)), collapse = "/")
-   trialno <- paste("Pool of",trials)
+  #helperfunction 
+  '%notin%' <- Negate('%in%')
+  #get trialnumbers/names
+  if ("STUDYID" %in% colnames(data)) {
+    if (nlevels(as.factor(data$STUDYID)) > 1) {
+      trials <- paste(levels(as.factor(data$STUDYID)), collapse = "/")
+      trialno <- paste("Pool of", trials)
+    } else {
+      trialno <- paste(levels(as.factor(data$STUDYID)), collapse = "/")
+    }
   } else {
-    trialno <- paste(levels(as.factor(data$STUDYID)), collapse = "/")
+    trialno <- ""
   }
-
   #select all scope variables if no selection is done 
   if (scope != "No selection") {
-  if ("No selection" %in% datascope) {datascope <- unique(data[[scope]])}
-
-  #### 1. Filter by datascope, population and outcome ####
-  data_filtered <- data %>%
-    dplyr::filter(!!rlang::sym(scope) %in% datascope) %>%
-    dplyr::filter(!!rlang::sym(population) %in% population_value) %>%
-    dplyr::filter(!!rlang::sym(param) %in% outcome)
+    if ("No selection" %in% datascope) {datascope <- unique(data[[scope]])}
+  
+    #### 1. Filter by datascope, population and outcome ####
+    data_filtered <- data %>%
+      dplyr::filter(!!rlang::sym(scope) %in% datascope) %>%
+      dplyr::filter(!!rlang::sym(population) %in% population_value) %>%
+      dplyr::filter(!!rlang::sym(param) %in% outcome)
   } else {
     data_filtered <- data %>%
     dplyr::filter(!!rlang::sym(population) %in% population_value) %>%
@@ -119,7 +120,6 @@ effect_calc_new <- function(
   #### 3. Effect calculation ####
   # distinguish between cases with or without stratification and subgroup
   # calculations
-  
   if (!stratification_used & !subgroup_used) {
     data_used <- data_grouped_overall
     join_by <- c(param)
@@ -202,7 +202,6 @@ effect_calc_new <- function(
       merge_strata_data <- rbind(merge_strata_data, rd_summary)
     }
   }
-
  if (stratification_used & subgroup_used) {
     merge_strata_subgroup_data <- c()
     for(st in strat) {
@@ -210,7 +209,7 @@ effect_calc_new <- function(
       rd_summary <- data_used %>% 
         group_by(breasy_treatment,
          !!rlang::sym(param),
-         !!!rlang::sym(su),
+         !!rlang::sym(su),
          !!rlang::sym(st)
        ) %>% 
        dplyr::summarise(
@@ -284,9 +283,8 @@ effect_calc_new <- function(
   }
 
  #create different functions for each effect estimate and assign it to rd_func
-  
  #### IRD ####
-  if (effect %in% c("IRD","IRD_EXCESS","ARD","ARD_EXCESS")) {
+  if (effect %in% c("IRD","EXCESS_IRD","ARD","EXCESS_ARD")) {
     data_used1 <- overall_summary_wide_non_zero_times
     
     if (subgroup_used) {
@@ -304,14 +302,18 @@ effect_calc_new <- function(
     if (subgroup_used & stratification_used) {
       data_used2 <- strata_subgroup_summary_wide_non_zero_times
     }
-    if (effect %in% c("IRD","IRD_EXCESS")) {
-      rd_func <- function(df){confint(metafor::rma.mh(x1i=x_1, x2i=x_2, t1i=t_1, t2i=t_2, measure = "IRD", level = 95, data = df))$fixed}
-    } else if (effect %in% c("ARD","ARD_EXCESS")) {
-      rd_func <- function(df){confint(metafor::rma.mh(ai = x_1, bi = x_complement_1, ci = x_2, di = x_complement_2, measure = "RD", level = 95, data = df))$fixed}
+    if (effect %in% c("IRD","EXCESS_IRD")) {
+      rd_func <- function(df){
+        confint(metafor::rma.mh(x1i=x_1, x2i=x_2, t1i=t_1, t2i=t_2, measure = "IRD", level = 95, data = df))$fixed
+      }
+    } else if (effect %in% c("ARD","EXCESS_ARD")) {
+      rd_func <- function(df){
+        confint(metafor::rma.mh(ai = x_1, bi = x_complement_1, ci = x_2, di = x_complement_2, measure = "RD", level = 95, data = df))$fixed
+      }
     } 
   }
-    
- if (effect %in% c("CID", "CID_EXCESS")) {
+   
+  if (effect %in% c("CID", "EXCESS_CID")) {
   #### CID ####
    data_used1 <- overall_summary_wide_non_zero_times
     data_used1
@@ -323,7 +325,6 @@ effect_calc_new <- function(
    rd_func <- function(df) {
     
    df$CNSR_1 <- as.factor(df[[cnsr]])
-   
    if (nlevels(as.factor(df[[cnsr]])) > 2) {
     if (event == 0){
       levels(df$CNSR_1) <- c("2","1","3")
@@ -332,11 +333,18 @@ effect_calc_new <- function(
     }else if (event == 2){
       levels(df$CNSR_1) <- c("1","3","2")
     }
+    df$cnsr_factor <- factor(df$CNSR_1, levels = c("1", "2", "3"))
   } else if (nlevels(as.factor(df[[cnsr]])) == 2) {
-    df$CNSR_1 <- ifelse(df$CNSR_1 != event , 0 , 1)
+    df$CNSR_1 <- ifelse(df$CNSR_1 != event , "0" , "1")
+    df$cnsr_factor <- factor(df$CNSR_1)
+  } else if (nlevels(as.factor(df[[cnsr]])) == 1) {
+    df$CNSR_1 <- ifelse(df$CNSR_1 != event , "0" , "1")
+    df$cnsr_factor <- factor(df$CNSR_1, levels = c("0","1"))
+  } else if (nlevels(as.factor(df[[cnsr]])) == 0) {
+    df$CNSR_1 <- ifelse(df$CNSR_1 != event , "0" , "1")
+    df$cnsr_factor <- factor(df$CNSR_1, levels = c("0","1"))
   }
-  
-  tmp <- summary(survival::survfit(survival::Surv(breasy_aval, factor(CNSR_1, levels = c("1", "2", "3"))) ~ breasy_treatment_n2, data = df))
+  tmp <- summary(survival::survfit(survival::Surv(breasy_aval, cnsr_factor) ~ breasy_treatment_n2, data = df))
       tmp2 <- as.data.frame(cbind(tmp$strata,tmp$time,tmp$n.event[,2],tmp$pstate[,2],tmp$std.err[,2]))
       names(tmp2) <- c("strata","time","n.event","cum.inc","std.err")
 
@@ -387,6 +395,7 @@ effect_calc_new <- function(
     data_used2 <- data_used
     rd_func <- function(df) {
        if (stratification_used) {
+         
          tmp <- data.frame(
            t(
             round(
@@ -410,12 +419,14 @@ effect_calc_new <- function(
   }
     
     
-  if (effect %in% c("CID", "CID_EXCESS","HR") & subgroup_used) {
+  if (effect %in% c("CID", "EXCESS_CID","HR") & subgroup_used) {
     data_used1 <- subgroup_summary_wide_non_zero_times
     rd_rma_mh_hr <- c()
     for(st in subgroup) {
       rd_rma_mh_overall <- cbind(
-      data_used1 %>% dplyr::filter(SUBGROUP == st),
+      data_used1 %>%
+        dplyr::arrange(!!rlang::sym(param)) %>%
+        dplyr::filter(SUBGROUP == st),
       data_used2 %>%
         dplyr::group_by(!!rlang::sym(param),!!rlang::sym(st)) %>%
         dplyr::group_map(~ rd_func(.)) %>%
@@ -432,7 +443,8 @@ effect_calc_new <- function(
     rd_rma_mh <- rd_rma_mh_hr
   } else {
     rd_rma_mh <- cbind(
-      data_used1,
+      data_used1 %>%
+        dplyr::arrange(!!!rlang::syms(grouping_vars)),
       data_used2 %>%
         dplyr::group_by(!!!rlang::syms(grouping_vars)) %>%
         dplyr::group_map(~ rd_func(.)) %>%
@@ -451,12 +463,13 @@ effect_calc_new <- function(
     if (stratification_used){
       data_used2 <- strat_summary_wide_non_zero_times
     }
-    if (effect %in% c("HR","CID","CID_EXCESS")) {
+    if (effect %in% c("HR","CID","EXCESS_CID")) {
       data_used2 <- data_used
     }
     
     rd_rma_mh_overall <- cbind(
-      data_used1,
+      data_used1 %>%
+        dplyr::arrange(!!rlang::sym(param)),
       data_used2 %>%
         dplyr::group_by(!!rlang::sym(param)) %>%
         dplyr::group_map(~ rd_func(.)) %>%
@@ -473,13 +486,13 @@ effect_calc_new <- function(
     
     rd_rma_mh <- rbind(rd_rma_mh_overall,rd_rma_mh)
   }
-    
+  
   #### 4. Transform/Rename variables in desired form ####
-  if (effect %in% c("IRD","IRD_EXCESS")){
-    effect_name <- "Incidence Rate"
+  if (effect %in% c("IRD","EXCESS_IRD")){
+    effect_name <- "Incidence Rate by 100 patient years"
     effect_var_name <- "EFFECT_IRD"
   }
-  if (effect %in% c("ARD","ARD_EXCESS")){
+  if (effect %in% c("ARD","EXCESS_ARD")){
     effect_name <- "Crude Incidence"
     effect_var_name <- "EFFECT_ARD"
   }
@@ -487,7 +500,7 @@ effect_calc_new <- function(
     effect_name <- "Hazard Ratio"
     effect_var_name <- "EFFECT_HR"
     }
-    if (effect %in% c("CID","CID_EXCESS")){
+    if (effect %in% c("CID","EXCESS_CID")){
     effect_name <- "Cumulative Incidence based on AJ"
     effect_var_name <- "EFFECT_CID"
   }
@@ -511,7 +524,7 @@ effect_calc_new <- function(
       )
    }
     
-  if (effect %in% c("CID","CID_EXCESS")) {
+  if (effect %in% c("CID","EXCESS_CID")) {
     rd_rma_mh <- rd_rma_mh %>% 
       dplyr::rename(
         OUTCOME = !!rlang::sym(param),
@@ -531,7 +544,6 @@ effect_calc_new <- function(
         NUMBER_PATIENTS_COMP = n_2
       ) 
   }
-  
   rd_rma_mh <- rd_rma_mh %>% 
     dplyr::mutate(
       !!rlang::sym(effect_var_name) := round(as.numeric(estimate),3),
@@ -543,7 +555,7 @@ effect_calc_new <- function(
       DATA_SCOPE = paste(datascope, collapse = "/")
     ) %>% suppressWarnings()
   
-    if(effect %in% c("CID","CID_EXCESS")){
+    if(effect %in% c("CID","EXCESS_CID")){
     rd_rma_mh <- rd_rma_mh %>%  
     dplyr::select(
       TRIALNO, ESTIMATE, DAY, ANALYSIS_SET,
@@ -577,5 +589,11 @@ effect_calc_new <- function(
        UPPER95 = UPPER95 * 100
      )
  }
+  
+  if (effect == "HR") {
+    rd_rma_mh <- rd_rma_mh %>% 
+      dplyr::select(-NNT)
+  }
+  
   return(rd_rma_mh)
 }

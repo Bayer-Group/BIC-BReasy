@@ -181,7 +181,7 @@ mod_data_manual_server <- function(input, output, session){
            <h3> Important points to consider </h3>
            <p> If the data is stored in more than one file of the same format, it is possible to upload several CSV files into BReasy. </p>
            <p> The maximal file size is 1200 MB.</p> 
-           <p>The flag for the analysis set variable should be coded as “Y” for character variable or as “1” for numeric variable.</p>
+           <p>The flag for the analysis set variable should be coded as 'Y' for character variable or as '1' for numeric variable.</p>
            
            
            
@@ -208,7 +208,7 @@ mod_data_manual_server <- function(input, output, session){
               <th style='width:10%;'> Dataset: </th>
               <th style='width:40%;'> Variables: </th>
               <th style='width:20%;'> Type: </th> 
-              <th style='width:20%;'> Requirment: </th>
+              <th style='width:20%;'> Requirement: </th>
             </tr>
             <tr>
               <td rowspan='6'> ADTTE </td>

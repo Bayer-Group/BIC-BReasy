@@ -1,21 +1,21 @@
 #' file creation function
 #' 
-#' @param data
-#' @param effect
-#' @param day
-#' @param param
-#' @param outcome
-#' @param scope
-#' @param datascope
-#' @param population
-#' @param treatment
-#' @param verum
-#' @param comparator
-#' @param cnsr
-#' @param event
-#' @param strat
-#' @param subgroup
-#' @param aval
+#' @param data data frame with adtte data (merged with adsl data)
+#' @param effect effect estimate (possible selection: CID, EXCESS_CID, ARD, EXCESS_ARD, HR, IRD, EXCESS_IRD)
+#' @param day integer value for CID calculation
+#' @param param character with parameter variable
+#' @param outcome character(s) with outcome from param
+#' @param scope character with scope variable
+#' @param datascope character with scope selection
+#' @param population character with population flag variable
+#' @param treatment character with treatment variable
+#' @param verum character(s) with treatment selection for verum
+#' @param comparator character(s) with treatment selection for comparator
+#' @param cnsr character with censoring variable
+#' @param event character with event selection from cnsr
+#' @param strat character(s) with stratification variable
+#' @param subgroup character(s) with subgroup variable 
+#' @param aval character with aval variable
 #' 
 
 effect_calc <- function(

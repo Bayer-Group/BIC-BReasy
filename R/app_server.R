@@ -18,7 +18,7 @@ app_server <- function( input, output, session ) {
     res <- NULL
   
     if (input$selectdata == "Use demo data") {
-      res <- read.csv(
+      res <- utils::read.csv(
         file = "./data/demo.csv",
         header = TRUE,
         sep = ";",

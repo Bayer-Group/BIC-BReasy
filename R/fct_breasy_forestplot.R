@@ -11,6 +11,7 @@
 #' @param safety_color color for the Safety font and Confidence Interval 
 #' @param legend_color color for the Legend font and Arrows
 #' @param sorting Sorting variable (possible selections: "As Input", "Alphabetical", or "Effect") [default: "As Input"]
+#' @param data_scope data scope variable
 #' 
 
 breasy_forestplot <- function(
@@ -88,8 +89,8 @@ breasy_forestplot <- function(
   forest_data[,colnames(forest_data)[which(grepl("LOWER", names(forest_data)))]]
   
   xlim <- c(
-    ifelse(is.na(lower_limit), min(forest_data[,colnames(forest_data)[which(grepl("LOWER", names(forest_data)))]]), lower_limit),
-    ifelse(is.na(upper_limit), max(forest_data[,colnames(forest_data)[which(grepl("UPPER", names(forest_data)))]]), upper_limit)
+    ifelse(is.na(lower_limit), ifelse(is.na(min(forest_data[,colnames(forest_data)[which(grepl("LOWER", names(forest_data)))]],na.rm=TRUE)),0,min(forest_data[,colnames(forest_data)[which(grepl("LOWER", names(forest_data)))]],na.rm=TRUE)), lower_limit),
+    ifelse(is.na(upper_limit), ifelse(is.na(max(forest_data[,colnames(forest_data)[which(grepl("UPPER", names(forest_data)))]],na.rm=TRUE)),1,max(forest_data[,colnames(forest_data)[which(grepl("UPPER", names(forest_data)))]],na.rm=TRUE)), upper_limit)
   )
   # get 12.5percent of the x-axis length
   xlim_125p <- diff(xlim) * 0.125

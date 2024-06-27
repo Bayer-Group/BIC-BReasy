@@ -41,6 +41,8 @@ breasy_forestplot(
 \item{legend_color}{color for the Legend font and Arrows}
 
 \item{sorting}{Sorting variable (possible selections: "As Input", "Alphabetical", or "Effect") [default: "As Input"]}
+
+\item{data_scope}{data scope variable}
 }
 \description{
 draw a forestplot grouped by Efficacy & Safety

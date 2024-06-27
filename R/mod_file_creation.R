@@ -25,17 +25,18 @@ file_creation_ui <- function(id){
     ),
     shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'sas\'"),
       shiny::fluidRow(
-        shiny::column(5,
-          shiny::fileInput(
-            inputId =  ns("adtte_file"),
-            label = "ADTTE data (.sas7bdat format)",
-            multiple = FALSE,
-            accept = NULL,
-            width = NULL
-          ),
+        shiny::column(4,
+          # shiny::fileInput(
+          #   inputId =  ns("adtte_file"),
+          #   label = "ADTTE data (.sas7bdat format)",
+          #   multiple = FALSE,
+          #   accept = NULL,
+          #   width = NULL
+          # ),
+          shiny::uiOutput(ns("adtte_file")),
           shiny::uiOutput(ns("wrong_adtte_format_text"))
         ),
-        shiny::column(5,
+        shiny::column(4,
           shiny::fileInput(
             inputId =  ns("adsl_file"),
             label = "ADSL data (optional for treatment variable)",
@@ -44,6 +45,13 @@ file_creation_ui <- function(id){
             width = NULL
           ),
           shiny::uiOutput(ns("wrong_adsl_format_text"))
+        ),
+        shiny::column(1,
+          shiny::actionButton(
+            inputId = ns("reset_button"),
+            label = "Remove data",
+            icon = icon("rotate-right")
+          )
         )
       )
     ),
@@ -300,7 +308,6 @@ file_creation_server <- function(input, output, session) {
       split_path <- strsplit(x = inFile, split = "[.]")
       path_ending <- split_path[[1]][length(split_path[[1]])]
       if (path_ending %in% c("sas7bdat", "sas7cdat")) {
-
         adtte <- haven::read_sas(input$adtte_file$datapath)
         if (!is.null(input$adsl_file)) {
           inFile2 <- input$adsl_file$datapath
@@ -343,6 +350,17 @@ file_creation_server <- function(input, output, session) {
     }
 
   })
+  
+  output$adtte_file <- shiny::renderUI({
+     shiny::fileInput(
+       inputId =  ns("adtte_file"),
+       label = "ADTTE data (.sas7bdat format)",
+       multiple = FALSE,
+       accept = NULL,
+       width = NULL
+     )
+  })
+    
   
   #### Select treatment variable ####
   output$sel_treatment <- shiny::renderUI({
@@ -807,22 +825,6 @@ file_creation_server <- function(input, output, session) {
         `none-selected-text` = "No selection!"
       )
     )
-    
-    #  shinyWidgets::pickerInput(
-    #   inputId = ns("event_identifyer"),
-    #   label = "Event identifyer",
-    #   choices = choices ,
-    #   selected = choices[1],
-    #   multiple = FALSE,
-    #   options = list(
-    #     `actions-box` = TRUE,
-    #     `selected-text-format` = "count > 0",
-    #     `count-selected-text` = "{0} selected (of {1})",
-    #     `live-search` = TRUE,
-    #     `header` = "Select multiple items",
-    #     `none-selected-text` = "No selection!"
-    #   )
-    # )
     }
   })
   
@@ -911,7 +913,7 @@ file_creation_server <- function(input, output, session) {
         shiny::HTML(
           paste0(
             '<span style = "color:#E43157"> <i class="fa fa-exclamation">
-            </i> Please select an event identifyer variable. </span>'
+            </i> Please select an event identifier variable. </span>'
           )
         )
       })
@@ -938,7 +940,7 @@ file_creation_server <- function(input, output, session) {
     
     shinyWidgets::pickerInput(
       inputId = ns("event_identifyer"),
-      label = "Event identifyer",
+      label = "Event identifier",
       choices = choices ,
       selected = choices[1],
       multiple = FALSE,
@@ -1087,18 +1089,19 @@ file_creation_server <- function(input, output, session) {
 
    output$sel_data_scope <- shiny::renderUI({
     shiny::req(input$data_scope)
+    
     if (is.null(shiny::req(input$data_scope))) {
       return() 
     } else if (shiny::req(input$data_scope) == "No selection" ) {
      choices <- "No selection"
     } else {
-      if (is.factor(adtte_data()[, which(names(adtte_data()) == input$data_scope)])) {
-        choices <- as.list(levels(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
-        #choices <- c("No selection", choices)
-      } else {
-        choices <- as.list(unique(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
-        #choices <- c("No selection", choices)
-      }
+      # if (is.factor(adtte_data()[, which(names(adtte_data()) == input$data_scope)])) {
+      #   choices <- levels(data.frame(adtte_data())[,input$data_scope])
+      #   #choices <- as.list(levels(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
+      # } else {
+        choices <- unique(data.frame(adtte_data())[,input$data_scope])
+        #choices <-as.list(unique(adtte_data()[, which(names(adtte_data()) == input$data_scope)]))
+      # }
     }
 
     shinyWidgets::pickerInput(
@@ -1620,7 +1623,7 @@ file_creation_server <- function(input, output, session) {
     },
     content = function(file) {
       
-      write.csv(data.frame(lapply(csv_file(),as.character)), file, row.names = FALSE)
+      utils::write.csv(data.frame(lapply(csv_file(),as.character)), file, row.names = FALSE)
     }
   )
   
@@ -1656,6 +1659,21 @@ file_creation_server <- function(input, output, session) {
         )
       })
     }
+  })
+  
+  shiny::observeEvent(input$reset_button, {
+    output$adtte_file <- shiny::renderUI({
+      shiny::fileInput(
+        inputId =  ns("adtte_file"),
+        label = "ADTTE data (.sas7bdat format)",
+        multiple = FALSE,
+        accept = NULL,
+        width = NULL
+      )
+    })
+  })
+  shiny::observe({
+    adtte_data()
   })
   
   return(
