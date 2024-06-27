@@ -212,12 +212,12 @@ mod_data_manual_server <- function(input, output, session){
             </tr>
             <tr>
               <td rowspan='6'> ADTTE </td>
-              <td> STUDYID (Study identifier)</td>
+              <td> Study identifier, e.g. STUDYID </td>
               <td> Character </td>
               <td> Required </td>
             </tr>
             <tr>
-              <td>USUBJID (Unique subject identifier)</td>
+              <td> Unique subject identifier, e.g. USUBJID </td>
               <td>Character</td>
               <td>Required</td>
             </tr>
@@ -227,7 +227,7 @@ mod_data_manual_server <- function(input, output, session){
               <td> Required </td>
             </tr>
             <tr>
-              <td> Analysis value </td>
+              <td> Analysis value (Relative day of event) </td>
               <td> Numeric </td>
               <td> Required </td>
             </tr>
@@ -244,17 +244,17 @@ mod_data_manual_server <- function(input, output, session){
             
             <tr>
               <td rowspan='10'> ADSL </td>
-              <td> STUDYID (Study identifier) </td>
+              <td> Study identifier, e.g. STUDYID </td>
               <td> Character </td>
               <td> Required </td>
             </tr>
             <tr>
-              <td> USUBJID (Unique subject identifier) </td>
+              <td> Unique subject identifier, e.g. USUBJID  </td>
               <td> Character </td>
               <td> Required </td>
             </tr>
             <tr>
-              <td> Treatment </td>
+              <td> Treatment group </td>
               <td> Numeric/Character </td>
               <td> Required </td>
             </tr>
@@ -273,12 +273,10 @@ mod_data_manual_server <- function(input, output, session){
               <td> Numeric/Character </td>
               <td> Optional </td>
             </tr>
-            <tr>
-              <td> Day </td>
-              <td> Numeric </td>
-              <td> Required for CID only </td>
-            </tr>
-         "
+        </table>
+        <p> In case only ADTTE is uploaded, Analysis Set & Treatment group variables are additionally required in ADTTE. </p>
+           
+          "
         )
       )
     )

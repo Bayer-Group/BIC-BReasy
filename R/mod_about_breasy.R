@@ -35,7 +35,7 @@ mod_about_breasy_server <- function(input, output, session){
         
         <ul>
         <li> Hazard Ratios; </li>
-        <li> Excess number of subjects with events, for example based on Kaplan-Meier differences or risk differences;</li>
+        <li> Excess number of subjects with events, for example based on cumulative incidence differences or risk differences;</li>
         <li> Odds Ratios; </li>
         <li> Risk Differences; </li>
         <li> Relative Risks. </li>
@@ -64,7 +64,7 @@ mod_about_breasy_server <- function(input, output, session){
            <li>	corresponding Excess number of subjects in a hypothetical population treated for 10,000 patient years.</li>
          </ul>
         </li>
-        <li>	Cumulative incidence differences based on Aalen-Johansen approach for a 3-level censoring variable (0, 1, 2);
+        <li>	Cumulative incidence differences based on Aalen-Johansen approach for a multi-level censoring variable (0, 1, 2, ...);
          <ul>
            <li>	corresponding Excess number of subjects in a hypothetical population of 10,000 patients.</li>
          </ul>
