@@ -28,7 +28,7 @@ app_server <- function( input, output, session ) {
         na.strings = "."
       )
     # data upload selection
-    } else if (input$selectdata == "Use demo data") {
+    } else if (input$selectdata == "Upload data") {
       # possibility to upload up to four data sets
       if (is.null(input$file) &&
           is.null(input$file2) &&
