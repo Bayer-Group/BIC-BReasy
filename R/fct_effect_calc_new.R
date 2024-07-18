@@ -496,14 +496,27 @@ effect_calc_new <- function(
     effect_name <- "Crude Incidence"
     effect_var_name <- "EFFECT_ARD"
   }
-    if (effect == "HR"){
+  if (effect == "HR"){
     effect_name <- "Hazard Ratio"
     effect_var_name <- "EFFECT_HR"
-    }
-    if (effect %in% c("CID","EXCESS_CID")){
+  }
+  if (effect %in% c("CID") & nlevels(as.factor(data[[cnsr]])) > 2){
     effect_name <- "Cumulative Incidence based on AJ"
     effect_var_name <- "EFFECT_CID"
   }
+  if (effect %in% c("EXCESS_CID") & nlevels(as.factor(data[[cnsr]])) > 2){
+    effect_name <- "Excess numbers based on AJ Cumulative Incidences"
+    effect_var_name <- "EFFECT_CID"
+  }
+    if (effect %in% c("CID") & nlevels(as.factor(data[[cnsr]])) == 2){
+    effect_name <- "Cumulative Incidence based on KM"
+    effect_var_name <- "EFFECT_CID"
+  }
+  if (effect %in% c("EXCESS_CID") & nlevels(as.factor(data[[cnsr]])) == 2){
+    effect_name <- "Excess numbers based on KM Cumulative Incidences"
+    effect_var_name <- "EFFECT_CID"
+  }
+  
   
   if (!subgroup_used) {
     rd_rma_mh <- rd_rma_mh %>% 

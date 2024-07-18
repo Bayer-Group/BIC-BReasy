@@ -571,6 +571,10 @@ app_server <- function( input, output, session ) {
           dplyr::mutate(BReasy_GROUP = "Safety")
       }
       
+      #arrange 
+      dat_tmp1 <- dat_tmp1[match(rev(input$effi), dat_tmp1$OUTCOME),]
+      dat_tmp2 <- dat_tmp2[match(rev(input$safe), dat_tmp2$OUTCOME),]
+      
       dat <- rbind(
         dat_tmp1,
         dat_tmp2
