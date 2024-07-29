@@ -684,6 +684,7 @@ app_server <- function( input, output, session ) {
   upload_text <- shiny::reactive({
     shiny::req(df(), v_sorting$val)
     d1 <- df()
+    
     validate(
       need(
         !is.null(d1), "Data set is missing"

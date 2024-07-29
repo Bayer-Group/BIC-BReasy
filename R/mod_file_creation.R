@@ -1388,6 +1388,7 @@ file_creation_server <- function(input, output, session) {
           )
         )
       })
+   
       csv2 <- tmp
       return(csv2)
       } else {
@@ -1622,8 +1623,10 @@ file_creation_server <- function(input, output, session) {
       paste("BReasy_", gsub(":","-", Sys.time()), ".csv", sep = "")
     },
     content = function(file) {
-      
-      utils::write.csv(data.frame(lapply(csv_file(),as.character)), file, row.names = FALSE)
+      tmp <- csv_file()
+      tmp[is.na(tmp)] <- "."
+        
+      utils::write.csv(data.frame(lapply(tmp,as.character)), file, row.names = FALSE)
     }
   )
   
