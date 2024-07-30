@@ -455,17 +455,19 @@ app_server <- function( input, output, session ) {
   })
   
   shiny::observeEvent(ds_new(), {
-    
-    shiny::updateNumericInput(
-      session,
-      inputId = "limit.low",
-      value = min(ds_new()[which(grepl("LOWER", names(ds_new())))])
-    )
-    shiny::updateNumericInput(
-      session,
-      inputId = "limit.high",
-      value = max(ds_new()[which(grepl("UPPER", names(ds_new())))])
-    )
+    if(dim(ds_new())[1] > 0){
+      shiny::updateNumericInput(
+        session,
+        inputId = "limit.low",
+        value = min(ds_new()[which(grepl("LOWER", names(ds_new())))])
+      )
+     
+      shiny::updateNumericInput(
+        session,
+        inputId = "limit.high",
+        value = max(ds_new()[which(grepl("UPPER", names(ds_new())))])
+      )
+    }
   })
   
   # forest plot
