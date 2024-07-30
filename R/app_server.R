@@ -475,38 +475,41 @@ app_server <- function( input, output, session ) {
     
     dat_t <- shiny::req(ds_new())
     
-    if (!is.na(input$limit.low)) {
-      lower_limit_ <- input$limit.low
-    } else {
-      lower_limit_ <- NA
-    }
+    if (dim(dat_t)[1] > 0) {
     
-    if (!is.na(input$limit.high)) {
-      upper_limit_ <- input$limit.high
-    } else {
-      upper_limit_ <- NA
+      if (!is.na(input$limit.low)) {
+        lower_limit_ <- input$limit.low
+      } else {
+        lower_limit_ <- NA
+      }
+      
+      if (!is.na(input$limit.high)) {
+        upper_limit_ <- input$limit.high
+      } else {
+        upper_limit_ <- NA
+      }
+      
+      if(input$title_input == "Default Title") {
+        title_ <- titl()
+      } else if (input$title_input == "Custom Title") {
+        title_ <- input$title
+      }
+      
+      breasy_forestplot(
+        forest_data = dat_t,
+        excess_number = input$Info,
+        incidence_values = input$Info2,
+        NNT = input$Info3,
+        lower_limit = lower_limit_,
+        upper_limit = upper_limit_,
+        title = title_,
+        safety_color = input$col_saf,
+        efficacy_color = input$col_eff,
+        legend_color = input$col_leg,
+        sorting = input$var_sorting,
+        data_scope = input$visit
+      )
     }
-    
-    if(input$title_input == "Default Title") {
-      title_ <- titl()
-    } else if (input$title_input == "Custom Title") {
-      title_ <- input$title
-    }
-    
-    breasy_forestplot(
-      forest_data = dat_t,
-      excess_number = input$Info,
-      incidence_values = input$Info2,
-      NNT = input$Info3,
-      lower_limit = lower_limit_,
-      upper_limit = upper_limit_,
-      title = title_,
-      safety_color = input$col_saf,
-      efficacy_color = input$col_eff,
-      legend_color = input$col_leg,
-      sorting = input$var_sorting,
-      data_scope = input$visit
-    )
    }, height = function(x) height_reac() * (input$forestplot_height/100)  + 350)
   
   # forestplot_parameter
@@ -547,14 +550,25 @@ app_server <- function( input, output, session ) {
   })
     
     ds_new <- shiny::reactive({
-      shiny::req(v_sorting$val)
       d1 <- upload_text()
-      dat2 <- rbind(
-        d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),],
-        d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),])
-       
-      dat_tmp1 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),]
-      dat_tmp2 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),]
+      
+      if (is.null(input$SubLevel2) | input$subgroup2 == "Overall") {
+      # dat2 <- rbind(
+      #   d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),],
+      #   d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),])
+        dat_tmp1 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),]
+        dat_tmp2 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),]
+      
+      } else {
+       # dat2 <- rbind(
+       #  d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet & d1$SUBLEVEL %in% input$SubLevel2),],
+       #  d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet & d1$SUBLEVEL %in% input$SubLevel2),])
+        dat_tmp1 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet & d1$SUBLEVEL %in% input$SubLevel2),]
+        dat_tmp2 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet & d1$SUBLEVEL %in% input$SubLevel2),]
+      }
+      
+      # dat_tmp1 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),]
+      # dat_tmp2 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),]
       
       if (dim(dat_tmp1)[1] == 0) {
         dat_tmp1 <- dat_tmp1 %>% 
@@ -571,9 +585,12 @@ app_server <- function( input, output, session ) {
           dplyr::mutate(BReasy_GROUP = "Safety")
       }
       
-      #arrange 
-      dat_tmp1 <- dat_tmp1[match(rev(input$effi), dat_tmp1$OUTCOME),]
-      dat_tmp2 <- dat_tmp2[match(rev(input$safe), dat_tmp2$OUTCOME),]
+      
+      dat_tmp1 <- with(dat_tmp1, dat_tmp1[order(factor(OUTCOME, levels = rev(input$effi))),])
+      dat_tmp2 <- with(dat_tmp2, dat_tmp2[order(factor(OUTCOME, levels = rev(input$safe))),])
+      
+      # dat_tmp1 <- dat_tmp1[match(rev(order(input$effi)), dat_tmp1$OUTCOME),]
+      # dat_tmp2 <- dat_tmp2[match(rev(input$safe), dat_tmp2$OUTCOME),]
       
       dat <- rbind(
         dat_tmp1,
