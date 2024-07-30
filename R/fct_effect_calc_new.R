@@ -39,8 +39,20 @@ effect_calc_new <- function(
     subgroup = subgroup,
     aval = aval
 ) {
-  #helperfunction 
+
   '%notin%' <- Negate('%in%')
+  
+  if (length(subgroup) != 1) {
+    if (any(subgroup %notin% "Overall")){
+       data[,subgroup][data[,subgroup] == ""] <- "N/A"
+    }
+  }
+  if (length(subgroup) == 1) {
+    if (subgroup != "Overall") {
+       data[,subgroup][data[,subgroup] == ""] <- "N/A"
+    }
+  }
+  #helperfunction 
   #get trialnumbers/names
   if ("STUDYID" %in% colnames(data)) {
     if (nlevels(as.factor(data$STUDYID)) > 1) {
@@ -273,8 +285,8 @@ effect_calc_new <- function(
   }
   
    if (subgroup_used) {
-    subgroup_summary_wide_non_zero_times <- subgroup_summary_wide %>%
-      dplyr::filter(t_1 > 0 & t_2 > 0)
+    subgroup_summary_wide_non_zero_times <- subgroup_summary_wide #%>%
+      #dplyr::filter(t_1 > 0 & t_2 > 0)
    }
   
    if (subgroup_used & stratification_used) {
