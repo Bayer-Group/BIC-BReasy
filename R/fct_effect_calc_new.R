@@ -39,7 +39,7 @@ effect_calc_new <- function(
     subgroup = subgroup,
     aval = aval
 ) {
-
+    
   '%notin%' <- Negate('%in%')
   
   if (length(subgroup) != 1) {
@@ -285,8 +285,8 @@ effect_calc_new <- function(
   }
   
    if (subgroup_used) {
-    subgroup_summary_wide_non_zero_times <- subgroup_summary_wide #%>%
-      #dplyr::filter(t_1 > 0 & t_2 > 0)
+    subgroup_summary_wide_non_zero_times <- subgroup_summary_wide %>%
+      dplyr::filter(t_1 > 0 & t_2 > 0)
    }
   
    if (subgroup_used & stratification_used) {
@@ -356,6 +356,8 @@ effect_calc_new <- function(
     df$CNSR_1 <- ifelse(df$CNSR_1 != event , "0" , "1")
     df$cnsr_factor <- factor(df$CNSR_1, levels = c("0","1"))
   }
+   
+   
   tmp <- summary(survival::survfit(survival::Surv(breasy_aval, cnsr_factor) ~ breasy_treatment_n2, data = df))
       tmp2 <- as.data.frame(cbind(tmp$strata,tmp$time,tmp$n.event[,2],tmp$pstate[,2],tmp$std.err[,2]))
       names(tmp2) <- c("strata","time","n.event","cum.inc","std.err")
