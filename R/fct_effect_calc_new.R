@@ -39,7 +39,8 @@ effect_calc_new <- function(
     subgroup = subgroup,
     aval = aval
 ) {
-    
+
+  
   '%notin%' <- Negate('%in%')
   
   if (length(subgroup) != 1) {
@@ -274,11 +275,10 @@ effect_calc_new <- function(
       by = join_by_strat_sub
     )
   }
-  #remove subjects with t_1 or t_2 equals zero
+  #remove subgroups with time at-risk t_1 or t_2 equals zero
   overall_summary_wide_non_zero_times <- overall_summary_wide %>%
     dplyr::filter(t_1 > 0 & t_2 > 0)
 
-  #remove subjects with t_1 or t_2 equals zero
   if (stratification_used) {
     strat_summary_wide_non_zero_times <- strat_summary_wide %>%
       dplyr::filter(t_1 > 0 & t_2 > 0)
@@ -335,7 +335,7 @@ effect_calc_new <- function(
     data_used2 <- data_used
     
    rd_func <- function(df) {
-    
+# creating event variable for Aalen-Johansen (3 levels) or Kaplan-Meier analysis (2 levels)
    df$CNSR_1 <- as.factor(df[[cnsr]])
    if (nlevels(as.factor(df[[cnsr]])) > 2) {
     if (event == 0){
@@ -347,7 +347,7 @@ effect_calc_new <- function(
     }
     df$cnsr_factor <- factor(df$CNSR_1, levels = c("1", "2", "3"))
   } else if (nlevels(as.factor(df[[cnsr]])) == 2) {
-    df$CNSR_1 <- ifelse(df$CNSR_1 != event , "0" , "1")
+      df$CNSR_1 <- ifelse(df$CNSR_1 != event , "0" , "1")
     df$cnsr_factor <- factor(df$CNSR_1)
   } else if (nlevels(as.factor(df[[cnsr]])) == 1) {
     df$CNSR_1 <- ifelse(df$CNSR_1 != event , "0" , "1")
@@ -356,9 +356,12 @@ effect_calc_new <- function(
     df$CNSR_1 <- ifelse(df$CNSR_1 != event , "0" , "1")
     df$cnsr_factor <- factor(df$CNSR_1, levels = c("0","1"))
   }
-   
-   
-  tmp <- summary(survival::survfit(survival::Surv(breasy_aval, cnsr_factor) ~ breasy_treatment_n2, data = df))
+   n1 <- length(which(df$breasy_treatment=="verum"))
+   n2 <- length(which(df$breasy_treatment=="comparator"))
+   # Run survival analysis only in case data for both treatment groups and at least one event
+   if (is.element(1,df$CNSR_1) & n1>0 & n2>0)
+   {
+      tmp <- summary(survival::survfit(survival::Surv(breasy_aval, cnsr_factor) ~ breasy_treatment_n2, data = df))
       tmp2 <- as.data.frame(cbind(tmp$strata,tmp$time,tmp$n.event[,2],tmp$pstate[,2],tmp$std.err[,2]))
       names(tmp2) <- c("strata","time","n.event","cum.inc","std.err")
 
@@ -378,12 +381,15 @@ effect_calc_new <- function(
       pos_comp <- match(day,new_time_sort_comp)
       new_day_comp <- new_time_sort_comp[pos_comp - 1]
     }
-    n1 <- ifelse(!is.na(tmp$n[1]),0,tmp$n[1])
     x1 <- sum(tmp2[which(tmp2$time <= new_day_verum & tmp2$strata == 1),]$n.event)
-    n2 <- ifelse(!is.na(tmp$n[2]),0,tmp$n[2])
     x2 <- sum(tmp2[which(tmp2$time <= new_day_comp & tmp2$strata == 2),]$n.event)
-
-    if (x1 >= 1 & x2 >= 1) {
+   }
+   else {
+     x1 <- sum(as.integer(df$CNSR_1[which(df$breasy_treatment=="verum")]))
+     x2 <- sum(as.integer(df$CNSR_1[which(df$breasy_treatment=="comparator")]))
+   }
+   # Generate estiamte and CI in case at least one event and one patient per treatment group
+   if ((x1 >= 1 & x2 >= 1) & n1>0 & n2>0) {
       cvf_diff <- (tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$cum.inc - tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$cum.inc)
       cvf_lower <- (cvf_diff - 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))#*100
       cvf_upper <- (cvf_diff + 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))#*100
