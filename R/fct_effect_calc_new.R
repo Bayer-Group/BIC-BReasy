@@ -39,7 +39,24 @@ effect_calc_new <- function(
     subgroup = subgroup,
     aval = aval
 ) {
-
+  data_ <<- data
+  effect_<<- effect
+  day_ <<- day
+  param_ <<- param
+  outcome_ <<- outcome
+  scope_ <<- scope
+  datascope_ <<- datascope
+  population_ <<- population
+  population_value_ <<- population_value
+  treatment_ <<- treatment
+  verum_ <<- verum
+  comparator_ <<- comparator
+  cnsr_ <<- cnsr
+  event_ <<- event
+  strat_ <<- strat
+  subgroup_ <<- subgroup
+  aval_ <<- aval
+  
   
   '%notin%' <- Negate('%in%')
   
@@ -275,7 +292,7 @@ effect_calc_new <- function(
       by = join_by_strat_sub
     )
   }
-  #remove subgroups with time at-risk t_1 or t_2 equals zero
+  #remove subgroups with time at-risk t_1 or t_2 equals zero, to be used for IRD & ARD
   overall_summary_wide_non_zero_times <- overall_summary_wide %>%
     dplyr::filter(t_1 > 0 & t_2 > 0)
 
@@ -327,10 +344,10 @@ effect_calc_new <- function(
    
   if (effect %in% c("CID", "EXCESS_CID")) {
   #### CID ####
-   data_used1 <- overall_summary_wide_non_zero_times
+   data_used1 <- overall_summary_wide
     data_used1
     if (subgroup_used) {
-      data_used1 <- subgroup_summary_wide_non_zero_times
+      data_used1 <- subgroup_summary_wide
     }
     data_used2 <- data_used
     
@@ -407,15 +424,17 @@ effect_calc_new <- function(
       
   #### HR ####
   if (effect == c("HR")) {
-    data_used1 <- overall_summary_wide_non_zero_times
+    data_used1 <- overall_summary_wide
     data_used1
     if (subgroup_used) {
-      data_used1 <- subgroup_summary_wide_non_zero_times
+      data_used1 <- subgroup_summary_wide
     }
     data_used2 <- data_used
     rd_func <- function(df) {
        if (stratification_used) {
-         
+         # Run survival analysis only in case data available for both treatment groups and at least 4 patients
+         if (length(unique(df$breasy_treatment)) > 1 & (length(df$breasy_treatment))>4)
+         {
          tmp <- data.frame(
            t(
             round(
@@ -428,11 +447,29 @@ effect_calc_new <- function(
             )
           )
         )
+         }
+         else
+         {
+           tmp <- data.frame(t(rep(NA,3)))
+         }
        #tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(!!AVAL, breasy_cnsr_n) ~ breasy_treatment_n + strat, df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
        colnames(tmp) <- c("estimate","ci.lb","ci.ub")
       } else {
-         tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(breasy_aval, breasy_cnsr_n) ~ breasy_treatment_n , df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
+        # Run survival analysis only in case data available for both treatment groups
+        if (length(unique(df$breasy_treatment)) > 1)
+          {
+          tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(breasy_aval, breasy_cnsr_n) ~ breasy_treatment_n , df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
+          }
+          else
+          {
+          tmp <- data.frame(t(rep(NA,3)))
+          }
          names(tmp) <- c("estimate","ci.lb","ci.ub")
+      }
+      if (is.element("Inf",tmp))
+      {
+        tmp <- data.frame(t(rep(NA,3)))
+        names(tmp) <- c("estimate","ci.lb","ci.ub")
       }
       return(tmp)
     }
@@ -440,7 +477,7 @@ effect_calc_new <- function(
     
     
   if (effect %in% c("CID", "EXCESS_CID","HR") & subgroup_used) {
-    data_used1 <- subgroup_summary_wide_non_zero_times
+    data_used1 <- subgroup_summary_wide
     rd_rma_mh_hr <- c()
     for(st in subgroup) {
       rd_rma_mh_overall <- cbind(
@@ -479,9 +516,9 @@ effect_calc_new <- function(
   }
   # perform function for overall if subgroup is used
   if (subgroup_used) {
-    data_used1 <- data_used2 <- overall_summary_wide_non_zero_times
+    data_used1 <- data_used2 <- overall_summary_wide
     if (stratification_used){
-      data_used2 <- strat_summary_wide_non_zero_times
+      data_used2 <- strat_summary_wide
     }
     if (effect %in% c("HR","CID","EXCESS_CID")) {
       data_used2 <- data_used
