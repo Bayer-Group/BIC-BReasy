@@ -275,7 +275,7 @@ effect_calc_new <- function(
       by = join_by_strat_sub
     )
   }
-  #remove subgroups with time at-risk t_1 or t_2 equals zero
+  #remove subgroups with time at-risk t_1 or t_2 equals zero, to be used for IRD & ARD
   overall_summary_wide_non_zero_times <- overall_summary_wide %>%
     dplyr::filter(t_1 > 0 & t_2 > 0)
 
@@ -327,10 +327,10 @@ effect_calc_new <- function(
    
   if (effect %in% c("CID", "EXCESS_CID")) {
   #### CID ####
-   data_used1 <- overall_summary_wide_non_zero_times
+   data_used1 <- overall_summary_wide
     data_used1
     if (subgroup_used) {
-      data_used1 <- subgroup_summary_wide_non_zero_times
+      data_used1 <- subgroup_summary_wide
     }
     data_used2 <- data_used
     
@@ -407,10 +407,10 @@ effect_calc_new <- function(
       
   #### HR ####
   if (effect == c("HR")) {
-    data_used1 <- overall_summary_wide_non_zero_times
+    data_used1 <- overall_summary_wide
     data_used1
     if (subgroup_used) {
-      data_used1 <- subgroup_summary_wide_non_zero_times
+      data_used1 <- subgroup_summary_wide
     }
     data_used2 <- data_used
     rd_func <- function(df) {
@@ -440,7 +440,7 @@ effect_calc_new <- function(
     
     
   if (effect %in% c("CID", "EXCESS_CID","HR") & subgroup_used) {
-    data_used1 <- subgroup_summary_wide_non_zero_times
+    data_used1 <- subgroup_summary_wide
     rd_rma_mh_hr <- c()
     for(st in subgroup) {
       rd_rma_mh_overall <- cbind(
@@ -479,9 +479,9 @@ effect_calc_new <- function(
   }
   # perform function for overall if subgroup is used
   if (subgroup_used) {
-    data_used1 <- data_used2 <- overall_summary_wide_non_zero_times
+    data_used1 <- data_used2 <- overall_summary_wide
     if (stratification_used){
-      data_used2 <- strat_summary_wide_non_zero_times
+      data_used2 <- strat_summary_wide
     }
     if (effect %in% c("HR","CID","EXCESS_CID")) {
       data_used2 <- data_used
