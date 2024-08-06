@@ -39,24 +39,7 @@ effect_calc_new <- function(
     subgroup = subgroup,
     aval = aval
 ) {
-  data_ <<- data
-  effect_<<- effect
-  day_ <<- day
-  param_ <<- param
-  outcome_ <<- outcome
-  scope_ <<- scope
-  datascope_ <<- datascope
-  population_ <<- population
-  population_value_ <<- population_value
-  treatment_ <<- treatment
-  verum_ <<- verum
-  comparator_ <<- comparator
-  cnsr_ <<- cnsr
-  event_ <<- event
-  strat_ <<- strat
-  subgroup_ <<- subgroup
-  aval_ <<- aval
-  
+
   
   '%notin%' <- Negate('%in%')
   
