@@ -261,10 +261,14 @@ effect_calc_new <- function(
   if (subgroup_used) {
     #get data in 'wide' format by joining
     subgroup_summary_wide <- dplyr::full_join(
-      merge_subgroup_data %>% dplyr::filter(breasy_treatment == "verum") %>%  dplyr::select(-breasy_treatment) %>% rename(t_1 = t, n_1 = n, x_1 = x, x_complement_1 = x_complement),
-      merge_subgroup_data %>% dplyr::filter(breasy_treatment == "comparator") %>% dplyr::select(-breasy_treatment) %>% rename(t_2 = t, n_2 = n, x_2 = x, x_complement_2 = x_complement),
+      merge_subgroup_data %>% dplyr::filter(breasy_treatment == "verum") %>%  dplyr::select(-breasy_treatment) %>% rename(t_1 = t, n_1 = n, x_1 = x, x_complement_1 = x_complement)
+      ,
+      merge_subgroup_data %>% dplyr::filter(breasy_treatment == "comparator") %>% dplyr::select(-breasy_treatment) %>% rename(t_2 = t, n_2 = n, x_2 = x, x_complement_2 = x_complement)
+      ,
       by = join_by
-    )
+    ) %>%
+    dplyr::mutate(x_1 = ifelse(is.na(x_1),0,x_1),n_1 = ifelse(is.na(n_1),0,n_1),t_1 = ifelse(is.na(t_1),0,t_1)) %>%
+      dplyr::mutate(x_2 = ifelse(is.na(x_2),0,x_2),n_2 = ifelse(is.na(n_2),0,n_2),t_2 = ifelse(is.na(t_2),0,t_2))
   }
 
   if (subgroup_used & stratification_used) {
