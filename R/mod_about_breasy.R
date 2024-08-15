@@ -36,6 +36,8 @@ mod_about_breasy_server <- function(input, output, session){
         <ul>
         <li> Hazard Ratios; </li>
         <li> Excess number of subjects with events, for example based on cumulative incidence differences or risk differences;</li>
+        <li> Incidence rate differences; </li>
+        <li> Cumulative incidence differences; </li>
         <li> Odds Ratios; </li>
         <li> Risk Differences; </li>
         <li> Relative Risks. </li>
@@ -56,25 +58,33 @@ mod_about_breasy_server <- function(input, output, session){
         <li>	Hazard Ratios based on (stratified) Cox regression models;</li>
         <li>	Absolute risk differences with an optional Mantel-Haenszel stratification;
          <ul>
-           <li>	corresponding Excess number of subjects in a hypothetical population of 10,000 patients;</li>
+           <li>	Confidence intervals are Wald-type intervals.</li>
+           <li>	Corresponding Excess number of subjects can be derived for a hypothetical population of 10,000 patients.</li>
          </ul>
         </li>
         <li>	Incidence rate differences per 100 patient years with an optional Mantel-Haenszel stratification;
          <ul>
-           <li>	corresponding Excess number of subjects in a hypothetical population treated for 10,000 patient years.</li>
+           <li>	Confidence intervals are Wald-type intervals.</li>
+           <li>	Corresponding Excess number of subjects can be derived for a hypothetical population treated for 10,000 patient years.</li>
          </ul>
         </li>
         <li>	Cumulative incidence differences based on Aalen-Johansen approach for a multi-level censoring variable (0, 1, 2, ...);
          <ul>
-           <li>	corresponding Excess number of subjects in a hypothetical population of 10,000 patients.</li>
+           <li>	Confidence intervals are based on Greenwood's formula.</li>
+           <li>	Corresponding Excess number of subjects can be derived for a hypothetical population of 10,000 patients.</li>
          </ul>
         </li>
         <li>	Cumulative incidence differences based on Kaplan-Meier approach for a 2-level censoring variable;
          <ul>
-           <li>	corresponding Excess number of subjects in a hypothetical population of 10,000 patients.</li>
+           <li>	Confidence intervals are based on Greenwood's formula.</li>
+           <li>	Corresponding Excess number of subjects can be derived for a hypothetical population of 10,000 patients.</li>
          </ul>
         </li>
+
+        </ul>
         
+        <p> It is to note that the calculation of Incidence rate and absolute risk differences are still in a not fully tested beta version.</p>
+          
         </ul>
 
         

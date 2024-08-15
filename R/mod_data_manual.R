@@ -243,7 +243,7 @@ mod_data_manual_server <- function(input, output, session){
             </tr>
             
             <tr>
-              <td rowspan='10'> ADSL </td>
+              <td rowspan='10'> ADSL (optional) </td>
               <td> Study identifier, e.g. STUDYID </td>
               <td> Character </td>
               <td> Required </td>
