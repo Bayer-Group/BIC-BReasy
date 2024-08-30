@@ -2,9 +2,9 @@
 # BReasy <img src='inst/app/www/AppIcon_BReasy_210x210mm_RGB.png' align="right" height="139">
 
 <!-- badges: start -->
-
-<!--[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) -->
-
+[![CRAN status](https://www.r-pkg.org/badges/version/breasy)](https://cran.r-project.org/package=breasy)
+[![CRAN total downloads](https://cranlogs.r-pkg.org/badges/grand-total/breasy)](https://cranlogs.r-pkg.org/badges/grand-total/breasy)
+[![status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
 The BReasy R Shiny app provides a handy platform for structured
