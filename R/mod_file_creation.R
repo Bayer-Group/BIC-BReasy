@@ -802,12 +802,12 @@ file_creation_server <- function(input, output, session) {
   output$effect <- shiny::renderUI({
     if (!is.null(adtte_data())) {
       if (is.null(input$stratification_1)){
-        choices <- c("CID","EXCESS_CID","HR","IRD","ARD","EXCESS_IRD") 
+        choices <- c("CID","EXCESS_CID","HR","IRD","EXCESS_IRD","ARD","EXCESS_ARD") 
       } else {
         if (input$stratification_1) {
-          choices <- c("HR","IRD","ARD","EXCESS_IRD")
+          choices <- c("HR","IRD","ARD","EXCESS_IRD", "EXCESS_ARD")
         } else {
-          choices <- c("CID","EXCESS_CID","HR","IRD","ARD","EXCESS_IRD")
+          choices <- c("CID","EXCESS_CID","HR","IRD","ARD","EXCESS_IRD","EXCESS_ARD")
         }
       }    
     shinyWidgets::pickerInput(
