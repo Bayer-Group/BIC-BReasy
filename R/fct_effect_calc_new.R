@@ -166,7 +166,7 @@ effect_calc_new <- function(
        !!rlang::sym(param)
      ) %>% 
      dplyr::summarise(
-       t = sum(!!rlang::sym(aval), na.rm = TRUE)/(100 * 365.25),
+       t = sum(!!rlang::sym(aval), na.rm = TRUE)/(365.25),
        n = n(),
        x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
        x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
@@ -182,7 +182,7 @@ effect_calc_new <- function(
          !!rlang::sym(st)
        ) %>% 
        dplyr::summarise(
-         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(100 * 365.25),
+         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(365.25),
          n = n(),
          x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
          x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
@@ -206,7 +206,7 @@ effect_calc_new <- function(
          !!rlang::sym(st)
        ) %>% 
        dplyr::summarise(
-         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(100 * 365.25),
+         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(365.25),
          n = n(),
          x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
          x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
@@ -226,7 +226,7 @@ effect_calc_new <- function(
          !!rlang::sym(st)
        ) %>% 
        dplyr::summarise(
-         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(100 * 365.25),
+         t = sum(!!rlang::sym(aval), na.rm = TRUE)/(365.25),
          n = n(),
          x = sum(!!rlang::sym(cnsr) %in% event, na.rm =TRUE),
          x_complement = sum(!!rlang::sym(cnsr) %notin% event, na.rm =TRUE),
@@ -397,9 +397,9 @@ effect_calc_new <- function(
       cvf_diff <- (tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$cum.inc - tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$cum.inc)
       cvf_lower <- (cvf_diff - 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))#*100
       cvf_upper <- (cvf_diff + 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))#*100
-      cvf_diff <- cvf_diff*100
-      cvf_lower <- cvf_lower*100
-      cvf_upper <- cvf_upper*100
+      cvf_diff <- cvf_diff#*100
+      cvf_lower <- cvf_lower#*100
+      cvf_upper <- cvf_upper#*100
     } else {
       cvf_diff <- "NA"
       cvf_lower <- "NA"
@@ -478,8 +478,8 @@ effect_calc_new <- function(
       ) %>%
         dplyr::mutate(
           NNT = dplyr::case_when(
-            1/(as.numeric(estimate))*100 < 0 ~ floor(1/(as.numeric(estimate))*100),
-            1/(as.numeric(estimate))*100 >= 0 ~ ceiling(1/(as.numeric(estimate))*100)
+            1/(as.numeric(estimate)) < 0 ~ floor(1/(as.numeric(estimate))),
+            1/(as.numeric(estimate)) >= 0 ~ ceiling(1/(as.numeric(estimate)))
           )
         ) %>% suppressWarnings()
       rd_rma_mh_hr <- rbind(rd_rma_mh_hr, rd_rma_mh_overall)
@@ -496,8 +496,8 @@ effect_calc_new <- function(
       ) %>%
         dplyr::mutate(
           NNT = dplyr::case_when(
-            1/(as.numeric(estimate))*100 < 0 ~ floor(1/(as.numeric(estimate))*100),
-            1/(as.numeric(estimate))*100 >= 0 ~ ceiling(1/(as.numeric(estimate))*100)
+            1/(as.numeric(estimate)) < 0 ~ floor(1/(as.numeric(estimate))),
+            1/(as.numeric(estimate)) >= 0 ~ ceiling(1/(as.numeric(estimate)))
           )
         ) %>% suppressWarnings()
   }
@@ -521,8 +521,8 @@ effect_calc_new <- function(
     ) %>%
       dplyr::mutate(
         NNT = dplyr::case_when(
-          1 / as.numeric(estimate) * 100 < 0 ~ floor(1 / (as.numeric(estimate)) * 100),
-          1 / as.numeric(estimate) * 100 >= 0 ~ ceiling(1 / (as.numeric(estimate)) * 100)
+          1 / as.numeric(estimate)  < 0 ~ floor(1 / (as.numeric(estimate)) ),
+          1 / as.numeric(estimate)  >= 0 ~ ceiling(1 / (as.numeric(estimate)) )
         ),
         SUBGROUP = "Overall",
         SUBLEVEL = "All"
@@ -533,7 +533,7 @@ effect_calc_new <- function(
   
   #### 4. Transform/Rename variables in desired form ####
   if (effect %in% c("IRD","EXCESS_IRD")){
-    effect_name <- "Incidence Rate by 100 patient years"
+    effect_name <- "Incidence Rate by patient years"
     effect_var_name <- "EFFECT_IRD"
   }
   if (effect %in% c("ARD","EXCESS_ARD")){
@@ -641,9 +641,9 @@ effect_calc_new <- function(
  if (startsWith(effect, "EXCESS_")) {
    rd_rma_mh <- rd_rma_mh %>% 
      dplyr::mutate(
-       !!rlang::sym(effect_var_name) := !!rlang::sym(effect_var_name)*100,
-       LOWER95 = LOWER95 * 100,
-       UPPER95 = UPPER95 * 100
+       !!rlang::sym(effect_var_name) := !!rlang::sym(effect_var_name)*10000,
+       LOWER95 = LOWER95 * 10000,
+       UPPER95 = UPPER95 * 10000
      )
  }
   

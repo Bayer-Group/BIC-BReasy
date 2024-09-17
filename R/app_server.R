@@ -177,6 +177,26 @@ app_server <- function( input, output, session ) {
       
     } else if (input$selectdata == "Use file creation tab"){
      res <- file_creation_data$df()
+     # transform data into percent for forestplot
+     if ("EFFECT_ARD" %in% colnames(res)){
+       res$EFFECT_ARD <- res$EFFECT_ARD * 100
+       res$LOWER95<- res$LOWER95 * 100
+       res$UPPER95 <- res$UPPER95 * 100
+       res$ESTIMATE <- paste0(res$ESTIMATE, " (%)")
+     }
+     if ("EFFECT_IRD" %in% colnames(res)){
+       res$EFFECT_IRD <- res$EFFECT_IRD * 100
+       res$LOWER95<- res$LOWER95 * 100
+       res$UPPER95<- res$UPPER95 * 100
+       res$ESTIMATE <- paste0(res$ESTIMATE, " (%)")
+    }
+    if ("EFFECT_CID" %in% colnames(res)){
+       res$EFFECT_CID <- res$EFFECT_CID * 100
+       res$LOWER95<- res$LOWER95 * 100
+       res$UPPER95 <- res$UPPER95 * 100
+       res$ESTIMATE <- paste0(res$ESTIMATE, " (%)")
+     }
+     
     }
     res
   })
