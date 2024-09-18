@@ -38,7 +38,7 @@ breasy_forestplot <- function(
     }
     if (sorting == "Effect") {
       forest_data_saf <- forest_data_saf %>%
-        dplyr::arrange(!! rlang::sym(colnames(forest_data_saf)[which(grepl("EFFECT_", names(forest_data_saf)))]))
+        dplyr::arrange(!! rlang::sym(colnames(forest_data_saf)[which(grepl("EFFECT_", names(forest_data_saf)) | grepl("EXCESS_", names(forest_data_saf)))]))
     }
     
     forest_data_saf$BReasy_NUMBER <- 1:dim(forest_data[forest_data$BReasy_GROUP == "Safety",])[1]
@@ -54,7 +54,7 @@ breasy_forestplot <- function(
     }
     if (sorting == "Effect") {
     forest_data_eff <- forest_data_eff %>%
-      dplyr::arrange(!! rlang::sym(colnames(forest_data_eff)[which(grepl("EFFECT_", names(forest_data_eff)))]))
+      dplyr::arrange(!! rlang::sym(colnames(forest_data_eff)[which(grepl("EFFECT_", names(forest_data_eff)) | grepl("EXCESS_", names(forest_data_eff)))]))
     }
     forest_data_eff$BReasy_NUMBER <- 1 + ((dim(forest_data[forest_data$BReasy_GROUP == "Safety",])[1]+1):(dim(forest_data[forest_data$BReasy_GROUP == "Safety",])[1]+dim(forest_data[forest_data$BReasy_GROUP == "Efficacy",])[1]))
     forest_data_eff$BReasy_GROUP_ID <- 2
@@ -180,7 +180,7 @@ breasy_forestplot <- function(
     for(j in c(0, 0.1)) { 
       forest_data_tmp <- forest_data %>% dplyr::filter(code == i & length == j)
       if (dim(forest_data_tmp)[1] > 0) {
-        arrows(
+        suppressWarnings(arrows(
           x0 = forest_data_tmp$ll,
           y0 = forest_data_tmp$BReasy_NUMBER,
           x1 = forest_data_tmp$ul,
@@ -190,15 +190,15 @@ breasy_forestplot <- function(
           lwd = 2,
           col = forest_data_tmp$color,
           length = j
-        )
+        ))
       }
     }
   }
   
-  forest_data_tmp <- forest_data[forest_data[,which(grepl("EFFECT_", names(forest_data)))] >= xlim[1] & forest_data[,which(grepl("EFFECT_", names(forest_data)))] < xlim[2],]
+  forest_data_tmp <- forest_data[forest_data[,which(grepl("EFFECT_", names(forest_data)) | grepl("EXCESS_", names(forest_data)))] >= xlim[1] & forest_data[,which(grepl("EFFECT_", names(forest_data)) | grepl("EXCESS_", names(forest_data)))] < xlim[2],]
 
   points(
-    forest_data_tmp[,colnames(forest_data_tmp)[which(grepl("EFFECT_", names(forest_data_tmp)))]],
+    forest_data_tmp[,colnames(forest_data_tmp)[which(grepl("EFFECT_", names(forest_data_tmp)) | grepl("EXCESS_", names(forest_data_tmp)))]],
     forest_data_tmp$BReasy_NUMBER,
     pch = 15,
     cex = 2 * cex_factor,
@@ -308,7 +308,7 @@ breasy_forestplot <- function(
       adj = c(k, 0.5),
       cex = 1 * cex_factor,
       labels = paste0(
-        forest_data[,colnames(forest_data)[which(grepl("EFFECT_", names(forest_data)))]],
+        forest_data[,colnames(forest_data)[which(grepl("EFFECT_", names(forest_data)) | grepl("EXCESS_", names(forest_data)))]],
         " (", 
         round(forest_data[,colnames(forest_data)[which(grepl("LOWER", names(forest_data)))]],2),
         ", ", 
@@ -447,3 +447,4 @@ breasy_forestplot <- function(
     col = legend_color
   )
 }
+

@@ -177,6 +177,8 @@ app_server <- function( input, output, session ) {
       
     } else if (input$selectdata == "Use file creation tab"){
      res <- file_creation_data$df()
+    }
+    
      # transform data into percent for forestplot
      if ("EFFECT_ARD" %in% colnames(res)){
        res$EFFECT_ARD <- res$EFFECT_ARD * 100
@@ -197,7 +199,6 @@ app_server <- function( input, output, session ) {
        res$ESTIMATE <- paste0(res$ESTIMATE, " (%)")
      }
      
-    }
     res
   })
   
@@ -738,7 +739,7 @@ app_server <- function( input, output, session ) {
       )
     }
     
-    for (j in c("EFFECT", "UPPER", "LOWER")) {
+    for (j in c("UPPER", "LOWER")) {
       validate(
         need(
           any(startsWith(colnames(d1), j)), paste0("Required variable '", j, "_xx' is missing. Please check the requirements in the'Data Manual'-tab.")
@@ -754,6 +755,8 @@ app_server <- function( input, output, session ) {
         )
       }
     }
+    
+    shiny::validate(shiny::need(startsWith(colnames(d1),"EFFECT") | startsWith(colnames(d1),"EXCESS"), paste0("Warning: Variable EFFECT_XX or EXCESS_XX is missing.")))
     
     shiny::validate(
       shiny::need(!(is.null(input$effi) && is.null(input$safe)),

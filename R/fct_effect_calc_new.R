@@ -645,6 +645,11 @@ effect_calc_new <- function(
        LOWER95 = LOWER95 * 10000,
        UPPER95 = UPPER95 * 10000
      )
+   
+   to_rename <- colnames(rd_rma_mh)[startsWith(colnames(rd_rma_mh),"EFFECT_")]
+   name_to <- stringr::str_replace(to_rename,"EFFECT_","EXCESS_")
+   rd_rma_mh <- rd_rma_mh %>% 
+     dplyr::rename({{name_to}} := to_rename)
  }
   
   if (effect == "HR") {
