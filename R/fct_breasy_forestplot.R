@@ -297,7 +297,7 @@ breasy_forestplot <- function(
       xpd = NA,
       adj = c(k, 0.5),
       cex = 1 * cex_factor ,
-      labels = paste("Excess number ","of subjects(95%-CI)", sep = "\n"),
+      labels = paste("Estimate (95%-CI)", sep = "\n"),
       col = "grey15"
     )
   
