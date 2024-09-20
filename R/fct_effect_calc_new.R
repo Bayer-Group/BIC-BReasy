@@ -639,9 +639,9 @@ effect_calc_new <- function(
  if (startsWith(effect, "EXCESS_")) {
    rd_rma_mh <- rd_rma_mh %>% 
      dplyr::mutate(
-       !!rlang::sym(effect_var_name) := !!rlang::sym(effect_var_name)*10000,
-       LOWER95 = LOWER95 * 10000,
-       UPPER95 = UPPER95 * 10000
+       !!rlang::sym(effect_var_name) := round(!!rlang::sym(effect_var_name)*10000,0),
+       LOWER95 = round(LOWER95 * 10000,0),
+       UPPER95 = round(UPPER95 * 10000,0)
      )
    
    to_rename <- colnames(rd_rma_mh)[startsWith(colnames(rd_rma_mh),"EFFECT_")]
