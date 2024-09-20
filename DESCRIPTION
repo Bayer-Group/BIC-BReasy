@@ -1,6 +1,6 @@
 Package: breasy
 Title: An R shiny application for structured benefit-risk assessment
-Version: 2.0.13
+Version: 2.0.14
 Authors@R: c(
     person("Martin", "Gebel", , "martin.gebel@bayer.com", role = c("aut", "cre")),
     person("Stephanie", "Fechtner", role = "aut"),

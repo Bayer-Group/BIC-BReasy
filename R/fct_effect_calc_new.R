@@ -424,14 +424,11 @@ effect_calc_new <- function(
          {
          tmp <- data.frame(
            t(
-            round(
-              summary(
-                rlang::inject(
-                  survival::coxph(survival::Surv(breasy_aval, breasy_cnsr_n) ~ breasy_treatment_n + survival::strata(!!!rlang::syms(strat)), data = df)
-                )
-              )$conf.int["breasy_treatment_n",c("exp(coef)","lower .95","upper .95")],
-              3
-            )
+            summary(
+              rlang::inject(
+                survival::coxph(survival::Surv(breasy_aval, breasy_cnsr_n) ~ breasy_treatment_n + survival::strata(!!!rlang::syms(strat)), data = df)
+              )
+            )$conf.int["breasy_treatment_n",c("exp(coef)","lower .95","upper .95")]
           )
         )
          }
@@ -439,13 +436,14 @@ effect_calc_new <- function(
          {
            tmp <- data.frame(t(rep(NA,3)))
          }
-       #tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(!!AVAL, breasy_cnsr_n) ~ breasy_treatment_n + strat, df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
        colnames(tmp) <- c("estimate","ci.lb","ci.ub")
       } else {
         # Run survival analysis only in case data available for both treatment groups
         if (length(unique(df$breasy_treatment)) > 1)
           {
-          tmp <- data.frame(t(round(summary(survival::coxph(survival::Surv(breasy_aval, breasy_cnsr_n) ~ breasy_treatment_n , df))$conf.int[,c("exp(coef)","lower .95","upper .95")],3)))
+          tmp <- data.frame(t(
+              summary(survival::coxph(survival::Surv(breasy_aval, breasy_cnsr_n) ~ breasy_treatment_n , df))$conf.int[,c("exp(coef)","lower .95","upper .95")]
+            ))
           }
           else
           {
@@ -603,9 +601,9 @@ effect_calc_new <- function(
   }
   rd_rma_mh <- rd_rma_mh %>% 
     dplyr::mutate(
-      !!rlang::sym(effect_var_name) := round(as.numeric(estimate),3),
-      LOWER95 = round(as.numeric(ci.lb),3),
-      UPPER95 = round(as.numeric(ci.ub),3),
+      !!rlang::sym(effect_var_name) := as.numeric(estimate),
+      LOWER95 = as.numeric(ci.lb),
+      UPPER95 = as.numeric(ci.ub),
       TRIALNO = trialno,
       ESTIMATE = effect_name, 
       ANALYSIS_SET = population,
@@ -650,12 +648,21 @@ effect_calc_new <- function(
    name_to <- stringr::str_replace(to_rename,"EFFECT_","EXCESS_")
    rd_rma_mh <- rd_rma_mh %>% 
      dplyr::rename({{name_to}} := to_rename)
+ } else {
+   name_to <- effect_var_name
  }
   
   if (effect == "HR") {
     rd_rma_mh <- rd_rma_mh %>% 
       dplyr::select(-NNT)
   }
+  
+  rd_rma_mh <- rd_rma_mh %>% 
+    dplyr::mutate(
+      !!rlang::sym(name_to) := round(!!rlang::sym(name_to), 3),
+      LOWER95 = round(LOWER95, 3),
+      UPPER95 = round(UPPER95, 3)
+    )
   
   return(rd_rma_mh)
 }
