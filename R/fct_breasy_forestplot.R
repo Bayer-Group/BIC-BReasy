@@ -398,14 +398,15 @@ breasy_forestplot <- function(
     xpd = TRUE,
     mar = c(0,0,0,0)
   )
-
-  arrows(
-    x0 = xlim[2] - (diff(xlim) / 2) - xlim_125p,
-    y0 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
-    x1 = xlim[1],
-    y1 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
-    col = legend_color,
-    lwd = 2.5 * cex_factor
+  suppressWarnings(
+    arrows(
+      x0 = xlim[2] - (diff(xlim) / 2) - xlim_125p,
+      y0 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
+      x1 = xlim[1],
+      y1 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
+      col = legend_color,
+      lwd = 2.5 * cex_factor
+    )
   )
       
   text(
@@ -417,16 +418,16 @@ breasy_forestplot <- function(
     labels = "Favours Verum",
     col = legend_color
   )
-      
-  arrows(
-    x0 = xlim[1]+(diff(xlim)/2)+xlim_125p,
-    y0 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
-    x1 = xlim[2],
-    y1 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
-    col = legend_color,
-    lwd = 2.5 * cex_factor
+  suppressWarnings(  
+    arrows(
+      x0 = xlim[1]+(diff(xlim)/2)+xlim_125p,
+      y0 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
+      x1 = xlim[2],
+      y1 = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))),
+      col = legend_color,
+      lwd = 2.5 * cex_factor
+    )
   )
-
   text(
     x = xlim[1] + (diff(xlim)/2) + xlim_125p,
     y = mean(c(ylim[1],grconvertY(0, from = 'npc', to = 'user'))) + mean(ylim)/30,
@@ -437,13 +438,18 @@ breasy_forestplot <- function(
     col = legend_color
   )
       
+  if(any(startsWith(colnames(forest_data),"EXCESS_"))){
+    tmp_label <- "Excess number of subjects"
+  } else if (any(startsWith(colnames(forest_data),"EFFECT_"))){
+    tmp_label <- "Effect"
+  }
   text(
     x = xlim[1] + (diff(xlim)/2),
     y = mean(c(ylim[1], grconvertY(0, from = 'npc', to = 'user'))) - mean(ylim)/30,
     xpd = NA,
     adj = c(0.5, 0.5),
     cex=1* cex_factor,
-    labels = "Excess number of subjects",
+    labels = tmp_label,
     col = legend_color
   )
 }
