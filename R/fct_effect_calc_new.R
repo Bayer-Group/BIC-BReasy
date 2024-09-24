@@ -1,3 +1,10 @@
+utils::globalVariables(c("x","x_1","t_1","n_1","x_complement","x_2","t_2","n_2","breasy_cnsr_n",
+                         "breasy_treatment","x_complement_1","x_complement_2", "SUBGROUP",
+                         "x1_cid","x2_cid",":=","estimate","ci.lb","ci.ub","TRIALNO","ESTIMATE",
+                         "DAY","ANALYSIS_SET","OUTCOME","DATA_SCOPE","SUBLEVEL","STRATUM",
+                         "NUMBER_EVENTS_VERUM","NUMBER_EVENTS_COMP","NUMBER_PATIENTS_COMP",
+                         "NUMBER_PATIENTS_VERUM","LOWER95","UPPER95","NNT"))
+
 #' file creation function for BReasy - Creates BReasy input from SAS files
 #' 
 #' 
@@ -40,7 +47,6 @@ effect_calc_new <- function(
     aval = aval
 ) {
 
-  
   '%notin%' <- Negate('%in%')
   
   if (length(subgroup) != 1) {

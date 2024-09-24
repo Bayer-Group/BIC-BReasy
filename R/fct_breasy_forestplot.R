@@ -1,3 +1,5 @@
+utils::globalVariables(c("OUTCOME","DATA_SCOPE","LOWER95","UPPER95","."))
+
 #' draw a forestplot grouped by Efficacy & Safety
 #' 
 #' @param forest_data data set with required columns: EFFECT_xy, LOWERxy, UPPERxy, OUTCOME
@@ -29,6 +31,7 @@ breasy_forestplot <- function(
   data_scope = NULL
   ) {
   
+
   # Split data in Safety/Efficacy Part
   forest_data_saf <- forest_data[forest_data$BReasy_GROUP == "Safety",]
   if (dim(forest_data_saf)[1] > 0) {

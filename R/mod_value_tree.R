@@ -1,3 +1,5 @@
+utils::globalVariables(c("Level1"))
+
 #' value_tree UI Function
 #'
 #' @description A shiny Module.
