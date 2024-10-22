@@ -536,12 +536,20 @@ effect_calc_new <- function(
   }
   
   #### 4. Transform/Rename variables in desired form ####
-  if (effect %in% c("IRD","EXCESS_IRD")){
-    effect_name <- "Incidence Rate by patient years"
+  if (effect %in% c("IRD")){
+    effect_name <- "Incidence Rate differences by patient years"
     effect_var_name <- "EFFECT_IRD"
   }
-  if (effect %in% c("ARD","EXCESS_ARD")){
-    effect_name <- "Crude Incidence"
+  if (effect %in% c("EXCESS_IRD")){
+    effect_name <- "Excess numbers based on Incidence Rates by 10,000 patient years"
+    effect_var_name <- "EFFECT_IRD"
+  }
+  if (effect %in% c("ARD")){
+    effect_name <- "Crude Incidence differences"
+    effect_var_name <- "EFFECT_ARD"
+  }
+  if (effect %in% c("EXCESS_ARD")){
+    effect_name <- "Excess numbers in 10,000 patients based on Crude Incidences"
     effect_var_name <- "EFFECT_ARD"
   }
   if (effect == "HR"){
@@ -549,19 +557,19 @@ effect_calc_new <- function(
     effect_var_name <- "EFFECT_HR"
   }
   if (effect %in% c("CID") & nlevels(as.factor(data[[cnsr]])) > 2){
-    effect_name <- "Cumulative Incidence based on AJ"
+    effect_name <- "Cumulative Incidence differences based on AJ"
     effect_var_name <- "EFFECT_CID"
   }
   if (effect %in% c("EXCESS_CID") & nlevels(as.factor(data[[cnsr]])) > 2){
-    effect_name <- "Excess numbers based on AJ Cumulative Incidences"
+    effect_name <- "Excess numbers in 10,000 patients based on AJ Cumulative Incidences"
     effect_var_name <- "EFFECT_CID"
   }
     if (effect %in% c("CID") & nlevels(as.factor(data[[cnsr]])) == 2){
-    effect_name <- "Cumulative Incidence based on KM"
+    effect_name <- "Cumulative Incidence differences based on KM"
     effect_var_name <- "EFFECT_CID"
   }
   if (effect %in% c("EXCESS_CID") & nlevels(as.factor(data[[cnsr]])) == 2){
-    effect_name <- "Excess numbers based on KM Cumulative Incidences"
+    effect_name <- "Excess numbers in 10,000 patients based on KM Cumulative Incidences"
     effect_var_name <- "EFFECT_CID"
   }
   

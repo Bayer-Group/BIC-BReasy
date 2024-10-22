@@ -780,8 +780,8 @@ app_server <- function( input, output, session ) {
       title2 <- paste(
         ifelse(
           any(names(df()) == "STUDY"),
-          paste0("Forest plot based on ", title1, " by ", input$subgroup2, ", STUDY = ", input$studyNr),
-          paste0("Forest plot based on ", title1, " by ", input$subgroup2)
+          paste0("Forest plot: ", title1, " by ", input$subgroup2, ", STUDY = ", input$studyNr),
+          paste0("Forest plot: ", title1, " by ", input$subgroup2)
         ),
         paste("\nAnalysis set =",
               paste(input$AnaSet, collapse = ', '),
@@ -793,8 +793,8 @@ app_server <- function( input, output, session ) {
       title2 <- paste(
         ifelse(
           any(names(df()) == "STUDY"),
-          paste0("Forest plot based on ", title1, ", STUDY = ", input$studyNr),
-          paste0("Forest plot based on ", title1)
+          paste0("Forest plot: ", title1, ", STUDY = ", input$studyNr),
+          paste0("Forest plot: ", title1)
         ),
         paste("\nAnalysis set =",
               paste(input$AnaSet, collapse = ', '),
