@@ -44,7 +44,7 @@ effect_calc_new <- function(
     event = event,
     strat = strat,
     subgroup = subgroup,
-    aval = aval
+    aval = aval  
 ) {
 
   '%notin%' <- Negate('%in%')
@@ -398,14 +398,21 @@ effect_calc_new <- function(
      x1 <- sum(as.integer(df$CNSR_1[which(df$breasy_treatment=="verum")]))
      x2 <- sum(as.integer(df$CNSR_1[which(df$breasy_treatment=="comparator")]))
    }
-   # Generate estiamte and CI in case at least one event and one patient per treatment group
-   if ((x1 >= 1 & x2 >= 1) & n1>0 & n2>0) {
+   # Generate estimate and CI in case at least one patient per treatment group
+   if (n1>0 & n2>0) {
+     if (x1== 0)
+       {
+       new_day_verum <- day
+       tmp2 <-rbind(data.frame("strata"=1,"time"=new_day_verum,"n.event"=0,"cum.inc"=0,"std.err"=0),tmp2)
+       }
+     if (x2== 0)
+       {
+       new_day_comp <- day
+       tmp2 <-rbind(tmp2,data.frame("strata"=2,"time"=new_day_comp,"n.event"=0,"cum.inc"=0,"std.err"=0))
+       }
       cvf_diff <- (tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$cum.inc - tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$cum.inc)
-      cvf_lower <- (cvf_diff - 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))#*100
-      cvf_upper <- (cvf_diff + 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))#*100
-      cvf_diff <- cvf_diff#*100
-      cvf_lower <- cvf_lower#*100
-      cvf_upper <- cvf_upper#*100
+      cvf_lower <- (cvf_diff - 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))
+      cvf_upper <- (cvf_diff + 1.96 * sqrt((tmp2[which(tmp2$time == new_day_verum & tmp2$strata == 1),]$std.err)**2 + (tmp2[which(tmp2$time == new_day_comp & tmp2$strata == 2),]$std.err)**2))
     } else {
       cvf_diff <- "NA"
       cvf_lower <- "NA"
