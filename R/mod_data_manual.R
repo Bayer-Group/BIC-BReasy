@@ -1,4 +1,4 @@
-#' data_manual UI Function
+##' data_manual UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -91,11 +91,12 @@ mod_data_manual_server <- function(input, output, session){
                   treatment groups group for the combination of required variables estimate,
                   outcome and analysis set and optional variables study, data scope, stratum, subgroup category.
                   xx indicates the estimate chosen:
-                  ARD = Absolute Risk Difference,
-                  IRD = Incidence Rate Difference,
-                  CID = Cumulative Incidence Difference,
-                  HR = Hazard Ratio,
-                  EXCESS = Excess number of subjects with events </td>
+                  ARD = Risk difference
+                  IRD = Incidence rate difference
+                  EXCESS = Excess number of subjects
+                  HR = Hazard Ratio
+                  OR = Odds Ratio
+                  RR = Relative risk </td>
               <td> Numeric </td>
             </tr>
             <tr>

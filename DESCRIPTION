@@ -26,6 +26,8 @@ Imports:
     metafor,
     plyr,
     purrr,
+    graphics,
+    grDevices,
     r2d3,
     rlang,
     rmarkdown,

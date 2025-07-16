@@ -4,8 +4,7 @@
 dev_history.R
 ^dev$
 $run_dev.*
+^README\.Rmd$
+^CONTRIBUTING\.md$
 ^CODEOWNERS
-^CONTRIBUTING.md
-^LICENSE.md
-^README.md
-^README.Rmd
+^LICENSE\.md$

@@ -1,3 +1,4 @@
+
 utils::globalVariables(c("OUTCOME","DATA_SCOPE","LOWER95","UPPER95","."))
 
 #' draw a forestplot grouped by Efficacy & Safety
@@ -456,4 +457,3 @@ breasy_forestplot <- function(
     col = legend_color
   )
 }
-

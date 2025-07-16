@@ -39,6 +39,7 @@ mod_about_breasy_server <- function(input, output, session){
         <li> Incidence rate differences; </li>
         <li> Cumulative incidence differences; </li>
         <li> Odds Ratios; </li>
+        <li> Incidence Rate Differences; </li>
         <li> Risk Differences; </li>
         <li> Relative Risks. </li>
         </ul>
