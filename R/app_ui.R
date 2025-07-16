@@ -380,7 +380,7 @@ app_ui <- function(request) {
             ),
             shiny::tabPanel(HTML('<p style ="color: white;"> Dataset </p>'),
               style = "overflow-y:scroll;",
-              DT::dataTableOutput("dataset",
+              DT::DTOutput("dataset",
               height = "auto")
             ),
             #### value-tree ####
