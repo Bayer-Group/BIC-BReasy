@@ -26,24 +26,11 @@ file_creation_ui <- function(id){
     shiny::conditionalPanel(condition = paste0("input['", ns("adtte_data"), "\'] == \'sas\'"),
       shiny::fluidRow(
         shiny::column(4,
-          # shiny::fileInput(
-          #   inputId =  ns("adtte_file"),
-          #   label = "ADTTE data (.sas7bdat format)",
-          #   multiple = FALSE,
-          #   accept = NULL,
-          #   width = NULL
-          # ),
           shiny::uiOutput(ns("adtte_file")),
           shiny::uiOutput(ns("wrong_adtte_format_text"))
         ),
         shiny::column(4,
-          shiny::fileInput(
-            inputId =  ns("adsl_file"),
-            label = "ADSL data (optional for treatment variable)",
-            multiple = FALSE,
-            accept = NULL,
-            width = NULL
-          ),
+          shiny::uiOutput(ns("adsl_file")),
           shiny::uiOutput(ns("wrong_adsl_format_text"))
         ),
         shiny::column(1,
@@ -361,6 +348,15 @@ file_creation_server <- function(input, output, session) {
      )
   })
     
+  output$adsl_file <- shiny::renderUI({
+    shiny::fileInput(
+      inputId =  ns("adsl_file"),
+      label = "ADSL data (optional for treatment variable)",
+      multiple = FALSE,
+      accept = NULL,
+      width = NULL
+    )
+  })
   
   #### Select treatment variable ####
   output$sel_treatment <- shiny::renderUI({
@@ -1677,6 +1673,18 @@ file_creation_server <- function(input, output, session) {
   })
   shiny::observe({
     adtte_data()
+  })
+  
+  shiny::observeEvent(input$reset_button, {
+    output$adsl_file <- shiny::renderUI({
+      shiny::fileInput(
+        inputId =  ns("adsl_file"),
+        label = "ADSL data (optional for treatment variable)",
+        multiple = FALSE,
+        accept = NULL,
+        width = NULL
+      )
+    })
   })
   
   return(
