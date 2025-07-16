@@ -1,9 +1,11 @@
 Package: breasy
 Title: An R shiny application for structured benefit-risk assessment
-Version: 1.0
+Version: 2.0.16
 Authors@R: c(
     person("Martin", "Gebel", , "martin.gebel@bayer.com", role = c("aut", "cre")),
     person("Stephanie", "Fechtner", role = "aut"),
+    person("Miriam", "Tamm", role = "aut"),
+    person("Mohammad", "Vossoughi", role = "aut"),
     person("Steffen", "Jeske", role = "aut")
   )
 Description: The BReasy R Shiny app provides an interactive creation of
@@ -19,15 +21,23 @@ Imports:
     dplyr,
     DT,
     golem,
+    grDevices,
+    haven,
+    metafor,
+    plyr,
+    purrr,
     graphics,
     grDevices,
     r2d3,
     rlang,
     rmarkdown,
     shiny,
+    shinyBS,
     shinydashboard,
     shinyWidgets,
+    stringr,
+    survival,
     utils
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3

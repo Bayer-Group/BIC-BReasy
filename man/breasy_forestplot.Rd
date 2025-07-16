@@ -42,7 +42,7 @@ breasy_forestplot(
 
 \item{sorting}{Sorting variable (possible selections: "As Input", "Alphabetical", or "Effect") [default: "As Input"]}
 
-\item{data_scope}{data scope value [default: NULL]}
+\item{data_scope}{data scope variable}
 }
 \description{
 draw a forestplot grouped by Efficacy & Safety

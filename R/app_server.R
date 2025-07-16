@@ -7,18 +7,18 @@
 #' @noRd
 app_server <- function( input, output, session ) {
   # List the first level callModules here
-  #increase file upload size to 40MB
-  options(shiny.maxRequestSize = 40*1024^2)
+  #increase file upload size to 2400MB
+  options(shiny.maxRequestSize = 2400*1024^2)
   
-  OUTCOME <- DATA_SCOPE <- LOWER95 <- UPPER95 <- Level1 <- NULL
   #### Data Upload-tab ####
   # possibility to upload up to 4 files which are combined
   # to one reactive data frame called df()
   df <- shiny::reactive({
-    # demo data selection
+    # demo data selection 
+    res <- NULL
+  
     if (input$selectdata == "Use demo data") {
       res <- utils::read.csv(
-        # file = "./data/breasy_demo_data.csv",
         file = app_sys("demo_data/breasy_demo_data.csv"),
         header = TRUE,
         sep = ";",
@@ -28,7 +28,7 @@ app_server <- function( input, output, session ) {
         na.strings = "."
       )
     # data upload selection
-    } else {
+    } else if (input$selectdata == "Upload data") {
       # possibility to upload up to four data sets
       if (is.null(input$file) &&
           is.null(input$file2) &&
@@ -38,79 +38,181 @@ app_server <- function( input, output, session ) {
       }
       res <- NULL
       if (!is.null(input$file)) {
-        tmp <- utils::read.csv(
-          file = input$file$datapath,
-          header = TRUE,
-          sep = input$sep,
-          na.strings = ".",
-          quote = input$quote,
-          dec = input$dec,
-          row.names = NULL
-        )
-        res <- rbind(res, tmp)
-      }
-      if (!is.null(input$file2)) {
-        tmp2 <- utils::read.csv(
-          file = input$file2$datapath,
-          header = TRUE,
-          sep = input$sep,
-          na.strings = ".",
-          quote = input$quote,
-          dec = input$dec,
-          row.names = NULL
-        )
-        if (!is.null(res)) {
-          if (all(sort(colnames(res)) == sort(colnames(tmp2)))) {
-            res <- rbind(res, tmp2)
-          } else {
-            stop("Different column names in selected data sets.")
-          }
+        inFile <- input$file$datapath
+        split_path <- strsplit(x = inFile, split = "[.]")
+        path_ending <- split_path[[1]][length(split_path[[1]])]
+        if (path_ending %in% c("csv")) {
+        
+          tmp <- read.csv(
+            file = input$file$datapath,
+            header = TRUE,
+            sep = input$sep,
+            na.strings = ".",
+            quote = input$quote,
+            dec = input$dec,
+            row.names = NULL
+          )
+          output$wrong_file_format_text <- shiny::renderUI({
+                HTML(paste0(""))
+          })
+          res <- rbind(res, tmp)
         } else {
-          res <- rbind(res, tmp2)
+          output$wrong_file_format_text <- shiny::renderUI({
+              HTML(paste0("
+              <b style = 'color:#E43157'>
+                Wrong data format! <br>
+              Please upload .csv data!
+              </b>"))
+            })
         }
       }
-      if (!is.null(input$file3)) {
-        tmp3 <- utils::read.csv(
-          file = input$file3$datapath,
-          header = TRUE,
-          sep = input$sep,
-          na.strings = ".",
-          quote = input$quote,
-          dec = input$dec,
-          row.names = NULL
-        )
-        if (!is.null(res)) {
-          if (all(sort(colnames(res)) == sort(colnames(tmp3)))) {
-            res <- rbind(res, tmp3)
+      if (!is.null(input$file2)) {
+        inFile <- input$file2$datapath
+        split_path <- strsplit(x = inFile, split = "[.]")
+        path_ending <- split_path[[1]][length(split_path[[1]])]
+        if (path_ending %in% c("csv")) {
+          tmp2 <- read.csv(
+            file = input$file2$datapath,
+            header = TRUE,
+            sep = input$sep,
+            na.strings = ".",
+            quote = input$quote,
+            dec = input$dec,
+            row.names = NULL
+          )
+          output$wrong_file2_format_text <- shiny::renderUI({
+                HTML(paste0(""))
+          })
+          if (!is.null(res)) {
+            if (all(sort(colnames(res)) == sort(colnames(tmp2)))) {
+              res <- rbind(res, tmp2)
+            } else {
+              stop("Different column names in selected data sets.")
+            }
           } else {
-            stop("Different column names in selected data sets.")
+            res <- rbind(res, tmp2)
           }
         } else {
-          res <- rbind(res, tmp3)
+            output$wrong_file2_format_text <- shiny::renderUI({
+              HTML(paste0("
+              <b style = 'color:#E43157'>
+                Wrong data format! <br>
+              Please upload .csv data!
+              </b>"))
+            })
+        } 
+      }  
+      if (!is.null(input$file3)) {
+        inFile <- input$file3$datapath
+        split_path <- strsplit(x = inFile, split = "[.]")
+        path_ending <- split_path[[1]][length(split_path[[1]])]
+        if (path_ending %in% c("csv")) {
+          tmp3 <- read.csv(
+            file = input$file3$datapath,
+            header = TRUE,
+            sep = input$sep,
+            na.strings = ".",
+            quote = input$quote,
+            dec = input$dec,
+            row.names = NULL
+          )
+          output$wrong_file3_format_text <- shiny::renderUI({
+            HTML(paste0(""))
+          })
+          if (!is.null(res)) {
+            if (all(sort(colnames(res)) == sort(colnames(tmp3)))) {
+              res <- rbind(res, tmp3)
+            } else {
+              stop("Different column names in selected data sets.")
+            }
+          } else {
+            res <- rbind(res, tmp3)
+          }
+        } else {
+          output$wrong_file3_format_text <- shiny::renderUI({
+            HTML(paste0("
+            <b style = 'color:#E43157'>
+              Wrong data format! <br>
+            Please upload .csv data!
+            </b>"))
+          })
         }
       }
       if (!is.null(input$file4)) {
-        tmp4 <- utils::read.csv(
-          file = input$file4$datapath,
-          header = TRUE,
-          sep = input$sep,
-          na.strings = ".",
-          quote = input$quote,
-          dec = input$dec,
-          row.names = NULL
-        )
-        if (!is.null(res)) {
-          if (all(sort(colnames(res)) == sort(colnames(tmp4)))) {
-            res <- rbind(res, tmp4)
+        inFile <- input$file4$datapath
+        split_path <- strsplit(x = inFile, split = "[.]")
+        path_ending <- split_path[[1]][length(split_path[[1]])]
+        if (path_ending %in% c("csv")) {
+          tmp4 <- read.csv(
+            file = input$file4$datapath,
+            header = TRUE,
+            sep = input$sep,
+            na.strings = ".",
+            quote = input$quote,
+            dec = input$dec,
+            row.names = NULL
+          )
+          output$wrong_file4_format_text <- shiny::renderUI({
+            HTML(paste0(""))
+          })
+          if (!is.null(res)) {
+            if (all(sort(colnames(res)) == sort(colnames(tmp4)))) {
+              res <- rbind(res, tmp4)
+            } else {
+              stop("Different column names in selected data sets.")
+            }
           } else {
-            stop("Different column names in selected data sets.")
+            res <- rbind(res, tmp4)
           }
         } else {
-          res <- rbind(res, tmp4)
+          output$wrong_file4_format_text <- shiny::renderUI({
+            HTML(paste0("
+            <b style = 'color:#E43157'>
+              Wrong data format! <br>
+            Please upload .csv data!
+            </b>"))
+          })
         }
       }
+      
+    } else if (input$selectdata == "Use file creation tab"){
+     res <- file_creation_data$df()
     }
+    
+     # transform data into percent for forestplot
+     if ("EFFECT_ARD" %in% colnames(res)){
+       res$EFFECT_ARD <- res$EFFECT_ARD * 100
+       res$LOWER95<- res$LOWER95 * 100
+       res$UPPER95 <- res$UPPER95 * 100
+       res$ESTIMATE <- paste0(res$ESTIMATE, " (%)")
+     }
+     if ("EFFECT_IRD" %in% colnames(res)){
+       res$EFFECT_IRD <- res$EFFECT_IRD * 100
+       res$LOWER95<- res$LOWER95 * 100
+       res$UPPER95<- res$UPPER95 * 100
+       res$ESTIMATE <- paste0(res$ESTIMATE, " (%)")
+    }
+    if ("EFFECT_CID" %in% colnames(res)){
+       res$EFFECT_CID <- res$EFFECT_CID * 100
+       res$LOWER95<- res$LOWER95 * 100
+       res$UPPER95 <- res$UPPER95 * 100
+       res$ESTIMATE <- paste0(res$ESTIMATE, " (%)")
+     }
+     
     res
+  })
+  
+  shiny::observeEvent(file_creation_data$send_button(),{
+    if (file_creation_data$send_button() > 0) {
+      shinyWidgets::updatePrettyRadioButtons(
+        session,
+        inputId = 'selectdata',
+        choices = c('Upload data', 'Use demo data','Use file creation tab'),
+        selected = "Use file creation tab"
+      )
+      shinydashboard::updateTabItems(session,"sidebarmenu", "breasy_Plot")
+        
+    }
   })
   
   # hide download forestplot button until plot is shown
@@ -144,7 +246,6 @@ app_server <- function( input, output, session ) {
       multiple = FALSE
     )
   })
-  
   
   output$avisit <- shiny::renderUI({
     if (is.null(df())) return()
@@ -213,7 +314,7 @@ app_server <- function( input, output, session ) {
     shinyWidgets::dropdownButton(
       inputId = "dropdown_esti",
       label = "Estimate(s)",
-      tooltip = shinyWidgets::tooltipOptions(placement = "right", title = "Help Text Estimator"),
+      #tooltip = shinyWidgets::tooltipOptions(placement = "right", title = "Help Text Estimator"),
       icon = icon("sliders"),
       status = "customestimate",
       circle = FALSE,
@@ -375,17 +476,19 @@ app_server <- function( input, output, session ) {
   })
   
   shiny::observeEvent(ds_new(), {
-    
-    shiny::updateNumericInput(
-      session,
-      inputId = "limit.low",
-      value = min(ds_new()[which(grepl("LOWER", names(ds_new())))])
-    )
-    shiny::updateNumericInput(
-      session,
-      inputId = "limit.high",
-      value = max(ds_new()[which(grepl("UPPER", names(ds_new())))])
-    )
+    if(dim(ds_new())[1] > 0){
+      shiny::updateNumericInput(
+        session,
+        inputId = "limit.low",
+        value = min(ds_new()[which(grepl("LOWER", names(ds_new())))])
+      )
+     
+      shiny::updateNumericInput(
+        session,
+        inputId = "limit.high",
+        value = max(ds_new()[which(grepl("UPPER", names(ds_new())))])
+      )
+    }
   })
   
   # forest plot
@@ -395,57 +498,41 @@ app_server <- function( input, output, session ) {
     
     dat_t <- shiny::req(ds_new())
     
-    if (!is.na(input$limit.low)) {
-      lower_limit_ <- input$limit.low
-    } else {
-      lower_limit_ <- NA
-    }
+    if (dim(dat_t)[1] > 0) {
     
-    if (!is.na(input$limit.high)) {
-      upper_limit_ <- input$limit.high
-    } else {
-      upper_limit_ <- NA
+      if (!is.na(input$limit.low)) {
+        lower_limit_ <- input$limit.low
+      } else {
+        lower_limit_ <- NA
+      }
+      
+      if (!is.na(input$limit.high)) {
+        upper_limit_ <- input$limit.high
+      } else {
+        upper_limit_ <- NA
+      }
+      
+      if(input$title_input == "Default Title") {
+        title_ <- titl()
+      } else if (input$title_input == "Custom Title") {
+        title_ <- input$title
+      }
+      
+      breasy_forestplot(
+        forest_data = dat_t,
+        excess_number = input$Info,
+        incidence_values = input$Info2,
+        NNT = input$Info3,
+        lower_limit = lower_limit_,
+        upper_limit = upper_limit_,
+        title = title_,
+        safety_color = input$col_saf,
+        efficacy_color = input$col_eff,
+        legend_color = input$col_leg,
+        sorting = input$var_sorting,
+        data_scope = input$visit
+      )
     }
-    
-    if(input$title_input == "Default Title") {
-      title_ <- titl()
-    } else if (input$title_input == "Custom Title") {
-      title_ <- input$title
-    }
-    
-    if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "ARD") {
-      estim.text <- "Risk Difference"
-    }
-    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "EXCESS") {
-      estim.text <- "Excess number \n of subjects"
-    }
-    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "RR") {
-      estim.text <- "Relative Risk"
-    }
-    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "HR") {
-      estim.text <- "Hazard Ratio"
-    }
-    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "OR") {
-      estim.text <- "Odds Ratio"
-    }
-    else if (gsub("EFFECT_", "", names(dat_t)[which(grepl("EFFECT", names(dat_t)))]) == "IRD") {
-      estim.text <- "Incidence Rate Difference"
-    }    
-    breasy_forestplot(
-      forest_data = dat_t,
-      excess_number = input$Info,
-      incidence_values = input$Info2,
-      NNT = input$Info3,
-      lower_limit = lower_limit_,
-      upper_limit = upper_limit_,
-      title = title_,
-      safety_color = input$col_saf,
-      efficacy_color = input$col_eff,
-      legend_color = input$col_leg,
-      sorting = input$var_sorting,
-      data_scope = input$visit,
-      estim.text = estim.text
-    )
    }, height = function(x) height_reac() * (input$forestplot_height/100)  + 350)
   
   # forestplot_parameter
@@ -486,14 +573,25 @@ app_server <- function( input, output, session ) {
   })
     
     ds_new <- shiny::reactive({
-      shiny::req(v_sorting$val)
       d1 <- upload_text()
-      dat2 <- rbind(
-        d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),],
-        d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),])
-       
-      dat_tmp1 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),]
-      dat_tmp2 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),]
+      
+      if (is.null(input$SubLevel2) | input$subgroup2 == "Overall") {
+      # dat2 <- rbind(
+      #   d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),],
+      #   d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),])
+        dat_tmp1 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),]
+        dat_tmp2 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),]
+      
+      } else {
+       # dat2 <- rbind(
+       #  d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet & d1$SUBLEVEL %in% input$SubLevel2),],
+       #  d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet & d1$SUBLEVEL %in% input$SubLevel2),])
+        dat_tmp1 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet & d1$SUBLEVEL %in% input$SubLevel2),]
+        dat_tmp2 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet & d1$SUBLEVEL %in% input$SubLevel2),]
+      }
+      
+      # dat_tmp1 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$effi & d1$ANALYSIS_SET %in% input$AnaSet),]
+      # dat_tmp2 <- d1[which(d1$ESTIMATE == input$Dependent & d1$SUBGROUP == input$subgroup2 & d1$OUTCOME %in% input$safe & d1$ANALYSIS_SET %in% input$AnaSet),]
       
       if (dim(dat_tmp1)[1] == 0) {
         dat_tmp1 <- dat_tmp1 %>% 
@@ -509,6 +607,13 @@ app_server <- function( input, output, session ) {
         dat_tmp2 <- dat_tmp2 %>% 
           dplyr::mutate(BReasy_GROUP = "Safety")
       }
+      
+      
+      dat_tmp1 <- with(dat_tmp1, dat_tmp1[order(factor(OUTCOME, levels = rev(input$effi))),])
+      dat_tmp2 <- with(dat_tmp2, dat_tmp2[order(factor(OUTCOME, levels = rev(input$safe))),])
+      
+      # dat_tmp1 <- dat_tmp1[match(rev(order(input$effi)), dat_tmp1$OUTCOME),]
+      # dat_tmp2 <- dat_tmp2[match(rev(input$safe), dat_tmp2$OUTCOME),]
       
       dat <- rbind(
         dat_tmp1,
@@ -535,8 +640,10 @@ app_server <- function( input, output, session ) {
     )
   })
     
-  # callModule(file_creation_server, "file_creation")
-    
+  #### Module call: file_creation (server) ####
+  file_creation_data <- callModule(file_creation_server, "file_creation")
+  
+  #### Module call: value_tree (server) ####  
   callModule(mod_value_tree_server, "value_tree_ui_1")
   
   ####... Welcome/help-texts ####
@@ -550,7 +657,7 @@ app_server <- function( input, output, session ) {
           </span>
           <p>
           <span style = 'font-size: 30px'> 
-          the R Shiny application for structured Benefit-Risk assessment.
+          a shiny application for structured Benefit-Risk assessment.
           <p>
           <span style = 'font-size:24px'>
           For uploading CSV file(s), please use the 'Data Upload'-tab.
@@ -617,6 +724,7 @@ app_server <- function( input, output, session ) {
   upload_text <- shiny::reactive({
     shiny::req(df(), v_sorting$val)
     d1 <- df()
+    
     validate(
       need(
         !is.null(d1), "Data set is missing"
@@ -631,7 +739,7 @@ app_server <- function( input, output, session ) {
       )
     }
     
-    for (j in c("EFFECT", "UPPER", "LOWER")) {
+    for (j in c("UPPER", "LOWER")) {
       validate(
         need(
           any(startsWith(colnames(d1), j)), paste0("Required variable '", j, "_xx' is missing. Please check the requirements in the'Data Manual'-tab.")
@@ -647,6 +755,8 @@ app_server <- function( input, output, session ) {
         )
       }
     }
+    
+    shiny::validate(shiny::need(startsWith(colnames(d1),"EFFECT") | startsWith(colnames(d1),"EXCESS"), paste0("Warning: Variable EFFECT_XX or EXCESS_XX is missing.")))
     
     shiny::validate(
       shiny::need(!(is.null(input$effi) && is.null(input$safe)),
@@ -670,8 +780,8 @@ app_server <- function( input, output, session ) {
       title2 <- paste(
         ifelse(
           any(names(df()) == "STUDY"),
-          paste0("Forest plot based on ", title1, " by ", input$subgroup2, ", STUDY = ", input$studyNr),
-          paste0("Forest plot based on ", title1, " by ", input$subgroup2)
+          paste0("Forest plot: ", title1, " by ", input$subgroup2, ", STUDY = ", input$studyNr),
+          paste0("Forest plot: ", title1, " by ", input$subgroup2)
         ),
         paste("\nAnalysis set =",
               paste(input$AnaSet, collapse = ', '),
@@ -683,8 +793,8 @@ app_server <- function( input, output, session ) {
       title2 <- paste(
         ifelse(
           any(names(df()) == "STUDY"),
-          paste0("Forest plot based on ", title1, ", STUDY = ", input$studyNr),
-          paste0("Forest plot based on ", title1)
+          paste0("Forest plot: ", title1, ", STUDY = ", input$studyNr),
+          paste0("Forest plot: ", title1)
         ),
         paste("\nAnalysis set =",
               paste(input$AnaSet, collapse = ', '),

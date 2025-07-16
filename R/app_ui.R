@@ -22,7 +22,6 @@ app_ui <- function(request) {
       shinydashboard::dashboardSidebar(
         shinydashboard::sidebarMenu(
           id = 'sidebarmenu', 
-           
            shinydashboard::menuItem(
             "BReasy",
             tabName = "breasy_Plot",
@@ -38,7 +37,7 @@ app_ui <- function(request) {
               label = 'Select data', 
               shape = 'round', 
               animation = 'smooth',
-              choices = c('Upload data', 'Use demo data')
+              choices = c('Upload data', 'Use demo data','Use file creation tab')
             ),
             shiny::conditionalPanel(
               condition = "input.selectdata == 'Upload data'",
@@ -77,26 +76,30 @@ app_ui <- function(request) {
                 label = "File input:",
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
               ),
+              shiny::uiOutput("wrong_file_format_text"),
               shiny::conditionalPanel(condition = "output.flag3 >= 2",
                 shiny::fileInput(
                   inputId = "file2",
                   label = "File input:",
                   accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
-                )
+                ),
+                shiny::uiOutput("wrong_file2_format_text")
               ),
               shiny::conditionalPanel(condition = "output.flag3 >= 3",
                 shiny::fileInput(
                   inputId = "file3",
                   label = "File input:",
                   accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
-                )
+                ),
+                shiny::uiOutput("wrong_file3_format_text")
               ),
               shiny::conditionalPanel(condition = "output.flag3 == 4",
                 shiny::fileInput(
                   inputId = "file4",
                   label = "File input:",
                   accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
-                )
+                ),
+                shiny::uiOutput("wrong_file4_format_text")
               ),
               HTML('<p style = "color: white;"> Add/Remove more File Input(s): </p>'),
               shiny::fluidRow(
@@ -123,11 +126,12 @@ app_ui <- function(request) {
             shiny::uiOutput("trialno"),
             shiny::uiOutput("stratum")
           ),
-          # shinydashboard::menuItem(
-          #   "File Creation (SAS data)",
-          #   tabName = "sas_data",
-          #   icon = icon("calculator")
-          # ),
+          shinydashboard::menuItem(
+            "File Creation (SAS data)",
+            tabName = "sas_data",
+            icon = icon("calculator"),#
+            badgeLabel = "new", badgeColor = "green"
+          ),
           shinydashboard::menuItem(
             text = 'Graphic Options',
             tabName ='graphic',
@@ -201,13 +205,14 @@ app_ui <- function(request) {
             icon = icon("folder-open")
           )
         ),
-        HTML(paste0("This version (from 2021-03-09) of", br())),
+        #HTML(paste0("This version (from 2022-05-04) of", br())),
         HTML(paste0(img(
           src = "www/AppSign_BReasy_220x76mm_WHT.png",
           height = 35,
           align = "center"
         ))),
-        HTML(paste0(br(), "was developed under R Version 4.0.2 (2020-06-22).", br()))
+        shiny::HTML(paste0("<span style = 'color: white'> ",utils::packageVersion("breasy")," </span>"))
+        #HTML(paste0(br(), "was developed under R Version 4.0.2 (2020-06-22).", br()))
       ),
       shinydashboard::dashboardBody(
         #shinyjs::useShinyjs(),
@@ -268,7 +273,7 @@ app_ui <- function(request) {
                 .main-sidebar .sidebar .sidebar-menu .treeview-menu li:hover a {background-color: ", breasy_purple, " !important;}
                 .skin-blue .main-header .logo { background-color: ", breasy_grey, ";}
                 .skin-blue .main-header .logo:hover {background-color: ", breasy_grey, ";}
-                .progress-bar{background-color:", breasy_green, ";}
+                .progress-bar{background-color:", breasy_blue, ";}
                 .skin-blue .main-header .navbar {background-color: ", breasy_grey, ";}
                 /* main sidebar */
                 .skin-blue .main-sidebar {background-color: ", "#424242", ";}
@@ -285,7 +290,7 @@ app_ui <- function(request) {
           shinydashboard::box(
             width = NULL,
             status ="primary",
-            title = div(HTML('<i class ="fa fa-notes-medical"; style ="color : white";> Patient characteristics</i>')),
+            title = div(HTML('<p style ="color: white"><i class ="fa fa-notes-medical"; style ="color : white";></i>  Patient characteristics</p>')),
             collapsible = TRUE,
             collapsed = FALSE,
             shiny::fluidPage(
@@ -388,11 +393,11 @@ app_ui <- function(request) {
             uiOutput('welcome_text1')
           )
         ),
-        # shinydashboard::tabItem(tabName = "file_creation",
-        #   shiny::conditionalPanel(condition = "input.sidebarmenu =='sas_data'",
-        #   file_creation_ui("file_creation")
-        #   )
-        # ),
+        shinydashboard::tabItem(tabName = "file_creation",
+          shiny::conditionalPanel(condition = "input.sidebarmenu =='sas_data'",
+          file_creation_ui("file_creation")
+          )
+        ),
         shinydashboard::tabItem(tabName = "about_breasy",
           shiny::conditionalPanel(condition = "input.sidebarmenu =='about_breasy'",
             mod_about_breasy_ui("about_breasy_ui_1")

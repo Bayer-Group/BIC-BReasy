@@ -33,14 +33,26 @@ mod_data_manual_server <- function(input, output, session){
            <h3> </h3>
            <p>
             When uploading a CSV file the following formats are allowed and can be chosen in the app: </p>
-              <p>  Separator between variables </p>
+            
+            <ul>
+              <li>  Separator between variables
+              <ul>
               <li>  Comma, Semicolon or Tab </li>
-              <p>  Quote highlighting variables </p>
+              </ul>
+              </li>
+              <li>  Quote highlighting variables
+              <ul>
               <li>  None, Double Quote (",'"',") or Single Quote (') </li>
-              <p> Decimal character </p>
+              </ul>
+              </li>
+              <li> Decimal character
+              <ul>
               <li>  None, Point (.) or Comma (,) </li>
-            In case an incorrect setting is chosen the app might run into an error. 
-           </p>
+              </ul>
+              </li>
+           </ul>
+              
+            <p> In case an incorrect setting is chosen the app might run into an error.</p>
            
            <h3> File Structure </h3>
            <p> In order to use the BReasy, the CSV file has to include the following variables: </p>
@@ -64,7 +76,7 @@ mod_data_manual_server <- function(input, output, session){
               <td> Character </td>
             </tr>
             <tr>
-              <td>ANALYSIS_SET</th>
+              <td>ANALYSIS_SET</td>
               <td>Analyis set</td>
               <td>Character</td>
             </tr>
@@ -75,7 +87,9 @@ mod_data_manual_server <- function(input, output, session){
             </tr>
             <tr>
               <td> EFFECT_xx </td>
-              <td> Variable containing the value of the estimate used for comparison
+              <td> Variable containing the value of the estimate used for comparison of 
+                  treatment groups group for the combination of required variables estimate,
+                  outcome and analysis set and optional variables study, data scope, stratum, subgroup category.
                   xx indicates the estimate chosen:
                   ARD = Risk difference
                   IRD = Incidence rate difference
@@ -123,6 +137,12 @@ mod_data_manual_server <- function(input, output, session){
             </tr>
             
             <tr>
+              <td>DAY</td>
+              <td> The study day on which the cumulative incidence difference is supposed to be calculated. </td>
+              <td>Integer </td>
+            </tr>
+            
+            <tr>
               <td>STUDY/TRIALNO </td>
               <td> Study identifier </td>
               <td>Character </td>
@@ -161,8 +181,103 @@ mod_data_manual_server <- function(input, output, session){
            
            <h3> Important points to consider </h3>
            <p> If the data is stored in more than one file of the same format, it is possible to upload several CSV files into BReasy. </p>
-          <p> The maximal file size is 40 MB.</p> 
-         "
+           <p> The maximal file size is 1200 MB.</p> 
+           <p>The flag for the analysis set variable should be coded as 'Y' for character variable or as '1' for numeric variable.</p>
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           <h3> File creation tab </h3>
+           <p> To generate the CSV file ADAM analysis data sets can be uploaded with the following requirements: </p>
+           
+           <style>
+            table, th, td {
+              border: 1px solid black;
+            }
+           </style>
+           <table style='width:50%'>
+             <tr>
+              <th style='width:10%;'> Dataset: </th>
+              <th style='width:40%;'> Variables: </th>
+              <th style='width:20%;'> Type: </th> 
+              <th style='width:20%;'> Requirement: </th>
+            </tr>
+            <tr>
+              <td rowspan='6'> ADTTE </td>
+              <td> Study identifier, e.g. STUDYID </td>
+              <td> Character </td>
+              <td> Required </td>
+            </tr>
+            <tr>
+              <td> Unique subject identifier, e.g. USUBJID </td>
+              <td>Character</td>
+              <td>Required</td>
+            </tr>
+            <tr>
+              <td> Outcome </td>
+              <td> Character </td>
+              <td> Required </td>
+            </tr>
+            <tr>
+              <td> Analysis value (Relative day of event) </td>
+              <td> Numeric </td>
+              <td> Required </td>
+            </tr>
+            <tr>
+              <td> Event identifier (censor variable) </td>
+              <td> Numeric </td>
+              <td> Required </td>
+            </tr>
+            <tr>
+              <td> Data scope (Analysis visit variable) </td>
+              <td> Numeric/Character </td>
+              <td> Optional </td>
+            </tr>
+            
+            <tr>
+              <td rowspan='10'> ADSL (optional) </td>
+              <td> Study identifier, e.g. STUDYID </td>
+              <td> Character </td>
+              <td> Required </td>
+            </tr>
+            <tr>
+              <td> Unique subject identifier, e.g. USUBJID  </td>
+              <td> Character </td>
+              <td> Required </td>
+            </tr>
+            <tr>
+              <td> Treatment group </td>
+              <td> Numeric/Character </td>
+              <td> Required </td>
+            </tr>
+            <tr>
+              <td> Analysis set </td>
+              <td> Numeric/Character </td>
+              <td> Required </td>
+            </tr>
+            <tr>
+              <td> Subgroup </td>
+              <td> Numeric/Character </td>
+              <td> Optional </td>
+            </tr>
+            <tr>
+              <td> Stratum </td>
+              <td> Numeric/Character </td>
+              <td> Optional </td>
+            </tr>
+        </table>
+        <p> In case only ADTTE is uploaded, Analysis Set & Treatment group variables are additionally required in ADTTE. </p>
+           
+          "
         )
       )
     )
