@@ -530,7 +530,8 @@ app_server <- function( input, output, session ) {
         efficacy_color = input$col_eff,
         legend_color = input$col_leg,
         sorting = input$var_sorting,
-        data_scope = input$visit
+        data_scope = input$visit,
+        ref_line_position = as.numeric(input$ref_line_position)
       )
     }
    }, height = function(x) height_reac() * (input$forestplot_height/100)  + 350)
