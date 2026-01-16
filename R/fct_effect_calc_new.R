@@ -395,11 +395,12 @@ effect_calc_new <- function(
     x2 <- sum(tmp2[which(tmp2$time <= new_day_comp & tmp2$strata == 2),]$n.event)
    }
    else {
+     tmp2 <- data.frame("strata" = c(1,2), "time" = c(0,0), "n.event" = c(0,0), "cum.inc" = c(NA,NA), "std.err" = c(NA,NA))
      x1 <- sum(as.integer(df$CNSR_1[which(df$breasy_treatment=="verum")]))
      x2 <- sum(as.integer(df$CNSR_1[which(df$breasy_treatment=="comparator")]))
    }
    # Generate estimate and CI in case at least one patient per treatment group
-   if (n1>0 & n2>0) {
+   if (n1>0 & n2>0 & any(c(x1,x2)>0)) {
      if (x1== 0)
        {
        new_day_verum <- day
