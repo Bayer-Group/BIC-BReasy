@@ -1,0 +1,110 @@
+name: 🐛 Bug Report
+description: Report a bug or issue for Megaplots
+title: "[BUG] "
+labels: ["bug", "needs triage"]
+type: Bug
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: When I try to use the app, I see...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Input '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Error Messages
+      description: If applicable, add screenshots or copy-paste error messages to help explain your problem.
+
+  - type: input
+    id: r-version
+    attributes:
+      label: R Version
+      placeholder: e.g., 4.2.1
+
+  - type: input
+    id: rstudio-version
+    attributes:
+      label: RStudio Version
+      description: If applicable
+      placeholder: e.g., 2022.07.1+554
+
+  - type: input
+    id: package-version
+    attributes:
+      label: Megaplots Version
+      placeholder: e.g., 1.7.3
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: e.g., Chrome 105, Firefox 104
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      placeholder: e.g., Windows 11, macOS 12.6
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options:
+        - Desktop
+        - Tablet
+        - Mobile
+
+  - type: textarea
+    id: session-info
+    attributes:
+      label: Package Dependencies
+      description: Please include the output of `sessionInfo()`
+      render: R
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: |
+        - Is the issue reproducible consistently or intermittently?
+        - Does it occur with specific data inputs?
+        - Any workarounds you've discovered?
+
+  - type: textarea
+    id: minimal-example
+    attributes:
+      label: Minimal Reproducible Example
+      description: If possible, provide a minimal reproducible example of the code that demonstrates the issue
+      render: R

@@ -1,0 +1,89 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for Megaplots
+title: "[FEATURE] "
+labels: ["enhancement", "needs triage"]
+type: Feature
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature!
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe what you're trying to accomplish and what limitations you're currently facing.
+      placeholder: I'm trying to analyze time series data but find it difficult to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: A clear and concise description of what you want to happen. Be as specific as possible about the desired functionality.
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-experience
+    attributes:
+      label: User Experience
+      description: |
+        Describe how you envision interacting with this feature:
+        - What UI elements would be involved?
+        - What inputs would users provide?
+        - What outputs or visualizations would result?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-benefits
+    attributes:
+      label: Expected Benefits
+      description: Explain how this feature would improve the application and benefit its users.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative approaches or workarounds? Please describe them.
+
+  - type: textarea
+    id: implementation-ideas
+    attributes:
+      label: Implementation Ideas
+      description: If you have suggestions on how this might be implemented in R/Shiny, please share
+      render: R
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - Low (would be a minor improvement)
+        - Medium (would be a nice enhancement)
+        - High (would substantially improve functionality)
+        - Critical (application is significantly limited without it)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, sketches, or references about the feature request here.
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Are you willing to contribute?
+      options:
+        - I'm just suggesting the idea
+        - I could help test this feature
+        - I'm willing to submit a PR for this feature
+    validations:
+      required: true
