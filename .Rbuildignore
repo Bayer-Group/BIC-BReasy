@@ -10,3 +10,4 @@ $run_dev.*
 ^CONTRIBUTING\.md$
 ^CODEOWNERS
 ^LICENSE\.md$
+^app\.R$
