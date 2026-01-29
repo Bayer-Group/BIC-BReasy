@@ -326,11 +326,11 @@ effect_calc_new <- function(
     }
     if (effect %in% c("IRD","EXCESS_IRD")) {
       rd_func <- function(df){
-        confint(metafor::rma.mh(x1i=x_1, x2i=x_2, t1i=t_1, t2i=t_2, measure = "IRD", level = 95, data = df))$fixed
+        stats::confint(metafor::rma.mh(x1i=x_1, x2i=x_2, t1i=t_1, t2i=t_2, measure = "IRD", level = 95, data = df))$fixed
       }
     } else if (effect %in% c("ARD","EXCESS_ARD")) {
       rd_func <- function(df){
-        confint(metafor::rma.mh(ai = x_1, bi = x_complement_1, ci = x_2, di = x_complement_2, measure = "RD", level = 95, data = df))$fixed
+        stats::confint(metafor::rma.mh(ai = x_1, bi = x_complement_1, ci = x_2, di = x_complement_2, measure = "RD", level = 95, data = df))$fixed
       }
     } 
   }
