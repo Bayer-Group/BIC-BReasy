@@ -624,7 +624,7 @@ app_server <- function( input, output, session ) {
   
   ####... Dataset-tab ####
   ### Display the dataset which was used for the creation of the forestplot (second tab in the app): ###
-  output$dataset <- DT::renderDataTable({
+  output$dataset <- DT::renderDT({
     tmp <- ds_new()
     tmp[sapply(tmp, is.numeric)] <-  round(tmp[sapply(tmp, is.numeric)], 3)
     
