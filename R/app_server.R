@@ -43,7 +43,7 @@ app_server <- function( input, output, session ) {
         path_ending <- split_path[[1]][length(split_path[[1]])]
         if (path_ending %in% c("csv")) {
         
-          tmp <- read.csv(
+          tmp <- utils::read.csv(
             file = input$file$datapath,
             header = TRUE,
             sep = input$sep,
@@ -71,7 +71,7 @@ app_server <- function( input, output, session ) {
         split_path <- strsplit(x = inFile, split = "[.]")
         path_ending <- split_path[[1]][length(split_path[[1]])]
         if (path_ending %in% c("csv")) {
-          tmp2 <- read.csv(
+          tmp2 <- utils::read.csv(
             file = input$file2$datapath,
             header = TRUE,
             sep = input$sep,
@@ -107,7 +107,7 @@ app_server <- function( input, output, session ) {
         split_path <- strsplit(x = inFile, split = "[.]")
         path_ending <- split_path[[1]][length(split_path[[1]])]
         if (path_ending %in% c("csv")) {
-          tmp3 <- read.csv(
+          tmp3 <- utils::read.csv(
             file = input$file3$datapath,
             header = TRUE,
             sep = input$sep,
@@ -143,7 +143,7 @@ app_server <- function( input, output, session ) {
         split_path <- strsplit(x = inFile, split = "[.]")
         path_ending <- split_path[[1]][length(split_path[[1]])]
         if (path_ending %in% c("csv")) {
-          tmp4 <- read.csv(
+          tmp4 <- utils::read.csv(
             file = input$file4$datapath,
             header = TRUE,
             sep = input$sep,
@@ -625,7 +625,7 @@ app_server <- function( input, output, session ) {
   
   ####... Dataset-tab ####
   ### Display the dataset which was used for the creation of the forestplot (second tab in the app): ###
-  output$dataset <- DT::renderDataTable({
+  output$dataset <- DT::renderDT({
     tmp <- ds_new()
     tmp[sapply(tmp, is.numeric)] <-  round(tmp[sapply(tmp, is.numeric)], 3)
     

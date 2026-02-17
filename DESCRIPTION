@@ -1,6 +1,6 @@
 Package: breasy
 Title: An R shiny application for structured benefit-risk assessment
-Version: 2.0.16
+Version: 2.0.17
 Authors@R: c(
     person("Martin", "Gebel", , "martin.gebel@bayer.com", role = c("aut", "cre")),
     person("Stephanie", "Fechtner", role = "aut"),
@@ -21,13 +21,12 @@ Imports:
     dplyr,
     DT,
     golem,
+    graphics,
     grDevices,
     haven,
     metafor,
     plyr,
     purrr,
-    graphics,
-    grDevices,
     r2d3,
     rlang,
     rmarkdown,
@@ -40,4 +39,4 @@ Imports:
     utils
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2

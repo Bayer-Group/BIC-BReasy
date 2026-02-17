@@ -326,11 +326,11 @@ effect_calc_new <- function(
     }
     if (effect %in% c("IRD","EXCESS_IRD")) {
       rd_func <- function(df){
-        confint(metafor::rma.mh(x1i=x_1, x2i=x_2, t1i=t_1, t2i=t_2, measure = "IRD", level = 95, data = df))$fixed
+        stats::confint(metafor::rma.mh(x1i=x_1, x2i=x_2, t1i=t_1, t2i=t_2, measure = "IRD", level = 95, data = df))$fixed
       }
     } else if (effect %in% c("ARD","EXCESS_ARD")) {
       rd_func <- function(df){
-        confint(metafor::rma.mh(ai = x_1, bi = x_complement_1, ci = x_2, di = x_complement_2, measure = "RD", level = 95, data = df))$fixed
+        stats::confint(metafor::rma.mh(ai = x_1, bi = x_complement_1, ci = x_2, di = x_complement_2, measure = "RD", level = 95, data = df))$fixed
       }
     } 
   }
@@ -395,11 +395,12 @@ effect_calc_new <- function(
     x2 <- sum(tmp2[which(tmp2$time <= new_day_comp & tmp2$strata == 2),]$n.event)
    }
    else {
+     tmp2 <- data.frame("strata" = c(1,2), "time" = c(0,0), "n.event" = c(0,0), "cum.inc" = c(NA,NA), "std.err" = c(NA,NA))
      x1 <- sum(as.integer(df$CNSR_1[which(df$breasy_treatment=="verum")]))
      x2 <- sum(as.integer(df$CNSR_1[which(df$breasy_treatment=="comparator")]))
    }
    # Generate estimate and CI in case at least one patient per treatment group
-   if (n1>0 & n2>0) {
+   if (n1>0 & n2>0 & any(c(x1,x2)>0)) {
      if (x1== 0)
        {
        new_day_verum <- day

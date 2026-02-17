@@ -168,10 +168,10 @@ app_ui <- function(request) {
               choices = c("As Input", "Alphabetical", "Effect"),
               selected = "As Input"
             ),
-            list(
-              HTML('<p style = "color: white;"><b style = "color: #D30F4B"> Note: </b> Please confirm selection </p>'),
-              HTML('<p stlye = "color: white;"> by clicking the <b style = "color: #66B512"> Update! </b>-button </p>')
-            ),
+            # list(
+            #   HTML('<p style = "color: white;"><b style = "color: #D30F4B"> Note: </b> Please confirm selection </p>'),
+            #   HTML('<p stlye = "color: white;"> by clicking the <b style = "color: #66B512"> Update! </b>-button </p>')
+            # ),
             shiny::sliderInput(
               inputId = "forestplot_height",
               label = "Zoom factor (height)",
@@ -387,7 +387,7 @@ app_ui <- function(request) {
             ),
             shiny::tabPanel(HTML('<p style ="color: white;"> Dataset </p>'),
               style = "overflow-y:scroll;",
-              DT::dataTableOutput("dataset",
+              DT::DTOutput("dataset",
               height = "auto")
             ),
             #### value-tree ####

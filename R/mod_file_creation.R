@@ -169,7 +169,7 @@ file_creation_ui <- function(id){
             shiny::wellPanel(
               id = "table_adtte_Panel",
               style = "color:black; overflow-y:scroll; max-height: 600px",
-              shiny::dataTableOutput(ns('table_adtte'))
+              DT::DTOutput(ns('table_adtte'))
             )
           ),
           shinyBS::bsCollapsePanel(
@@ -178,7 +178,7 @@ file_creation_ui <- function(id){
               id = "table_csv_Panel",
               style = "color:black; overflow-y:scroll; max-height: 600px",
               
-              shiny::dataTableOutput(ns('table_csv'))
+              DT::DTOutput(ns('table_csv'))
             ),
             shiny::uiOutput(ns('required_variables_text'))
           )
@@ -1400,8 +1400,8 @@ file_creation_server <- function(input, output, session) {
       }
   })
 
-  output$table_adtte <- renderDataTable(adtte_data2(), options = list(autoWidth = FALSE))
-  output$table_csv <- renderDataTable(csv_file(), options = list(autoWidth = FALSE))
+  output$table_adtte <- DT::renderDT(adtte_data2(), options = list(autoWidth = FALSE))
+  output$table_csv <- DT::renderDT(csv_file(), options = list(autoWidth = FALSE))
   
 
   

@@ -1,0 +1,70 @@
+name: Build and deploy container app to Posit Connect
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+  workflow_dispatch:
+    inputs:
+      deploy-to:
+        description: 'Deploy to environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: renv
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          install-pandoc: true
+          extra-packages: |
+            any::rcmdcheck
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+         upload-snapshots: true
+          build_args:'c("--no-manual","--compact-vignettes=gs+qpdf")'
+          
+  deploy-posit:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: renv
+
+      - name: Install renv dependencies
+        uses: r-lib/actions/setup-renv@v2
+      
+      - name: Install extra dependencies
+        run: Rscript -e 'renv::install(c("any::rsconnect"))'
+
+      - name: Create manifest.json
+        shell: Rscript {0}
+        run: |
+          rsconnect::writeManifest()
+          
+      - name: Publish Connect content
+        uses: rstudio/actions/connect-publish@8c14b2c9102ab5f108afa49927cb4edbc84dac21
+        with:
+          url: ${{ secrets.CONNECT_SERVER }}
+          api-key: ${{ secrets.CONNECT_API_KEY }}
+          access-type: logged_in
+          namespace: DIG
+          dir: |
+            .:/${{ github.event.repository.name }}-${{(startsWith(github.event.ref, 'refs/tags/v') || github.event.inputs.deploy-to == 'prod') && 'prod' || 'dev'}}
