@@ -191,6 +191,13 @@ app_ui <- function(request) {
               label = "Upper limit x-axis",
               value = NA
             ),
+            shiny::radioButtons(
+              inputId = "ref_line_position",
+              label = "Reference line position",
+              choices = c(0,1),
+              inline = TRUE
+            ),
+            
             shiny::uiOutput('fontsize_forestplot'),
             shiny::uiOutput('fontsize_forestplot_xlab')
           ),

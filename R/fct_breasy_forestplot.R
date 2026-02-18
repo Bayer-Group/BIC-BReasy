@@ -15,6 +15,7 @@ utils::globalVariables(c("OUTCOME","DATA_SCOPE","LOWER95","UPPER95","."))
 #' @param legend_color color for the Legend font and Arrows
 #' @param sorting Sorting variable (possible selections: "As Input", "Alphabetical", or "Effect") [default: "As Input"]
 #' @param data_scope data scope variable
+#' @param ref_line_position reference line position
 #' 
 
 breasy_forestplot <- function(
@@ -29,7 +30,8 @@ breasy_forestplot <- function(
   safety_color = "#66B512",
   legend_color = "#D30F4B",
   sorting = "As Input",
-  data_scope = NULL
+  data_scope = NULL,
+  ref_line_position = 0
   ) {
   
 
@@ -385,12 +387,13 @@ breasy_forestplot <- function(
     )
   }
   
-  # create dotted line at x = 0  
-  if (xlim[1] < 0 & 0 < xlim[2]) {
-    graphics::arrows(
-      0,
+
+  # create dotted line at ref_line_position
+  if (xlim[1] < ref_line_position & ref_line_position < xlim[2]) {
+    arrows(
+      ref_line_position,
       min(forest_data$BReasy_NUMBER) - 0.5,
-      0,
+      ref_line_position,
       max(forest_data$BReasy_NUMBER) + 0.75,
       col = "grey70",
       lty = 2,
