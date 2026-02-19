@@ -16,7 +16,8 @@ breasy_forestplot(
   safety_color = "#66B512",
   legend_color = "#D30F4B",
   sorting = "As Input",
-  data_scope = NULL
+  data_scope = NULL,
+  ref_line_position = 0
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ breasy_forestplot(
 \item{sorting}{Sorting variable (possible selections: "As Input", "Alphabetical", or "Effect") [default: "As Input"]}
 
 \item{data_scope}{data scope variable}
+
+\item{ref_line_position}{reference line position}
 }
 \description{
 draw a forestplot grouped by Efficacy & Safety

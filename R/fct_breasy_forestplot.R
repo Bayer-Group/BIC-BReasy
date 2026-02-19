@@ -390,7 +390,7 @@ breasy_forestplot <- function(
 
   # create dotted line at ref_line_position
   if (xlim[1] < ref_line_position & ref_line_position < xlim[2]) {
-    arrows(
+    graphics::arrows(
       ref_line_position,
       min(forest_data$BReasy_NUMBER) - 0.5,
       ref_line_position,
