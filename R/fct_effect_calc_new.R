@@ -669,7 +669,7 @@ effect_calc_new <- function(
    to_rename <- colnames(rd_rma_mh)[startsWith(colnames(rd_rma_mh),"EFFECT_")]
    name_to <- stringr::str_replace(to_rename,"EFFECT_","EXCESS_")
    rd_rma_mh <- rd_rma_mh %>% 
-     dplyr::rename({{name_to}} := to_rename)
+     dplyr::rename({{name_to}} := dplyr::all_of(to_rename))
  } else {
    name_to <- effect_var_name
  }
