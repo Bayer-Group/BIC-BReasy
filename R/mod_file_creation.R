@@ -13,6 +13,33 @@ file_creation_ui <- function(id){
     shiny::uiOutput({
        ns('start_text')
     }),
+    tags$head(
+      tags$script(HTML(paste0("
+        $(document).ready(function() {
+          $('#file_creation-adtte_file').on('change', function() {
+            Shiny.setInputValue('file_creation-upload', true, {priority: 'event'});
+          });
+        });
+      ")))
+    ),
+    tags$head(
+      tags$script(HTML(paste0("
+        $(document).ready(function() {
+          $('#file_creation-adsl_file').on('change', function() {
+            Shiny.setInputValue('file_creation-upload', true, {priority: 'event'});
+          });
+        });
+      ")))
+    ),
+    shinybusy::use_busy_spinner(
+      spin = "fading-circle",
+      color = "#112446",
+      spin_id = "spinni",
+      position = "bottom-right",
+      margins = c(10,10),
+      height = "50px",
+      width = "50px"
+    ),
     shiny::uiOutput(ns("update_button_panel")),
     shinyWidgets::prettyRadioButtons(
       inputId = ns('adtte_data'),
@@ -178,7 +205,7 @@ file_creation_ui <- function(id){
               id = "table_csv_Panel",
               style = "color:black; overflow-y:scroll; max-height: 600px",
               
-              DT::DTOutput(ns('table_csv'))
+              shiny::dataTableOutput(ns('table_csv'))
             ),
             shiny::uiOutput(ns('required_variables_text'))
           )
@@ -324,6 +351,7 @@ file_creation_server <- function(input, output, session) {
             })
           }
         }
+        shinybusy::hide_spinner()
         adtte
       } else {
         output$wrong_adtte_format_text <- shiny::renderUI({
@@ -348,6 +376,11 @@ file_creation_server <- function(input, output, session) {
      )
   })
     
+  shiny::observeEvent(input$upload, {
+    shinybusy::show_spinner(
+      spin_id = "spinni"
+    )
+  })
   output$adsl_file <- shiny::renderUI({
     shiny::fileInput(
       inputId =  ns("adsl_file"),
@@ -1332,7 +1365,7 @@ file_creation_server <- function(input, output, session) {
         outcome_check_flag$val &  event_identifyer_check_flag$val & datascope_check_flag$val &
         day_variable_check_flag$val & analysis_set_value_check_flag$val
       ) {
-     
+     shinybusy::show_spinner(spin_id = "spinni")
       tmp <- effect_calc_new(
         data = adtte,
         effect = input$effect,
@@ -1352,6 +1385,7 @@ file_creation_server <- function(input, output, session) {
         subgroup = subgroups_reac_val$val,
         aval = input$sel_aval
       )
+      shinybusy::hide_spinner()
        output$btn2_cont <- shiny::renderUI({
         list(
           shiny::tags$head(

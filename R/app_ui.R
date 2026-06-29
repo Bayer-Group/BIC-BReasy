@@ -6,6 +6,23 @@
 #' @noRd
 app_ui <- function(request) {
   shiny::tagList(
+    tags$head(
+      tags$script(HTML(paste0("
+        $(document).ready(function() {
+          $('#adtte_data').on('change', function() {
+            Shiny.setInputValue('upload', true, {priority: 'event'});
+          });
+        });
+      ")))
+    ),
+    shinybusy::use_busy_spinner(
+      spin = "semipolar",
+      color = "#112446",
+      position = "full-page",
+      margins = c(10, 10),
+      height = "150px",
+      width = "150px"
+    ),
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # List the first level UI elements here 
@@ -190,6 +207,11 @@ app_ui <- function(request) {
               inputId = "limit.high",
               label = "Upper limit x-axis",
               value = NA
+            ),
+            shiny::checkboxInput(
+              inputId = "display_favours_labels",
+              label = "Display 'Favours' labels & arrows",
+              TRUE
             ),
             shiny::radioButtons(
               inputId = "ref_line_position",
